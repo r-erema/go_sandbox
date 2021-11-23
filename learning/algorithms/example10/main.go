@@ -1,7 +1,7 @@
 package example10
 
 /*
-	Average, Worst: O(n^2) time | O(1) space
+Average, Worst: O(n^2) time | O(1) space.
 */
 func InsertionSort(array *[]int) {
 	for i := 0; i < len(*array); i++ {

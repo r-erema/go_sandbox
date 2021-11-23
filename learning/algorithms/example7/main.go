@@ -1,7 +1,7 @@
 package example7
 
 /*
-	Average, Worst: O(n) time | O(d) space, max depth of array
+Average, Worst: O(n) time | O(d) space, max depth of array.
 */
 func ProductSum(array []interface{}) int {
 	return helper(array, 1)

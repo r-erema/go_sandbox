@@ -98,13 +98,13 @@ func TestFindClosestValue(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
+		testCase := tt
+		t.Run(testCase.name, func(t *testing.T) {
 			t.Parallel()
-			closest := FindClosestValueRecursively(tt.bst, tt.target)
-			assert.Equal(t, tt.want, closest)
-			closest = FindClosestValueIteratively(tt.bst, tt.target)
-			assert.Equal(t, tt.want, closest)
+			closest := FindClosestValueRecursively(testCase.bst, testCase.target)
+			assert.Equal(t, testCase.want, closest)
+			closest = FindClosestValueIteratively(testCase.bst, testCase.target)
+			assert.Equal(t, testCase.want, closest)
 		})
 	}
 }

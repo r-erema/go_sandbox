@@ -7,7 +7,7 @@ const (
 )
 
 /*
-	Average, Worst: O(n) time | O(1) space
+Average, Worst: O(n) time | O(1) space.
 */
 func CaesarCipherEncrypt(str string, shift int32) string {
 	var result, encryptedSymbol string

@@ -1,7 +1,7 @@
 package example9
 
 /*
-	Average, Worst: O(n log m) time | O(1) space
+Average, Worst: O(n log m) time | O(1) space.
 */
 func NLargestElements(array []int, n int) (result []int) {
 	result = make([]int, n)

@@ -7,8 +7,8 @@ import (
 )
 
 /*
-	Average: O(log(n)) time | O(log(n)) space
-	Worst: O(n) time | O(log(n)) space
+Average: O(log(n)) time | O(log(n)) space
+Worst: O(n) time | O(log(n)) space.
 */
 func FindClosestValueRecursively(bst *utils.BST, target float32) float32 {
 	closestValue := bst.Value()
@@ -44,8 +44,8 @@ func helperForRecursion(bst *utils.BST, target, closestValue float32) float32 {
 }
 
 /*
-	Average: O(log(n)) time | O(1) space
-	Worst: O(n) time | O(1) space
+Average: O(log(n)) time | O(1) space
+Worst: O(n) time | O(1) space.
 */
 func FindClosestValueIteratively(bst *utils.BST, target float32) float32 {
 	closestValue := bst.Value()

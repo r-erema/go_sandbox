@@ -1,7 +1,7 @@
 package example13
 
 /*
-	Average, Worst: O(n) time | O(1) space
+Average, Worst: O(n) time | O(1) space.
 */
 func IsPalindrome(str string) bool {
 	firstIndex, lastIndex := 0, len(str)-1

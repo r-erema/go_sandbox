@@ -41,13 +41,13 @@ func TestFibonacci(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
+		testCase := tt
+		t.Run(testCase.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, tt.want, FibonacciRecursive(tt.n))
-			assert.Equal(t, tt.want, FibonacciCache(tt.n))
-			assert.Equal(t, tt.want, FibonacciIterative(tt.n))
+			assert.Equal(t, testCase.want, FibonacciRecursive(testCase.n))
+			assert.Equal(t, testCase.want, FibonacciCache(testCase.n))
+			assert.Equal(t, testCase.want, FibonacciIterative(testCase.n))
 		})
 	}
 }

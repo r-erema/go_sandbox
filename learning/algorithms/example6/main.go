@@ -3,22 +3,22 @@ package example6
 const fibPrev, fibNext = 1, 2
 
 /*
-	Average, Worst: O(n^2) time | O(n) space
+Average, Worst: O(n^2) time | O(n) space.
 */
-func FibonacciRecursive(n int) int {
-	if n < fibPrev {
+func FibonacciRecursive(number int) int {
+	if number < fibPrev {
 		return 0
 	}
 
-	if n == fibNext {
+	if number == fibNext {
 		return 1
 	}
 
-	return FibonacciRecursive(n-fibPrev) + FibonacciRecursive(n-fibNext)
+	return FibonacciRecursive(number-fibPrev) + FibonacciRecursive(number-fibNext)
 }
 
 /*
-	Average, Worst: O(n) time | O(n) space
+Average, Worst: O(n) time | O(n) space.
 */
 func FibonacciCache(n int) int {
 	if n < fibPrev {
@@ -37,19 +37,19 @@ func cacheHelper(n int, cache map[int]int) int {
 }
 
 /*
-	Average, Worst: O(n) time | O(1) space
+Average, Worst: O(n) time | O(1) space.
 */
-func FibonacciIterative(n int) int {
-	if n < fibPrev {
+func FibonacciIterative(number int) int {
+	if number < fibPrev {
 		return 0
 	}
 
-	if n == fibNext {
+	if number == fibNext {
 		return 1
 	}
 
 	result, prev, current := 0, 0, 1
-	for i := 2; i < n; i++ {
+	for i := 2; i < number; i++ {
 		result = prev + current
 		prev = current
 		current = result

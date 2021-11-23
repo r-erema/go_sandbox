@@ -81,13 +81,13 @@ func TestLinkedList_Build(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
+		testCase := tt
 
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(testCase.name, func(t *testing.T) {
 			t.Parallel()
 
-			resultList := Build(tt.nodes)
-			assert.Equal(t, tt.want, resultList)
+			resultList := Build(testCase.nodes)
+			assert.Equal(t, testCase.want, resultList)
 		})
 	}
 }
@@ -238,16 +238,16 @@ func TestLinkedListNode_Append(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
+		testCase := tt
 
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(testCase.name, func(t *testing.T) {
 			t.Parallel()
 
-			resultList := tt.listBuilder()
-			for _, nodeToAppend := range tt.nodesToAppend {
+			resultList := testCase.listBuilder()
+			for _, nodeToAppend := range testCase.nodesToAppend {
 				resultList.Append(nodeToAppend)
 			}
-			wantedList := tt.want()
+			wantedList := testCase.want()
 			assert.Equal(t, wantedList, resultList)
 		})
 	}
@@ -293,16 +293,16 @@ func TestLinkedListNode_Prepend(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
+		testCase := tt
 
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(testCase.name, func(t *testing.T) {
 			t.Parallel()
 
-			resultList := tt.listBuilder()
-			for _, nodeToPrepend := range tt.nodesToPrepend {
+			resultList := testCase.listBuilder()
+			for _, nodeToPrepend := range testCase.nodesToPrepend {
 				resultList.Prepend(nodeToPrepend)
 			}
-			wantedList := tt.want()
+			wantedList := testCase.want()
 			assert.Equal(t, wantedList, resultList)
 		})
 	}
@@ -400,14 +400,14 @@ func TestLinkedListNode_Remove(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
+		testCase := tt
 
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(testCase.name, func(t *testing.T) {
 			t.Parallel()
 
-			tt.list.Remove(tt.nodeToRemove)
-			wantedList := tt.want()
-			assert.Equal(t, wantedList, tt.list)
+			testCase.list.Remove(testCase.nodeToRemove)
+			wantedList := testCase.want()
+			assert.Equal(t, wantedList, testCase.list)
 		})
 	}
 }
@@ -451,13 +451,13 @@ func TestLinkedListNode_InsertAfter(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
+		testCase := tt
 
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(testCase.name, func(t *testing.T) {
 			t.Parallel()
 
-			tt.list.InsertAfter(tt.nodeToInsert, tt.insertAfter)
-			assert.Equal(t, tt.want, tt.list)
+			testCase.list.InsertAfter(testCase.nodeToInsert, testCase.insertAfter)
+			assert.Equal(t, testCase.want, testCase.list)
 		})
 	}
 }

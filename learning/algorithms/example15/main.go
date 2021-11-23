@@ -8,7 +8,7 @@ import (
 )
 
 /*
-	Average, Worst: O(n log n) time | O(n log n) space
+Average, Worst: O(n log n) time | O(n log n) space.
 */
 func CollapseArrayToRange(arr []int) string {
 	sort.Ints(arr)

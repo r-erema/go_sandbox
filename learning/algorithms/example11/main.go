@@ -1,16 +1,16 @@
 package example11
 
 /*
-	Average, Worst: O(n^2) time | O(1) space
+Average, Worst: O(n^2) time | O(1) space.
 */
 func BubbleSort(array *[]int) {
-	a := *array
-	boundary := len(a)
+	arr := *array
+	boundary := len(arr)
 
 	for boundary > 1 {
 		for i := 0; i+1 < boundary; i++ {
-			if a[i] > a[i+1] {
-				a[i], a[i+1] = a[i+1], a[i]
+			if arr[i] > arr[i+1] {
+				arr[i], arr[i+1] = arr[i+1], arr[i]
 			}
 		}
 		boundary--

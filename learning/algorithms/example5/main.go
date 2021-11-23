@@ -5,7 +5,7 @@ import (
 )
 
 /*
-	Worst: O(n) time | O(h) space, h - height if the binary tree
+Worst: O(n) time | O(h) space, h - height if the binary tree.
 */
 func NodeDepthRecursively(bst *utils.BST) int {
 	return recursionHelper(bst, 0)
@@ -26,7 +26,7 @@ func recursionHelper(node *utils.BST, currentDepth int) int {
 }
 
 /*
-	Worst: O(n) time | O(h) space, h - height if the binary tree
+Worst: O(n) time | O(h) space, h - height if the binary tree.
 */
 func NodeDepthIterative(bst *utils.BST) int {
 	var depth int
@@ -61,7 +61,7 @@ func NodeDepthIterative(bst *utils.BST) int {
 }
 
 /*
-	Worst: O(n) time | O(h) space, h - height if the binary tree
+Worst: O(n) time | O(h) space, h - height if the binary tree.
 */
 func NodeDepthIterative2(bst *utils.BST) int {
 	type stackItem struct {

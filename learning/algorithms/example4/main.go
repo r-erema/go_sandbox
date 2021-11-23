@@ -5,7 +5,7 @@ import (
 )
 
 /*
-	Worst: O(n) time | O(n) space
+Worst: O(n) time | O(n) space.
 */
 func BranchSums(bst *utils.BST) []float32 {
 	return helper(bst, 0, []float32{})

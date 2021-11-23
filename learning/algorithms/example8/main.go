@@ -1,7 +1,7 @@
 package example8
 
 /*
-	Average, Worst: O(log n) time | O(1) space
+Average, Worst: O(log n) time | O(1) space.
 */
 func BinarySearch(array []int, needle int) int {
 	leftPointer, rightPointer := 0, len(array)-1
