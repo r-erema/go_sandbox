@@ -74,51 +74,51 @@ func (node *BST) InsertIteratively(nodeToAdd *BST) *BST {
 }
 
 func (node *BST) TraversePreorder() chan *BST {
-	ch := make(chan *BST)
+	chanBST := make(chan *BST)
 
 	go func() {
-		ch <- node
+		chanBST <- node
 
 		if node.left != nil {
 			for v := range node.left.TraversePreorder() {
-				ch <- v
+				chanBST <- v
 			}
 		}
 
 		if node.right != nil {
 			for v := range node.right.TraversePreorder() {
-				ch <- v
+				chanBST <- v
 			}
 		}
 
-		close(ch)
+		close(chanBST)
 	}()
 
-	return ch
+	return chanBST
 }
 
 func (node *BST) TraverseInorder() chan *BST {
-	ch := make(chan *BST)
+	chanBST := make(chan *BST)
 
 	go func() {
 		if node.left != nil {
 			for v := range node.left.TraverseInorder() {
-				ch <- v
+				chanBST <- v
 			}
 		}
 
-		ch <- node
+		chanBST <- node
 
 		if node.right != nil {
 			for v := range node.right.TraverseInorder() {
-				ch <- v
+				chanBST <- v
 			}
 		}
 
-		close(ch)
+		close(chanBST)
 	}()
 
-	return ch
+	return chanBST
 }
 
 func (node *BST) find(value float32) *BST {
@@ -135,16 +135,16 @@ func (node *BST) find(value float32) *BST {
 
 func (node *BST) inorderSuccessor(valueOfNode float32) (targetNode, inorderSuccessor *BST) {
 	nextIsSuccessor := false
-	for n := range node.TraverseInorder() {
+	for Node := range node.TraverseInorder() {
 		if nextIsSuccessor {
-			inorderSuccessor = n
+			inorderSuccessor = Node
 
 			return
 		}
 
-		if valueOfNode == n.value {
+		if valueOfNode == Node.value {
 			nextIsSuccessor = true
-			targetNode = n
+			targetNode = Node
 		}
 	}
 
