@@ -10,19 +10,19 @@ func Build(nodes []*LinkedListNode) *LinkedListNode {
 
 	iterationThreshold := len(nodes) - 1
 
-	for i := range nodes {
+	for index := range nodes {
 		var currentNode, prevNode, nextNode *LinkedListNode
-		currentNode = nodes[i]
+		currentNode = nodes[index]
 
-		if i != 0 {
-			prevNode = nodes[i-1]
+		if index != 0 {
+			prevNode = nodes[index-1]
 			prevNode.next = currentNode
 		} else {
-			startNode = nodes[i]
+			startNode = nodes[index]
 		}
 
-		if i < iterationThreshold {
-			nextNode = nodes[i+1]
+		if index < iterationThreshold {
+			nextNode = nodes[index+1]
 			nextNode.prev = currentNode
 		}
 

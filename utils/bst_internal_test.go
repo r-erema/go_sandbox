@@ -142,21 +142,21 @@ func TestBST_Insert(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
+		testCase := tt
+		t.Run(testCase.name, func(t *testing.T) {
 			t.Parallel()
 
-			bst := *tt.initBST
-			for _, number := range tt.numbers {
+			bst := *testCase.initBST
+			for _, number := range testCase.numbers {
 				bst.InsertRecursively(NewBST(number))
 			}
-			assert.EqualValues(t, *tt.want, bst)
+			assert.EqualValues(t, *testCase.want, bst)
 
-			bst = *tt.initBST
-			for _, number := range tt.numbers {
+			bst = *testCase.initBST
+			for _, number := range testCase.numbers {
 				bst.InsertIteratively(NewBST(number))
 			}
-			assert.EqualValues(t, *tt.want, bst)
+			assert.EqualValues(t, *testCase.want, bst)
 		})
 	}
 }
@@ -190,21 +190,21 @@ func TestBST_Traverse(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
+		testCase := tt
+		t.Run(testCase.name, func(t *testing.T) {
 			t.Parallel()
 
 			result := make([]float32, 0)
-			for v := range tt.bst.TraversePreorder() {
+			for v := range testCase.bst.TraversePreorder() {
 				result = append(result, v.value)
 			}
-			assert.Equal(t, tt.wantTraversePreorder, result)
+			assert.Equal(t, testCase.wantTraversePreorder, result)
 
 			result = make([]float32, 0)
-			for v := range tt.bst.TraverseInorder() {
+			for v := range testCase.bst.TraverseInorder() {
 				result = append(result, v.value)
 			}
-			assert.Equal(t, tt.wantTraverseInorder, result)
+			assert.Equal(t, testCase.wantTraverseInorder, result)
 		})
 	}
 }
@@ -452,13 +452,13 @@ func TestBST_Delete(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
+		testCase := tt
 
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(testCase.name, func(t *testing.T) {
 			t.Parallel()
 
-			tt.bst.Delete(tt.toDelete)
-			assert.Equal(t, tt.want, tt.bst)
+			testCase.bst.Delete(testCase.toDelete)
+			assert.Equal(t, testCase.want, testCase.bst)
 		})
 	}
 }
@@ -510,13 +510,13 @@ func TestBST_BranchVectors(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
+		testCase := tt
 
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(testCase.name, func(t *testing.T) {
 			t.Parallel()
 
-			vectors := tt.bst.BranchVectors()
-			assert.Equal(t, tt.want, vectors)
+			vectors := testCase.bst.BranchVectors()
+			assert.Equal(t, testCase.want, vectors)
 		})
 	}
 }
