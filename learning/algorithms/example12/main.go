@@ -4,18 +4,18 @@ package example12
 	Average, Worst: O(n^2) time | O(1) space
 */
 func SelectionSort(array *[]int) {
-	a := *array
-	startIndex, length := 0, len(a)
+	arr := *array
+	startIndex, length := 0, len(arr)
 
 	for startIndex < length {
 		minIndex := startIndex
-		for i := startIndex; i < len(a); i++ {
-			if a[minIndex] > a[i] {
+		for i := startIndex; i < len(arr); i++ {
+			if arr[minIndex] > arr[i] {
 				minIndex = i
 			}
 		}
 
-		a[startIndex], a[minIndex] = a[minIndex], a[startIndex]
+		arr[startIndex], arr[minIndex] = arr[minIndex], arr[startIndex]
 		startIndex++
 	}
 }
