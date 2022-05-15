@@ -17,7 +17,17 @@ jobs:
           go-version: ${{ matrix.go-version }}
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Prepare Docker Compose
+        run: cp docker-compose.yml.dist docker-compose.yml
+      - name: Generate K8S certificates
+        run: make gen-sa-certs
+      - name: Generate kubeconfig
+        run: make gen-kubeconfig
+      - name: Run Docker Compose
+        run: |
+          docker-compose up -d;
+          docker-compose ps;
       - name: Run coverage
-        run: go test -race -coverprofile=coverage.txt -covermode=atomic ./...
+        run: KUBE_API_SERVER_URL=https://localhost:6443/ go test -race -coverprofile=coverage.txt -covermode=atomic ./...
       - name: Upload coverage to Codecov
         run: bash <(curl -s https://codecov.io/bash)
