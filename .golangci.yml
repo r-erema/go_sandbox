@@ -73,14 +73,16 @@ linters-settings:
     # Check named return values. (defaults to false)
     check-return: false
     # Ignore "ok" variables that hold the bool return value of a type assertion. (defaults to false)
-    ignore-type-assert-ok: false
+    ignore-type-assert-ok: true
     # Ignore "ok" variables that hold the bool return value of a map index. (defaults to false)
-    ignore-map-index-ok: false
+    ignore-map-index-ok: true
     # Ignore "ok" variables that hold the bool return value of a channel receive. (defaults to false)
-    ignore-chan-recv-ok: false
+    ignore-chan-recv-ok: true
     # Optional list of variable names that should be ignored completely. (defaults to empty list)
     ignore-names:
       - err
+      - ok
+      - j
     # Optional list of variable declarations that should be ignored completely. (defaults to empty list)
     # Entries must be in the form of "<variable name> <type>" or "<variable name> *<type>" for
     # variables, or "const <name>" for constants.
@@ -108,7 +110,6 @@ linters:
   enable-all: true
 
 service:
-  golangci-lint-version: 1.23.x # use the fixed version to not introduce new linters unexpectedly
+  # golangci-lint-version: 1.23.x # use the fixed version to not introduce new linters unexpectedly
   prepare:
-
     - echo "here I can run custom commands, but no preparation needed for this repo"
