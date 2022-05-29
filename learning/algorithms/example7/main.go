@@ -7,7 +7,9 @@ func ProductSum(array []interface{}) int {
 	return helper(array, 1)
 }
 
-func helper(array []interface{}, depth int) (sum int) {
+func helper(array []interface{}, depth int) int {
+	sum := 0
+
 	for _, element := range array {
 		switch v := element.(type) {
 		case []interface{}:
