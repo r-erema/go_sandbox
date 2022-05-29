@@ -133,7 +133,7 @@ func (node *BST) find(value float32) *BST {
 	return node.left.find(value)
 }
 
-func (node *BST) inorderSuccessor(valueOfNode float32) (targetNode, inorderSuccessor *BST) {
+func (node *BST) inorderSuccessor(valueOfNode float32) (targetNode, inorderSuccessor *BST) { // nolint:nonamedreturns
 	nextIsSuccessor := false
 	for Node := range node.TraverseInorder() {
 		if nextIsSuccessor {
@@ -151,10 +151,13 @@ func (node *BST) inorderSuccessor(valueOfNode float32) (targetNode, inorderSucce
 	return
 }
 
-func (node *BST) Delete(value float32) (newBST *BST) {
+func (node *BST) Delete(value float32) *BST {
+	var newBST *BST
+
 	tmpBSTClone := *node
 	tmpBST := &tmpBSTClone
-	onlySingleChild := func(node *BST) (child *BST) {
+	onlySingleChild := func(node *BST) *BST {
+		var child *BST
 		if node.left != nil && node.right == nil {
 			child = node.left
 		}
@@ -163,7 +166,7 @@ func (node *BST) Delete(value float32) (newBST *BST) {
 			child = node.right
 		}
 
-		return
+		return child
 	}
 	targetNode, inorderSuccessor := tmpBST.inorderSuccessor(value)
 
@@ -177,11 +180,11 @@ func (node *BST) Delete(value float32) (newBST *BST) {
 
 	*node = *newBST
 
-	return
+	return newBST
 }
 
-func leafModeDeletion(tmpBST, targetNode *BST) (newBST *BST) {
-	newBST = NewBST(tmpBST.value)
+func leafModeDeletion(tmpBST, targetNode *BST) *BST {
+	newBST := NewBST(tmpBST.value)
 
 	for n := range tmpBST.TraversePreorder() {
 		if n != targetNode && n != tmpBST {
@@ -189,11 +192,11 @@ func leafModeDeletion(tmpBST, targetNode *BST) (newBST *BST) {
 		}
 	}
 
-	return
+	return newBST
 }
 
-func onlySingleChildModeDeletion(tmpBST, targetNode, child *BST) (newBST *BST) {
-	newBST = NewBST(tmpBST.value)
+func onlySingleChildModeDeletion(tmpBST, targetNode, child *BST) *BST {
+	newBST := NewBST(tmpBST.value)
 	targetNode.value = child.value
 
 	for n := range tmpBST.TraversePreorder() {
@@ -202,12 +205,12 @@ func onlySingleChildModeDeletion(tmpBST, targetNode, child *BST) (newBST *BST) {
 		}
 	}
 
-	return
+	return newBST
 }
 
-func multiChildModeDeletion(tmpBST, targetNode, inorderSuccessor *BST) (newBST *BST) {
+func multiChildModeDeletion(tmpBST, targetNode, inorderSuccessor *BST) *BST {
 	targetNode.value = inorderSuccessor.value
-	newBST = NewBST(tmpBST.value)
+	newBST := NewBST(tmpBST.value)
 
 	for n := range tmpBST.TraversePreorder() {
 		if n != inorderSuccessor && n != tmpBST {
@@ -215,7 +218,7 @@ func multiChildModeDeletion(tmpBST, targetNode, inorderSuccessor *BST) (newBST *
 		}
 	}
 
-	return
+	return newBST
 }
 
 func (node *BST) IsLeaf() bool {

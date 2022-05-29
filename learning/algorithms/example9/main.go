@@ -3,8 +3,8 @@ package example9
 /*
 	Average, Worst: O(n log m) time | O(1) space
 */
-func NLargestElements(array []int, n int) (result []int) {
-	result = make([]int, n)
+func NLargestElements(array []int, n int) []int {
+	result := make([]int, n)
 	lastIndex := n - 1
 
 	shift := func(shiftEndIndex int, elementToUpdate int) {
