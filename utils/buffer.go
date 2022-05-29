@@ -11,16 +11,16 @@ type ThreadSafeBuffer struct {
 	mu     sync.Mutex
 }
 
-func (tsb *ThreadSafeBuffer) Write(p []byte) (n int, err error) {
+func (tsb *ThreadSafeBuffer) Write(p []byte) (int, error) {
 	tsb.mu.Lock()
 	defer tsb.mu.Unlock()
 
-	n, err = tsb.buffer.Write(p)
+	bytesCount, err := tsb.buffer.Write(p)
 	if err != nil {
 		return 0, fmt.Errorf("internal buffer writing error %w", err)
 	}
 
-	return n, nil
+	return bytesCount, nil
 }
 
 func (tsb *ThreadSafeBuffer) String() string {
