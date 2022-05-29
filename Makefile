@@ -61,3 +61,17 @@ test:
 
 lint:
 	docker run --rm -v ${PWD}:/app -w /app ${GOLANGCI_IMAGE} golangci-lint run --fix --timeout 20m --sort-results
+
+# https://about.gitlab.com/blog/2018/06/07/keeping-git-commit-history-clean/
+start-changing-git-commit:
+	# 1. Go to the previous commit before target commit
+	git rebase -i `git log --pretty=%P -n 1 ${TARGET_COMMIT_TO_CHANGE}`
+	# 2. Change "pick -> edit" desired commit(first in the list), example:
+	# pick 74748f9 CI adding                edit 74748f9 CI adding
+	# pick 63f7877 Brunch Sums Problem  =>  pick 63f7877 Brunch Sums Problem
+	# ...                                   ...
+	# 3. Make needed changes and add to commit changed files, example : git add .github/workflows/lint.yml
+	# 4. Run `make finish-changing-git-commit`
+finish-changing-git-commit:
+	git rebase --continue
+	git push --force-with-lease origin master
