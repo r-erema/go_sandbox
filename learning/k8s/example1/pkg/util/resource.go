@@ -10,7 +10,7 @@ import (
 )
 
 func NewPodSpec(containers []coreV1.Container) coreV1.PodSpec {
-	return coreV1.PodSpec{ // nolint:exhaustivestruct
+	return coreV1.PodSpec{ // nolint:exhaustruct
 		Containers:                    containers,
 		Volumes:                       nil,
 		InitContainers:                nil,
@@ -56,7 +56,7 @@ func NewDeployment(foo *sampleV1Alpha1.Foo) *appsV1.Deployment {
 	}
 
 	return &appsV1.Deployment{
-		ObjectMeta: metaV1.ObjectMeta{ // nolint:exhaustivestruct
+		ObjectMeta: metaV1.ObjectMeta{ // nolint:exhaustruct
 			Name:      foo.Spec.DeploymentName,
 			Namespace: foo.Namespace,
 			OwnerReferences: []metaV1.OwnerReference{
@@ -81,7 +81,7 @@ func NewDeployment(foo *sampleV1Alpha1.Foo) *appsV1.Deployment {
 				MatchExpressions: nil,
 			},
 			Template: coreV1.PodTemplateSpec{
-				ObjectMeta: metaV1.ObjectMeta{ // nolint:exhaustivestruct
+				ObjectMeta: metaV1.ObjectMeta{ // nolint:exhaustruct
 					Labels:                     labels,
 					Name:                       "",
 					GenerateName:               "",
@@ -125,7 +125,7 @@ func NewDeployment(foo *sampleV1Alpha1.Foo) *appsV1.Deployment {
 }
 
 func NewDeletionOptions() metaV1.DeleteOptions {
-	return metaV1.DeleteOptions{ // nolint:exhaustivestruct
+	return metaV1.DeleteOptions{ // nolint:exhaustruct
 		TypeMeta:           metaV1.TypeMeta{Kind: "", APIVersion: ""},
 		GracePeriodSeconds: nil,
 		Preconditions:      nil,
@@ -158,7 +158,7 @@ func NewFoo(replicas int32, namespace, fooName, deploymentName string) *sampleV1
 			Kind:       "",
 			APIVersion: "",
 		},
-		ObjectMeta: metaV1.ObjectMeta{ // nolint:exhaustivestruct
+		ObjectMeta: metaV1.ObjectMeta{ // nolint:exhaustruct
 			Name:                       fooName,
 			Namespace:                  namespace,
 			Labels:                     nil,
