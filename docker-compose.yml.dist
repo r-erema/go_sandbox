@@ -1,24 +1,11 @@
 version: "3"
 services:
-
-
-#etcd:
-#  docker run --rm -p 2379:2379 -p 2380:2380 --name etcd quay.io/coreos/etcd:v3.5.1 /usr/local/bin/etcd \
-#  --name node1 \
-#  --initial-advertise-peer-urls http://${host_ip}:2380 \
-#  --listen-peer-urls http://0.0.0.0:2380 \
-#  --advertise-client-urls http://${host_ip}:2379 \
-#  --listen-client-urls http://0.0.0.0:2379 \
-#  --initial-cluster node1=http://${host_ip}:2380 \
-#  --log-level debug
-
   etcd:
     image: quay.io/coreos/etcd:v3.5.1
     command:
       - "/usr/local/bin/etcd"
       - "--advertise-client-urls=http://etcd:2379"
       - "--listen-client-urls=http://0.0.0.0:2379"
-
   kube-api-server:
     image: k8s.gcr.io/kube-apiserver:v1.23.4
     depends_on:
@@ -38,23 +25,3 @@ services:
       - "--tls-cert-file=/var/run/kubernetes/common_cert_for_all.crt"
       - "--audit-log-path=/var/run/kubernetes/audit.log"
       - "--audit-policy-file=/var/run/kubernetes/audit-policy.yaml"
-
-#  --etcd-servers
-#  http://192.168.0.123:2379
-#  --cert-dir
-#  /Users/roman.erema/h/kubernetes/.dev/certs
-#  --tls-private-key-file
-#  /Users/roman.erema/h/kubernetes/.dev/certs/cluster.key
-#  --tls-cert-file
-#  /Users/roman.erema/h/kubernetes/.dev/certs/cluster.crt
-#  --audit-log-path
-#  /Users/roman.erema/h/kubernetes/.dev/audit.log
-#  --audit-policy-file
-#  /Users/roman.erema/h/kubernetes/.dev/audit-policy.yaml
-#  --anonymous-auth=false
-#  --service-account-signing-key-file
-#  /Users/roman.erema/h/kubernetes/.dev/certs/cluster.key
-#  --service-account-key-file
-#  /Users/roman.erema/h/kubernetes/.dev/certs/cluster.crt
-#  --service-account-issuer
-#  https://kube.local

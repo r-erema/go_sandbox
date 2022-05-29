@@ -1,4 +1,4 @@
-GOLANGCI_IMAGE=golangci/golangci-lint:latest-alpine
+GOLANGCI_IMAGE=golangci/golangci-lint:v1.51.2-alpine
 
 DATA_DIR=./docker/k8s
 CLUSTER_NAME=dev-cluster
