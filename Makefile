@@ -52,6 +52,11 @@ gen-kubeconfig:
 		--user=${CLUSTER_USER}
 	kubectl config use-context ${CLUSTER_NAME} --kubeconfig=${KUBECONFIG_PATH}
 
+run-test-pod:
+	kubectl run test-busybox --image=busybox:1.35.0 --kubeconfig=./docker/k8s/kubeconfig-dev
+remove-test-pod:
+	kubectl delete pod test-busybox --kubeconfig ./docker/k8s/kubeconfig-dev
+
 test:
 	docker-compose up -d && docker-compose exec \
 										-e MYSQL_HOST=mysql \
