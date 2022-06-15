@@ -25,3 +25,4 @@ services:
       - "--tls-cert-file=/var/run/kubernetes/common_cert_for_all.crt"
       - "--audit-log-path=/var/run/kubernetes/audit.log"
       - "--audit-policy-file=/var/run/kubernetes/audit-policy.yaml"
+      - "--disable-admission-plugins=ServiceAccount"
