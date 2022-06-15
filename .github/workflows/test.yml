@@ -28,6 +28,8 @@ jobs:
           docker-compose up -d;
           docker-compose ps;
       - name: Run coverage
-        run: KUBE_API_SERVER_URL=https://localhost:6443/ go test -race -coverprofile=coverage.txt -covermode=atomic ./...
+        run: |
+          KUBE_API_SERVER_URL=https://localhost:6443/ KUBECONFIG=../../../docker/k8s/kubeconfig-dev \
+          go test -race -coverprofile=coverage.txt -covermode=atomic ./...
       - name: Upload coverage to Codecov
         run: bash <(curl -s https://codecov.io/bash)
