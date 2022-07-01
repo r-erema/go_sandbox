@@ -21,6 +21,10 @@ jobs:
         run: cp docker-compose.yml.dist docker-compose.yml
       - name: Generate K8S certificates
         run: make gen-sa-certs
+      - name: Make certificate trusted
+        run: |
+          sudo cp ./docker/k8s/common_cert_for_all.crt /usr/local/share/ca-certificates/common_cert_for_all.crt;
+          sudo update-ca-certificates;
       - name: Generate kubeconfig
         run: make gen-kubeconfig
       - name: Run Docker Compose
