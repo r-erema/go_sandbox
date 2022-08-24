@@ -74,12 +74,13 @@ func TestController(t *testing.T) {
 	time.Sleep(time.Second)
 
 	go func() {
-		srv := http.Server{ // nolint:exhaustruct
+		srv := http.Server{ //nolint:exhaustruct
 			Addr: fmt.Sprintf("%s:%d", "0.0.0.0", 5050),
 			Handler: http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 				_, err = writer.Write([]byte(backendServiceResponse))
 				require.NoError(t, err)
 			}),
+			ReadHeaderTimeout: time.Second,
 		}
 
 		err = srv.ListenAndServeTLS(certPath, certKey)
@@ -88,8 +89,16 @@ func TestController(t *testing.T) {
 
 	time.Sleep(time.Second)
 
-	resp, err := http.Get("https://localhost:4040")
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, "https://localhost:4040", http.NoBody)
 	require.NoError(t, err)
+
+	resp, err := http.DefaultClient.Do(req)
+	require.NoError(t, err)
+
+	defer func() {
+		err = resp.Body.Close()
+		require.NoError(t, err)
+	}()
 
 	bodyBytes, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)

@@ -114,7 +114,7 @@ func onChange(
 	servicesLister listersCoreV1.ServiceLister,
 	secretsLister listersCoreV1.SecretLister,
 ) {
-	payload := &Payload{ // nolint:exhaustruct
+	payload := &Payload{ //nolint:exhaustruct
 		TLSCertificates: make(map[string]*tls.Certificate),
 	}
 

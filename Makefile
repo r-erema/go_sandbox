@@ -35,6 +35,10 @@ gen-sa-certs:
 	echo "cert ${CERT_PATH} is ready"
 	rm tmp-ext-file
 
+trust-ca-cert:
+	sudo -S cp ${CA_CERT_PATH} ${CSR_PATH} ${CERT_PATH} /usr/local/share/ca-certificates/
+	sudo update-ca-certificates
+
 gen-kubeconfig:
 	touch ${KUBECONFIG_PATH}
 	kubectl config set-credentials ${CLUSTER_USER} \
@@ -58,11 +62,10 @@ remove-test-pod:
 	kubectl delete pod test-busybox --kubeconfig ./docker/k8s/kubeconfig-dev
 
 test:
-	docker-compose up -d && docker-compose exec \
-										-e MYSQL_HOST=mysql \
-										-e POSTGRES_HOST=postgres \
-										-e MONGODB_HOST=mongodb \
-										golang go test -race -v ./...
+	docker-compose up -d && \
+		KUBECONFIG=../../../docker/k8s/kubeconfig-dev \
+		KUBE_API_SERVER_URL=https://localhost:6443 \
+		go test -race -v -coverprofile=coverage.txt -covermode=atomic ./...
 
 lint:
 	docker run --rm -v ${PWD}:/app -w /app ${GOLANGCI_IMAGE} golangci-lint run --fix --timeout 20m --sort-results

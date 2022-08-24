@@ -1,10 +1,10 @@
-package exmaple2_test
+package example2_test
 
 import (
 	"testing"
 	"time"
 
-	"github.com/r-erema/go_sendbox/learning/os/exmaple2"
+	"github.com/r-erema/go_sendbox/learning/os/example2"
 	"github.com/reiver/go-telnet"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -16,7 +16,7 @@ func TestServer(t *testing.T) {
 	serverIncomingData := make(chan []byte)
 
 	go func() {
-		err := exmaple2.Server("127.0.0.1", 7777, serverIncomingData)
+		err := example2.Server("127.0.0.1", 7777, serverIncomingData)
 		require.NoError(t, err)
 	}()
 
