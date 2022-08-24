@@ -11,7 +11,7 @@ type Event struct {
 }
 
 func NewEvent() *Event {
-	return &Event{ // nolint:exhaustruct
+	return &Event{ //nolint:exhaustruct
 		C: make(chan struct{}),
 	}
 }

@@ -105,6 +105,7 @@ linters:
     - maligned
     - interfacer
     - golint
+    - ifshort
 
 service:
   # golangci-lint-version: 1.23.x # use the fixed version to not introduce new linters unexpectedly

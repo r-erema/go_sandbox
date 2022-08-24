@@ -133,7 +133,7 @@ func (node *BST) find(value float32) *BST {
 	return node.left.find(value)
 }
 
-func (node *BST) inorderSuccessor(valueOfNode float32) (targetNode, inorderSuccessor *BST) { // nolint:nonamedreturns
+func (node *BST) inorderSuccessor(valueOfNode float32) (targetNode, inorderSuccessor *BST) { //nolint:nonamedreturns
 	nextIsSuccessor := false
 	for Node := range node.TraverseInorder() {
 		if nextIsSuccessor {
