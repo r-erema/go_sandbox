@@ -47,7 +47,7 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 			Finalizers:                 nil,
 			ManagedFields:              nil,
 			SelfLink:                   "",
-			ZZZ_DeprecatedClusterName:  "",
+			ZZZ_DeprecatedClusterName:  "", //nolint: nosnakecase
 		},
 		Spec: FooSpec{
 			DeploymentName: "",

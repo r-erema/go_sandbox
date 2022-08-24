@@ -70,6 +70,11 @@ func TestInformer(t *testing.T) {
 	resp, err := RESTClient.Client.Do(req)
 	require.NoError(t, err)
 
+	defer func() {
+		err = resp.Body.Close()
+		require.NoError(t, err)
+	}()
+
 	contentType := resp.Header.Get("Content-Type")
 	mediaType, params, err := mime.ParseMediaType(contentType)
 	require.NoError(t, err)
