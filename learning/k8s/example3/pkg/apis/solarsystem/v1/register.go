@@ -20,8 +20,8 @@ func Resource(resource string) schema.GroupResource {
 func addKnownTypes(scheme *runtime.Scheme) error {
 	scheme.AddKnownTypes(
 		SchemeGroupVersion,
-		&Star{},     // nolint:exhaustruct
-		&StarList{}, // nolint:exhaustruct
+		&Star{},     //nolint:exhaustruct
+		&StarList{}, //nolint:exhaustruct
 	)
 	v1.AddToGroupVersion(scheme, SchemeGroupVersion)
 
@@ -29,6 +29,6 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 }
 
 var (
-	SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes) // nolint:gochecknoglobals
-	AddToScheme   = SchemeBuilder.AddToScheme               // nolint:gochecknoglobals
+	SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes) //nolint:gochecknoglobals
+	AddToScheme   = SchemeBuilder.AddToScheme               //nolint:gochecknoglobals
 )

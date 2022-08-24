@@ -9,7 +9,7 @@ import (
 
 type Star struct {
 	v1.TypeMeta   `json:",inline"`
-	v1.ObjectMeta `json:"metadata,omitempty"` // nolint: tagliatelle
+	v1.ObjectMeta `json:"metadata,omitempty"` //nolint: tagliatelle
 
 	Spec   StarSpec
 	Status StarStatus
