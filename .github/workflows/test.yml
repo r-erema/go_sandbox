@@ -20,13 +20,20 @@ jobs:
       - name: Prepare Docker Compose
         run: cp docker-compose.yml.dist docker-compose.yml
       - name: Generate K8S certificates
-        run: make gen-sa-certs
+        run: |
+          make gen-sa-certs;
+          chmod 755 ./docker/k8s/common_cert_for_all.crt ./docker/k8s/common_cert_key_for_all.key
       - name: Make certificate trusted
         run: |
           sudo cp ./docker/k8s/common_cert_for_all.crt /usr/local/share/ca-certificates/common_cert_for_all.crt;
           sudo update-ca-certificates;
       - name: Generate kubeconfig
         run: make gen-kubeconfig
+      - name: Pull Docker images
+        run: |
+          docker pull quay.io/coreos/etcd:v3.5.1;
+          docker pull k8s.gcr.io/kube-apiserver:v1.23.4;
+          docker pull quay.io/keycloak/keycloak:19.0.2;
       - name: Run Docker Compose
         run: |
           docker-compose up -d;

@@ -20,14 +20,18 @@ const (
 func CLIConfigFlags(t *testing.T) *genericclioptions.ConfigFlags {
 	t.Helper()
 
-	defaultConfigFlags := genericclioptions.
+	defaultConfigFlags := DefaultConfigFlags()
+	defaultConfigFlags.KubeConfig = KubeConfigPtr(t)
+
+	return defaultConfigFlags
+}
+
+func DefaultConfigFlags() *genericclioptions.ConfigFlags {
+	return genericclioptions.
 		NewConfigFlags(true).
 		WithDeprecatedPasswordFlag().
 		WithDiscoveryBurst(discoveryBurst).
 		WithDiscoveryQPS(discoveryQPS)
-	defaultConfigFlags.KubeConfig = KubeConfigPtr(t)
-
-	return defaultConfigFlags
 }
 
 func KubeConfigPtr(t *testing.T) *string {
@@ -36,9 +40,7 @@ func KubeConfigPtr(t *testing.T) *string {
 	kubeconfigPath, ok := os.LookupEnv(kubeConfigPathEnvVar)
 	require.True(t, ok)
 
-	kubeconfigTmp := kubeconfigPath
-
-	return &kubeconfigTmp
+	return &kubeconfigPath
 }
 
 func RunKubectlCommand(defaultConfigFlags *genericclioptions.ConfigFlags, args []string) error {
@@ -55,4 +57,59 @@ func RunKubectlCommand(defaultConfigFlags *genericclioptions.ConfigFlags, args [
 	}
 
 	return nil
+}
+
+const permissions = 0o755
+
+func PrepareKubeConfigContext(
+	t *testing.T,
+	kubeConfigPath,
+	clusterName,
+	clusterUser,
+	clusterContext,
+	apiServerAddr,
+	certAuthority,
+	certPath,
+	certKeyPath string,
+) {
+	t.Helper()
+
+	_, err := os.OpenFile(kubeConfigPath, os.O_WRONLY|os.O_CREATE, permissions) //nolint: nosnakecase
+	require.NoError(t, err)
+
+	kubeConfigFlag := "--kubeconfig=" + kubeConfigPath
+
+	err = RunKubectlCommand(DefaultConfigFlags(), []string{
+		"config",
+		"set-credentials",
+		clusterUser,
+		kubeConfigFlag,
+		"--client-certificate=" + certPath,
+		"--client-key=" + certKeyPath,
+		"--embed-certs=true",
+	})
+	require.NoError(t, err)
+
+	err = RunKubectlCommand(DefaultConfigFlags(), []string{
+		"config",
+		"set-cluster",
+		clusterName,
+		kubeConfigFlag,
+		"--certificate-authority=" + certAuthority,
+		"--server=" + apiServerAddr,
+	})
+	require.NoError(t, err)
+
+	err = RunKubectlCommand(DefaultConfigFlags(), []string{
+		"config",
+		"set-context",
+		clusterContext,
+		kubeConfigFlag,
+		"--cluster=" + clusterName,
+		"--user=" + clusterUser,
+	})
+	require.NoError(t, err)
+
+	err = RunKubectlCommand(DefaultConfigFlags(), []string{"config", "use-context", clusterContext, kubeConfigFlag})
+	require.NoError(t, err)
 }

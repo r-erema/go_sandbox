@@ -17,9 +17,7 @@ const (
 	crObjectPath  = "./sun-cr.yaml"
 )
 
-func TestController(t *testing.T) {
-	t.Parallel()
-
+func TestController(t *testing.T) { //nolint: paralleltest
 	defaultConfigFlags := test.CLIConfigFlags(t)
 
 	err := test.RunKubectlCommand(defaultConfigFlags, []string{"apply", "-f", crdConfigPath})

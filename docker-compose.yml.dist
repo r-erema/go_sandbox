@@ -6,6 +6,23 @@ services:
       - "/usr/local/bin/etcd"
       - "--advertise-client-urls=http://etcd:2379"
       - "--listen-client-urls=http://0.0.0.0:2379"
+  keycloak:
+    image: quay.io/keycloak/keycloak:19.0.2
+    environment:
+        KEYCLOAK_ADMIN: admin
+        KEYCLOAK_ADMIN_PASSWORD: admin
+        PROXY_ADDRESS_FORWARDING: true
+        JAVA_OPTS: "-Dkeycloak.profile.feature.token_exchange=enabled"
+    volumes:
+      - ./docker/k8s:/etc/x509/https
+    ports:
+      - "8443:8443"
+    command:
+      - "start"
+      - "--optimized"
+      - "--hostname=localhost"
+      - "--https-certificate-file=/etc/x509/https/common_cert_for_all.crt"
+      - "--https-certificate-key-file=/etc/x509/https/common_cert_key_for_all.key"
   kube-api-server:
     image: k8s.gcr.io/kube-apiserver:v1.23.4
     depends_on:
@@ -20,9 +37,10 @@ services:
       - "--service-account-signing-key-file=/var/run/kubernetes/common_cert_key_for_all.key"
       - "--service-account-key-file=/var/run/kubernetes/common_cert_for_all.crt"
       - "--service-account-issuer=https://kube.local"
-      - "--client-ca-file=/var/run/kubernetes/rootCA.crt"
+      - "--client-ca-file=/var/run/kubernetes/admin-auth.crt"
       - "--tls-private-key-file=/var/run/kubernetes/common_cert_key_for_all.key"
       - "--tls-cert-file=/var/run/kubernetes/common_cert_for_all.crt"
       - "--audit-log-path=/var/run/kubernetes/audit.log"
       - "--audit-policy-file=/var/run/kubernetes/audit-policy.yaml"
       - "--disable-admission-plugins=ServiceAccount"
+      - "--authorization-mode=RBAC"
