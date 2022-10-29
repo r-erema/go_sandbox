@@ -38,7 +38,7 @@ func TestController(t *testing.T) { //nolint: paralleltest
 	}()
 
 	syncPeriod := time.Second * 2
-	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{ //nolint:exhaustruct
+	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		SyncPeriod: &syncPeriod,
 	})
 	require.NoError(t, err)
@@ -50,7 +50,7 @@ func TestController(t *testing.T) { //nolint: paralleltest
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}
-	star := &v1.Star{} //nolint:exhaustruct
+	star := &v1.Star{}
 
 	err = ctrl.NewControllerManagedBy(mgr).For(star).Complete(reconciler)
 	require.NoError(t, err)
