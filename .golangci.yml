@@ -105,13 +105,20 @@ linters-settings:
 linters:
   enable-all: true
   disable:
-    - exhaustivestruct
+    - exhaustivestruct # The linter 'exhaustivestruct' is deprecated (since v1.46.0)
     - exhaustruct
-    - scopelint
-    - maligned
-    - interfacer
-    - golint
-    - ifshort
+    - scopelint # The linter 'scopelint' is deprecated (since v1.39.0)
+    - maligned # The linter 'maligned' is deprecated (since v1.38.0)
+    - interfacer # The linter 'interfacer' is deprecated (since v1.38.0)
+    - golint # The linter 'golint' is deprecated (since v1.41.0)
+    - ifshort # The linter 'ifshort' is deprecated (since v1.48.0)
+    - nosnakecase # The linter 'nosnakecase' is deprecated (since v1.48.1)
+    - structcheck # The linter 'structcheck' is deprecated (since v1.49.0)
+    - varcheck # The linter 'varcheck' is deprecated (since v1.49.0)
+    - deadcode # The linter 'deadcode' is deprecated (since v1.49.0)
+    - rowserrcheck #  rowserrcheck is disabled because of generics
+    - sqlclosecheck #  sqlclosecheck is disabled because of generics
+    - wastedassign #  wastedassign is disabled because of generics
 
 service:
   # golangci-lint-version: 1.23.x # use the fixed version to not introduce new linters unexpectedly

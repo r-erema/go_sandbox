@@ -65,7 +65,7 @@ func (rs ResourceServer) Run(addr string) error {
 		}
 	}))
 
-	if err := (&http.Server{ //nolint:exhaustruct
+	if err := (&http.Server{
 		Addr:              addr,
 		Handler:           router,
 		ReadHeaderTimeout: time.Second,

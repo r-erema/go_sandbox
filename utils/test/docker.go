@@ -56,20 +56,20 @@ func RunEtcdContainer(t *testing.T, hostPortBinding nat.PortBinding) string {
 
 	cli := dockerClient(t)
 
-	resp, err := cli.ContainerCreate(context.Background(), &container.Config{ //nolint:exhaustruct
+	resp, err := cli.ContainerCreate(context.Background(), &container.Config{
 		Image: etcdImage,
 		Cmd:   []string{"/usr/local/bin/etcd", "--advertise-client-urls=http://localhost:2379", "--listen-client-urls=http://0.0.0.0:2379"},
 		ExposedPorts: nat.PortSet{
 			"2379/tcp": struct{}{},
 		},
-	}, &container.HostConfig{ //nolint:exhaustruct
+	}, &container.HostConfig{
 		PortBindings: nat.PortMap{
 			"2379/tcp": []nat.PortBinding{hostPortBinding},
 		},
 	}, nil, nil, "")
 	require.NoError(t, err)
 
-	err = cli.ContainerStart(context.Background(), resp.ID, types.ContainerStartOptions{}) //nolint:exhaustruct
+	err = cli.ContainerStart(context.Background(), resp.ID, types.ContainerStartOptions{})
 	require.NoError(t, err)
 
 	return resp.ID
@@ -99,7 +99,7 @@ func RunKubeAPIServer(t *testing.T, port, etcdHost, oidcIssuerURL string) string
 	absDockerStuffPath, err := filepath.Abs(dockerStuffPath)
 	require.NoError(t, err)
 
-	resp, err := cli.ContainerCreate(context.Background(), &container.Config{ //nolint:exhaustruct
+	resp, err := cli.ContainerCreate(context.Background(), &container.Config{
 		Image: kubeAPIServerImage,
 		Cmd: []string{
 			"kube-apiserver",
@@ -120,7 +120,7 @@ func RunKubeAPIServer(t *testing.T, port, etcdHost, oidcIssuerURL string) string
 			"--oidc-ca-file=/var/run/kubernetes/rootCA.crt",
 			"--authorization-mode=RBAC",
 		},
-	}, &container.HostConfig{ //nolint:exhaustruct
+	}, &container.HostConfig{
 		Mounts: []mount.Mount{
 			{
 				Type:   mount.TypeBind,
@@ -133,7 +133,7 @@ func RunKubeAPIServer(t *testing.T, port, etcdHost, oidcIssuerURL string) string
 	}, nil, nil, "")
 	require.NoError(t, err)
 
-	err = cli.ContainerStart(context.Background(), resp.ID, types.ContainerStartOptions{}) //nolint:exhaustruct
+	err = cli.ContainerStart(context.Background(), resp.ID, types.ContainerStartOptions{})
 	require.NoError(t, err)
 
 	return resp.ID
@@ -165,7 +165,7 @@ func RunKeycloakContainer(t *testing.T, hostPortBinding nat.PortBinding) string 
 	absKeyCertPath, err := filepath.Abs(certKeyPath)
 	require.NoError(t, err)
 
-	resp, err := cli.ContainerCreate(context.Background(), &container.Config{ //nolint:exhaustruct
+	resp, err := cli.ContainerCreate(context.Background(), &container.Config{
 		Image: keycloakImage,
 		Env: []string{
 			"KEYCLOAK_ADMIN=admin",
@@ -184,7 +184,7 @@ func RunKeycloakContainer(t *testing.T, hostPortBinding nat.PortBinding) string 
 		ExposedPorts: nat.PortSet{
 			"8443/tcp": struct{}{},
 		},
-	}, &container.HostConfig{ //nolint:exhaustruct
+	}, &container.HostConfig{
 		Mounts: []mount.Mount{
 			{
 				Type:   mount.TypeBind,
@@ -203,7 +203,7 @@ func RunKeycloakContainer(t *testing.T, hostPortBinding nat.PortBinding) string 
 	}, nil, nil, "")
 	require.NoError(t, err)
 
-	err = cli.ContainerStart(context.Background(), resp.ID, types.ContainerStartOptions{}) //nolint:exhaustruct
+	err = cli.ContainerStart(context.Background(), resp.ID, types.ContainerStartOptions{})
 	require.NoError(t, err)
 
 	return resp.ID
@@ -217,7 +217,7 @@ func StopAndRemoveContainer(t *testing.T, containerID string) {
 	err := cli.ContainerStop(context.Background(), containerID, nil)
 	require.NoError(t, err)
 
-	err = cli.ContainerRemove(context.Background(), containerID, types.ContainerRemoveOptions{ //nolint:exhaustruct
+	err = cli.ContainerRemove(context.Background(), containerID, types.ContainerRemoveOptions{
 		RemoveVolumes: true,
 	})
 	require.NoError(t, err)

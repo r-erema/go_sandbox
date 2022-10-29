@@ -165,8 +165,8 @@ type routingTableBackend struct {
 }
 
 func newRoutingTableBackend(scheme, path, serviceName string, servicePort int) (*routingTableBackend, error) {
-	rtb := &routingTableBackend{ //nolint:exhaustruct
-		url: &url.URL{ //nolint:exhaustruct
+	rtb := &routingTableBackend{
+		url: &url.URL{
 			Scheme: scheme,
 			Host:   fmt.Sprintf("%s:%d", serviceName, servicePort),
 		},

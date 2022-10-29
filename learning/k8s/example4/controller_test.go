@@ -72,7 +72,7 @@ func TestController(t *testing.T) { //nolint: paralleltest
 	time.Sleep(time.Second)
 
 	go func() {
-		srv := http.Server{ //nolint:exhaustruct
+		srv := http.Server{
 			Addr: fmt.Sprintf("%s:%d", "0.0.0.0", 5050),
 			Handler: http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 				_, err = writer.Write([]byte(backendServiceResponse))
