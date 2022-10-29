@@ -26,7 +26,7 @@ func NewServer(options ...Option) *Server {
 		option(cfg)
 	}
 
-	server := &Server{ //nolint:exhaustruct
+	server := &Server{
 		cfg:   cfg,
 		ready: NewEvent(),
 	}
@@ -41,12 +41,12 @@ var errTypeCasting = errors.New("type casting error")
 func (s *Server) Run(ctx context.Context) error {
 	s.ready.Wait(ctx)
 
-	srv := http.Server{ //nolint:exhaustruct
+	srv := http.Server{
 		Addr:              fmt.Sprintf("%s:%d", s.cfg.host, s.cfg.tlsPort),
 		Handler:           s,
 		ReadHeaderTimeout: time.Second,
 	}
-	srv.TLSConfig = &tls.Config{ //nolint:exhaustruct
+	srv.TLSConfig = &tls.Config{
 		MinVersion: tls.VersionTLS12,
 		GetCertificate: func(info *tls.ClientHelloInfo) (*tls.Certificate, error) {
 			if table, ok := s.routingTable.Load().(*RoutingTable); ok {
@@ -74,7 +74,7 @@ func (s *Server) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	p := httputil.NewSingleHostReverseProxy(backendURL)
-	p.Transport = &http2.Transport{ //nolint:exhaustruct
+	p.Transport = &http2.Transport{
 		AllowHTTP: true,
 	}
 
