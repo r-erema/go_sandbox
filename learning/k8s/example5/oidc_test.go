@@ -51,8 +51,7 @@ const (
 	k8sTestContext          = "developer-context"
 )
 
-//nolint: paralleltest, tparallel
-func TestOIDC(t *testing.T) {
+func TestOIDC(t *testing.T) { //nolint: paralleltest, tparallel
 	tests := []struct {
 		name        string
 		expectError bool

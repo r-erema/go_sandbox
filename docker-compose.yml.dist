@@ -11,7 +11,7 @@ services:
     environment:
         KEYCLOAK_ADMIN: admin
         KEYCLOAK_ADMIN_PASSWORD: admin
-        PROXY_ADDRESS_FORWARDING: true
+        PROXY_ADDRESS_FORWARDING: "true"
         JAVA_OPTS: "-Dkeycloak.profile.feature.token_exchange=enabled"
     volumes:
       - ./docker/k8s:/etc/x509/https

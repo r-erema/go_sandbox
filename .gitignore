@@ -3,3 +3,8 @@ docker-compose.yml
 data
 *.env
 coverage.txt
+
+apiserver_debug
+controller_manager_debug
+kubelet_debug
+scheduler_debug
