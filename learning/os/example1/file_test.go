@@ -1,4 +1,4 @@
-package example3_test
+package example1_test
 
 import (
 	"os"
@@ -11,7 +11,7 @@ import (
 func TestChangingFileOffsetInCaseOfMultipleReading(t *testing.T) {
 	t.Parallel()
 
-	testDataFilePath := "./test_data"
+	testDataFilePath := "./test_data/test_text_data"
 	tempFile, err := os.OpenFile(testDataFilePath, os.O_RDONLY, 0o755)
 	require.NoError(t, err)
 	t.Cleanup(func() {

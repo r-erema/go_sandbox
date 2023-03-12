@@ -1,4 +1,4 @@
-package example3_test
+package example1_test
 
 import (
 	"net"
