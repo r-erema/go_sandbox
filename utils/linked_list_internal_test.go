@@ -7,49 +7,49 @@ import (
 )
 
 func nodeFromTheHead() *LinkedListNode {
-	node0 := &LinkedListNode{value: 0, prev: nil, next: nil}
-	node1 := &LinkedListNode{value: 1, prev: nil, next: nil}
-	node2 := &LinkedListNode{value: 2, prev: nil, next: nil}
-	node3 := &LinkedListNode{value: 3, prev: nil, next: nil}
+	node0 := &LinkedListNode{Value: 0, Prev: nil, Next: nil}
+	node1 := &LinkedListNode{Value: 1, Prev: nil, Next: nil}
+	node2 := &LinkedListNode{Value: 2, Prev: nil, Next: nil}
+	node3 := &LinkedListNode{Value: 3, Prev: nil, Next: nil}
 
-	node0.next = node1
-	node1.prev = node0
-	node1.next = node2
-	node2.prev = node1
-	node2.next = node3
-	node3.prev = node2
+	node0.Next = node1
+	node1.Prev = node0
+	node1.Next = node2
+	node2.Prev = node1
+	node2.Next = node3
+	node3.Prev = node2
 
 	return node0
 }
 
 func nodeFromTheTail() *LinkedListNode {
-	node0 := &LinkedListNode{value: 0, prev: nil, next: nil}
-	node1 := &LinkedListNode{value: 1, prev: nil, next: nil}
-	node2 := &LinkedListNode{value: 2, prev: nil, next: nil}
-	node3 := &LinkedListNode{value: 3, prev: nil, next: nil}
+	node0 := &LinkedListNode{Value: 0, Prev: nil, Next: nil}
+	node1 := &LinkedListNode{Value: 1, Prev: nil, Next: nil}
+	node2 := &LinkedListNode{Value: 2, Prev: nil, Next: nil}
+	node3 := &LinkedListNode{Value: 3, Prev: nil, Next: nil}
 
-	node0.next = node1
-	node1.prev = node0
-	node1.next = node2
-	node2.prev = node1
-	node2.next = node3
-	node3.prev = node2
+	node0.Next = node1
+	node1.Prev = node0
+	node1.Next = node2
+	node2.Prev = node1
+	node2.Next = node3
+	node3.Prev = node2
 
 	return node3
 }
 
 func nodeFromTheMiddle() *LinkedListNode {
-	node0 := &LinkedListNode{value: 0, prev: nil, next: nil}
-	node1 := &LinkedListNode{value: 1, prev: nil, next: nil}
-	node2 := &LinkedListNode{value: 2, prev: nil, next: nil}
-	node3 := &LinkedListNode{value: 3, prev: nil, next: nil}
+	node0 := &LinkedListNode{Value: 0, Prev: nil, Next: nil}
+	node1 := &LinkedListNode{Value: 1, Prev: nil, Next: nil}
+	node2 := &LinkedListNode{Value: 2, Prev: nil, Next: nil}
+	node3 := &LinkedListNode{Value: 3, Prev: nil, Next: nil}
 
-	node0.next = node1
-	node1.prev = node0
-	node1.next = node2
-	node2.prev = node1
-	node2.next = node3
-	node3.prev = node2
+	node0.Next = node1
+	node1.Prev = node0
+	node1.Next = node2
+	node2.Prev = node1
+	node2.Next = node3
+	node3.Prev = node2
 
 	return node2
 }
@@ -71,10 +71,10 @@ func TestLinkedList_Build(t *testing.T) {
 		{
 			name: "Case 0",
 			nodes: []*LinkedListNode{
-				{value: 0},
-				{value: 1},
-				{value: 2},
-				{value: 3},
+				{Value: 0},
+				{Value: 1},
+				{Value: 2},
+				{Value: 3},
 			},
 			want: nodeFromTheHead(),
 		},
@@ -167,7 +167,7 @@ func TestLinkedListNode_Head(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, tt.want, tt.listBuilder().Head().value)
+			assert.Equal(t, tt.want, tt.listBuilder().Head().Value)
 		})
 	}
 }
@@ -193,7 +193,7 @@ func TestLinkedListNode_Tail(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, tt.want, tt.listBuilder().Tail().value)
+			assert.Equal(t, tt.want, tt.listBuilder().Tail().Value)
 		})
 	}
 }
@@ -210,27 +210,27 @@ func TestLinkedListNode_Append(t *testing.T) {
 			name:        "Case 0",
 			listBuilder: nodeFromTheMiddle,
 			nodesToAppend: []*LinkedListNode{
-				{value: -1},
-				{value: 4},
+				{Value: -1},
+				{Value: 4},
 			},
 			want: func() *LinkedListNode {
-				node0 := &LinkedListNode{value: 0, prev: nil, next: nil}
-				node1 := &LinkedListNode{value: 1, prev: nil, next: nil}
-				node2 := &LinkedListNode{value: 2, prev: nil, next: nil}
-				node3 := &LinkedListNode{value: 3, prev: nil, next: nil}
-				node4 := &LinkedListNode{value: -1, prev: nil, next: nil}
-				node5 := &LinkedListNode{value: 4, prev: nil, next: nil}
+				node0 := &LinkedListNode{Value: 0, Prev: nil, Next: nil}
+				node1 := &LinkedListNode{Value: 1, Prev: nil, Next: nil}
+				node2 := &LinkedListNode{Value: 2, Prev: nil, Next: nil}
+				node3 := &LinkedListNode{Value: 3, Prev: nil, Next: nil}
+				node4 := &LinkedListNode{Value: -1, Prev: nil, Next: nil}
+				node5 := &LinkedListNode{Value: 4, Prev: nil, Next: nil}
 
-				node0.next = node1
-				node1.prev = node0
-				node1.next = node2
-				node2.prev = node1
-				node2.next = node3
-				node3.prev = node2
-				node3.next = node4
-				node4.prev = node3
-				node4.next = node5
-				node5.prev = node4
+				node0.Next = node1
+				node1.Prev = node0
+				node1.Next = node2
+				node2.Prev = node1
+				node2.Next = node3
+				node3.Prev = node2
+				node3.Next = node4
+				node4.Prev = node3
+				node4.Next = node5
+				node5.Prev = node4
 
 				return node2
 			},
@@ -265,27 +265,27 @@ func TestLinkedListNode_Prepend(t *testing.T) {
 			name:        "Case 0",
 			listBuilder: nodeFromTheMiddle,
 			nodesToPrepend: []*LinkedListNode{
-				{value: 8},
-				{value: -0.5},
+				{Value: 8},
+				{Value: -0.5},
 			},
 			want: func() *LinkedListNode {
-				node0 := &LinkedListNode{value: -0.5, prev: nil, next: nil}
-				node1 := &LinkedListNode{value: 8, prev: nil, next: nil}
-				node2 := &LinkedListNode{value: 0, prev: nil, next: nil}
-				node3 := &LinkedListNode{value: 1, prev: nil, next: nil}
-				node4 := &LinkedListNode{value: 2, prev: nil, next: nil}
-				node5 := &LinkedListNode{value: 3, prev: nil, next: nil}
+				node0 := &LinkedListNode{Value: -0.5, Prev: nil, Next: nil}
+				node1 := &LinkedListNode{Value: 8, Prev: nil, Next: nil}
+				node2 := &LinkedListNode{Value: 0, Prev: nil, Next: nil}
+				node3 := &LinkedListNode{Value: 1, Prev: nil, Next: nil}
+				node4 := &LinkedListNode{Value: 2, Prev: nil, Next: nil}
+				node5 := &LinkedListNode{Value: 3, Prev: nil, Next: nil}
 
-				node0.next = node1
-				node1.prev = node0
-				node1.next = node2
-				node2.prev = node1
-				node2.next = node3
-				node3.prev = node2
-				node3.next = node4
-				node4.prev = node3
-				node4.next = node5
-				node5.prev = node4
+				node0.Next = node1
+				node1.Prev = node0
+				node1.Next = node2
+				node2.Prev = node1
+				node2.Next = node3
+				node3.Prev = node2
+				node3.Next = node4
+				node4.Prev = node3
+				node4.Next = node5
+				node5.Prev = node4
 
 				return node4
 			},
@@ -368,14 +368,14 @@ func TestLinkedListNode_Remove(t *testing.T) {
 			list:         nodeFromTheHead(),
 			nodeToRemove: 2,
 			want: func() *LinkedListNode {
-				node0 := &LinkedListNode{value: 0, prev: nil, next: nil}
-				node1 := &LinkedListNode{value: 1, prev: nil, next: nil}
-				node2 := &LinkedListNode{value: 3, prev: nil, next: nil}
+				node0 := &LinkedListNode{Value: 0, Prev: nil, Next: nil}
+				node1 := &LinkedListNode{Value: 1, Prev: nil, Next: nil}
+				node2 := &LinkedListNode{Value: 3, Prev: nil, Next: nil}
 
-				node0.next = node1
-				node1.prev = node0
-				node1.next = node2
-				node2.prev = node1
+				node0.Next = node1
+				node1.Prev = node0
+				node1.Next = node2
+				node2.Prev = node1
 
 				return node0
 			},
@@ -385,14 +385,14 @@ func TestLinkedListNode_Remove(t *testing.T) {
 			list:         nodeFromTheTail(),
 			nodeToRemove: 1,
 			want: func() *LinkedListNode {
-				node0 := &LinkedListNode{value: 0, prev: nil, next: nil}
-				node1 := &LinkedListNode{value: 2, prev: nil, next: nil}
-				node2 := &LinkedListNode{value: 3, prev: nil, next: nil}
+				node0 := &LinkedListNode{Value: 0, Prev: nil, Next: nil}
+				node1 := &LinkedListNode{Value: 2, Prev: nil, Next: nil}
+				node2 := &LinkedListNode{Value: 3, Prev: nil, Next: nil}
 
-				node0.next = node1
-				node1.prev = node0
-				node1.next = node2
-				node2.prev = node1
+				node0.Next = node1
+				node1.Prev = node0
+				node1.Next = node2
+				node2.Prev = node1
 
 				return node2
 			},
@@ -425,27 +425,27 @@ func TestLinkedListNode_InsertAfter(t *testing.T) {
 		{
 			name:         "Case 0",
 			list:         nodeFromTheHead(),
-			nodeToInsert: &LinkedListNode{value: 11, prev: nil, next: nil},
+			nodeToInsert: &LinkedListNode{Value: 11, Prev: nil, Next: nil},
 			insertAfter:  1,
 			want: Build([]*LinkedListNode{
-				{value: 0},
-				{value: 1},
-				{value: 11},
-				{value: 2},
-				{value: 3},
+				{Value: 0},
+				{Value: 1},
+				{Value: 11},
+				{Value: 2},
+				{Value: 3},
 			}),
 		},
 		{
 			name:         "Case 1",
 			list:         nodeFromTheHead(),
-			nodeToInsert: &LinkedListNode{value: 0.8, prev: nil, next: nil},
+			nodeToInsert: &LinkedListNode{Value: 0.8, Prev: nil, Next: nil},
 			insertAfter:  3,
 			want: Build([]*LinkedListNode{
-				{value: 0},
-				{value: 1},
-				{value: 2},
-				{value: 3},
-				{value: 0.8},
+				{Value: 0},
+				{Value: 1},
+				{Value: 2},
+				{Value: 3},
+				{Value: 0.8},
 			}),
 		},
 	}

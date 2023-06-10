@@ -1,8 +1,8 @@
 package utils
 
 type LinkedListNode struct {
-	value      float32
-	prev, next *LinkedListNode
+	Value      float32
+	Prev, Next *LinkedListNode
 }
 
 func Build(nodes []*LinkedListNode) *LinkedListNode {
@@ -16,40 +16,40 @@ func Build(nodes []*LinkedListNode) *LinkedListNode {
 
 		if index != 0 {
 			prevNode = nodes[index-1]
-			prevNode.next = currentNode
+			prevNode.Next = currentNode
 		} else {
 			startNode = nodes[index]
 		}
 
 		if index < iterationThreshold {
 			nextNode = nodes[index+1]
-			nextNode.prev = currentNode
+			nextNode.Prev = currentNode
 		}
 
-		currentNode.next = nextNode
-		currentNode.prev = prevNode
+		currentNode.Next = nextNode
+		currentNode.Prev = prevNode
 	}
 
 	return startNode
 }
 
 func (node LinkedListNode) IsHead() bool {
-	return node.prev == nil
+	return node.Prev == nil
 }
 
 func (node *LinkedListNode) IsTail() bool {
-	return node.next == nil
+	return node.Next == nil
 }
 
 func (node *LinkedListNode) Head() *LinkedListNode {
 	currentNode := node
 
 	for {
-		if currentNode.prev == nil {
+		if currentNode.Prev == nil {
 			return currentNode
 		}
 
-		currentNode = currentNode.prev
+		currentNode = currentNode.Prev
 	}
 }
 
@@ -57,52 +57,52 @@ func (node *LinkedListNode) Tail() *LinkedListNode {
 	currentNode := node
 
 	for {
-		if currentNode.next == nil {
+		if currentNode.Next == nil {
 			return currentNode
 		}
 
-		currentNode = currentNode.next
+		currentNode = currentNode.Next
 	}
 }
 
 func (node *LinkedListNode) Append(nodeToAppend *LinkedListNode) {
 	tail := node.Tail()
-	tail.next = nodeToAppend
-	nodeToAppend.prev = tail
+	tail.Next = nodeToAppend
+	nodeToAppend.Prev = tail
 }
 
 func (node *LinkedListNode) Prepend(nodeToPrepend *LinkedListNode) {
 	head := node.Head()
-	head.prev = nodeToPrepend
-	nodeToPrepend.next = head
+	head.Prev = nodeToPrepend
+	nodeToPrepend.Next = head
 }
 
 func (node *LinkedListNode) Search(needle float32) *LinkedListNode {
 	currentNode := node
 
 	for {
-		if currentNode.value == needle {
+		if currentNode.Value == needle {
 			return currentNode
 		}
 
-		if currentNode.next == nil {
+		if currentNode.Next == nil {
 			break
 		}
 
-		currentNode = currentNode.next
+		currentNode = currentNode.Next
 	}
 
-	if currentNode = node.prev; currentNode != nil {
+	if currentNode = node.Prev; currentNode != nil {
 		for {
-			if currentNode.value == needle {
+			if currentNode.Value == needle {
 				return currentNode
 			}
 
-			if currentNode.prev == nil {
+			if currentNode.Prev == nil {
 				break
 			}
 
-			currentNode = currentNode.prev
+			currentNode = currentNode.Prev
 		}
 	}
 
@@ -115,14 +115,14 @@ func (node *LinkedListNode) Remove(needle float32) {
 		return
 	}
 
-	prev, next := nodeToRemove.prev, nodeToRemove.next
+	prev, next := nodeToRemove.Prev, nodeToRemove.Next
 
 	if prev != nil {
-		prev.next = next
+		prev.Next = next
 	}
 
 	if next != nil {
-		next.prev = prev
+		next.Prev = prev
 	}
 }
 
@@ -132,13 +132,13 @@ func (node *LinkedListNode) InsertAfter(nodeToInsert *LinkedListNode, mountPoint
 		return
 	}
 
-	next := startNode.next
+	next := startNode.Next
 
-	startNode.next = nodeToInsert
-	nodeToInsert.prev = startNode
-	nodeToInsert.next = next
+	startNode.Next = nodeToInsert
+	nodeToInsert.Prev = startNode
+	nodeToInsert.Next = next
 
 	if next != nil {
-		next.prev = nodeToInsert
+		next.Prev = nodeToInsert
 	}
 }
