@@ -1,9 +1,9 @@
-package longest_consecutive_sequence
+package longestconsecutivesequence_test
 
 import (
-	"github.com/stretchr/testify/assert"
-
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestLongestConsecutiveSequence(t *testing.T) {
@@ -32,7 +32,7 @@ func TestLongestConsecutiveSequence(t *testing.T) {
 }
 
 // Time: O(n), since we iterate only through the chain of the sequential numbers thanks to the map
-// TimeL O(n), since we involve only a map which equals an input
+// TimeL O(n), since we involve only a map which equals an input.
 func longestConsecutive(input []int) int {
 	nums := make(map[int]struct{}, len(input))
 	for _, num := range input {
@@ -40,9 +40,11 @@ func longestConsecutive(input []int) int {
 	}
 
 	longest := 0
+
 	for num := range nums {
 		if _, ok := nums[num-1]; !ok {
 			length := 1
+
 			for {
 				_, nextExists := nums[num+length]
 				if !nextExists {
@@ -51,6 +53,7 @@ func longestConsecutive(input []int) int {
 
 				length++
 			}
+
 			longest = max(longest, length)
 		}
 	}
