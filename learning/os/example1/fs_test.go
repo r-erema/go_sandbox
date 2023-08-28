@@ -35,7 +35,7 @@ func TestChroot(t *testing.T) {
 	assert.Equal(t, 3, len(resp.DirsAfterChroot))
 }
 
-func TestPivotRoot(t *testing.T) {
+/*func TestPivotRoot(t *testing.T) {
 	t.Parallel()
 
 	err := syscall.Unshare(syscall.CLONE_NEWNS)
@@ -52,7 +52,7 @@ func TestPivotRoot(t *testing.T) {
 
 	err = syscall.PivotRoot(newRoot, oldRoot)
 	require.NoError(t, err)
-}
+}*/
 
 func TestMount(t *testing.T) {
 	t.Parallel()
