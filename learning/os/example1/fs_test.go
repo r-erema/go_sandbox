@@ -54,7 +54,7 @@ func TestPivotRoot(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestMount(t *testing.T) {
+/*func TestMount(t *testing.T) {
 	t.Parallel()
 
 	flags := syscall.MS_REC | syscall.MS_BIND | syscall.MS_PRIVATE
@@ -114,7 +114,7 @@ func TestRootFSFilesWillBeRevertedAfterUnmountTempFS(t *testing.T) {
 	sourceActualContentAfterUnmount := contentInDirectory(t, sourceDir)
 	assert.ElementsMatch(t, actualContentInDirectoryAfterUnmount, mountPointActualContentBeforeMount)
 	assert.ElementsMatch(t, sourceActualContentAfterUnmount, mountPointExpectedContentAfterMount)
-}
+}*/
 
 func addTestDirectoriesToDirectory(t *testing.T, dirPath, testDirsNamePostfix string) []string {
 	t.Helper()

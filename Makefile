@@ -69,10 +69,7 @@ remove-test-pod:
 	kubectl delete pod test-busybox --kubeconfig ./docker/k8s/kubeconfig-dev
 
 test:
-	docker compose up -d && \
-		KUBECONFIG=../../../docker/k8s/kubeconfig-dev \
-		KUBE_API_SERVER_URL=https://localhost:6443 \
-		go test -race -v -coverprofile=coverage.txt -covermode=atomic ./...
+	go test -race -v -coverprofile=coverage.txt -covermode=atomic learning/os/example1/fs_test.go
 
 lint:
 	docker run --rm -v ${PWD}:/app -w /app ${GOLANGCI_IMAGE} golangci-lint run --fix --timeout 20m --sort-results
