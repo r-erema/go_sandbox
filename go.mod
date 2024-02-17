@@ -93,6 +93,7 @@ require (
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/spf13/cobra v1.4.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/thoas/go-funk v0.9.3 // indirect
 	github.com/tidwall/btree v1.4.3 // indirect
 	github.com/tidwall/buntdb v1.2.10 // indirect
 	github.com/tidwall/gjson v1.14.3 // indirect
