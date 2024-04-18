@@ -72,3 +72,25 @@ func TestSetNamespaceToExtraneousProcess(t *testing.T) {
 	assert.Equal(t, currentNamespaceInode, rootNamespaceInode)
 	assert.Equal(t, newNamespaceInode, extraneousProcessNamespaceInode)
 }
+
+func TestNewPIDNamespace(t *testing.T) {
+	t.Parallel()
+
+	parentPid, parentTid := os.Getpid(), syscall.Gettid()
+
+	parentPidNS, err := utils.PIDNamespaceInodeNumber(parentPid, parentTid)
+	assert.NoError(t, err)
+
+	childPid, _, errno := unix.Syscall(syscall.SYS_CLONE, uintptr(syscall.SIGCHLD|syscall.CLONE_NEWNS|syscall.CLONE_NEWPID), 0, 0)
+	require.Equal(t, 0, int(errno))
+
+	if os.Getpid() == parentPid {
+		childPidNS, err := utils.PIDNamespaceInodeNumber(int(childPid), int(childPid))
+		assert.NoError(t, err)
+		assert.NotEqual(t, uintptr(0), childPid)
+		assert.NotEqual(t, parentPidNS, childPidNS)
+	} else {
+		assert.Equal(t, uintptr(0), childPid)
+		assert.Equal(t, 1, os.Getpid())
+	}
+}
