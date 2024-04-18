@@ -43,6 +43,25 @@ func NetworkNamespaceInodeNumber(pid, tid int) (int, error) {
 	return ID, nil
 }
 
+func PIDNamespaceInodeNumber(pid, tid int) (int, error) {
+	path := fmt.Sprintf("/proc/%d/task/%d/ns/pid", pid, tid)
+
+	link, err := os.Readlink(path)
+	if err != nil {
+		return -1, fmt.Errorf("reading link `%s` error: %w", path, err)
+	}
+
+	IDStr := strings.Replace(link, "pid:[", "", -1)
+	IDStr = strings.Replace(IDStr, "]", "", -1)
+
+	ID, err := strconv.Atoi(IDStr)
+	if err != nil {
+		return -1, fmt.Errorf("string to integer conversion error: %w", err)
+	}
+
+	return ID, nil
+}
+
 func NewNetworkNamespaceDescriptor(pid, tid int) (uintptr, error) {
 	path := fmt.Sprintf("/proc/%d/task/%d/ns/net", pid, tid)
 
