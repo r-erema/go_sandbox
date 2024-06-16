@@ -1,0 +1,38 @@
+{
+ "v1": {
+  "datasource": "DataSourceNone",
+  "init": {
+   "errors": [],
+   "finished": 1718522559.8553336,
+   "recoverable_errors": {
+    "WARNING": [
+     "Invalid cloud-config provided: Please run 'sudo cloud-init schema --system' to see the schema errors."
+    ]
+   },
+   "start": 1718522559.7600904
+  },
+  "init-local": {
+   "errors": [],
+   "finished": 1718522439.361945,
+   "recoverable_errors": {},
+   "start": 1718522439.3353462
+  },
+  "modules-config": {
+   "errors": [],
+   "finished": 1718522683.9094546,
+   "recoverable_errors": {},
+   "start": 1718522683.768652
+  },
+  "modules-final": {
+   "errors": [],
+   "finished": 1718522694.386252,
+   "recoverable_errors": {
+    "WARNING": [
+     "Used fallback datasource"
+    ]
+   },
+   "start": 1718522694.2582245
+  },
+  "stage": null
+ }
+}

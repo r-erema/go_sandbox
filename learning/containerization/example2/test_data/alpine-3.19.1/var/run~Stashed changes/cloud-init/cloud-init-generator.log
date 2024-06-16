@@ -1,0 +1,4 @@
+/usr/lib/systemd/system-generators/cloud-init-generator normal=/run/systemd/generator early=/run/systemd/generator.early late=/run/systemd/generator.late
+checking for datasource
+ds-identify rc=0
+enabled via /run/systemd/generator.early/multi-user.target.wants/cloud-init.target -> /lib/systemd/system/cloud-init.target

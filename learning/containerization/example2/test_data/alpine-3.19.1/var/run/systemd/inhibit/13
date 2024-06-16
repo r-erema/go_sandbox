@@ -1,0 +1,8 @@
+# This is private data. Do not parse.
+WHAT=sleep
+MODE=delay
+UID=1001
+PID=2951
+WHO=roman
+WHY=GNOME handling keypresses
+FIFO=/run/systemd/inhibit/13.ref

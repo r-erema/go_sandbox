@@ -1,0 +1,6 @@
+<device DEVNO="0xfc00" TIME="1718522436.290992" PRI="40" UUID="EwXrHm-cEwB-h4Ae-lq60-KiAm-0rTd-PVxI2k" TYPE="LVM2_member">/dev/mapper/dm_crypt</device>
+<device DEVNO="0xfc01" TIME="1718522436.370047" PRI="45" UUID="12702e4b-0d1a-45dc-9394-b3b7f6e37841" TYPE="swap">/dev/mapper/ubuntu--vg-swap</device>
+<device DEVNO="0x10303" TIME="1718522436.370311" UUID="84944a6a-50b8-462e-80e7-8541fd4f7a7a" TYPE="crypto_LUKS" PARTUUID="fc696a43-a647-42fe-8e5b-837577568090">/dev/nvme0n1p3</device>
+<device DEVNO="0x10301" TIME="1718522436.373179" UUID="601A-21FB" BLOCK_SIZE="512" TYPE="vfat" PARTUUID="3d616d17-5bd3-4957-995c-052f58590b2d">/dev/nvme0n1p1</device>
+<device DEVNO="0x10302" TIME="1718522436.376729" UUID="236af943-ae3a-4cc0-9985-39ba3a1e2cb8" BLOCK_SIZE="4096" TYPE="ext4" PARTUUID="1859c574-d1f0-4e0f-a9a7-a9b888ce0502">/dev/nvme0n1p2</device>
+<device DEVNO="0xfc02" TIME="1718522436.382369" PRI="45" UUID="6ce3c70b-6753-416c-80a8-4fe44ac5a1be" BLOCK_SIZE="4096" TYPE="ext4">/dev/mapper/ubuntu--vg-root</device>

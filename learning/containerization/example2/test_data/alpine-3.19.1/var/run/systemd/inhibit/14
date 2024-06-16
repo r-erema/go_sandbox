@@ -1,0 +1,8 @@
+# This is private data. Do not parse.
+WHAT=sleep
+MODE=delay
+UID=1001
+PID=2952
+WHO=roman
+WHY=GNOME needs to lock the screen
+FIFO=/run/systemd/inhibit/14.ref

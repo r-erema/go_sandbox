@@ -1,0 +1,2 @@
+tmpfs / tmpfs x-snapd.origin=rootfs 0 0
+/var/lib/snapd/hostfs/boot /boot none bind,ro 0 0

@@ -1,0 +1,28 @@
+[up 11.66s] ds-identify 
+policy loaded: mode=enabled report=false found=all maybe=all notfound=disabled
+/etc/cloud/cloud.cfg.d/99-installer.cfg set datasource_list: 
+no datasource_list found, using default: MAAS ConfigDrive NoCloud AltCloud Azure Bigstep CloudSigma CloudStack DigitalOcean Vultr AliYun Ec2 GCE OpenNebula OpenStack OVF SmartOS Scaleway Hetzner IBMCloud Oracle Exoscale RbxCloud UpCloud VMware LXD NWCS Akamai WSL
+DMI_PRODUCT_NAME=20VE
+DMI_SYS_VENDOR=LENOVO
+DMI_PRODUCT_SERIAL=MP24CL9P
+DMI_PRODUCT_UUID=e93bbe8f-441c-11ec-810d-7c8ae1b276bf
+PID_1_PRODUCT_NAME=unavailable
+DMI_CHASSIS_ASSET_TAG=NO Asset Tag
+DMI_BOARD_NAME=LNVNB161216
+FS_LABELS=
+ISO9660_DEVS=
+KERNEL_CMDLINE=BOOT_IMAGE=/vmlinuz-6.5.0-1024-oem root=/dev/mapper/ubuntu--vg-root ro cgroup_enable=memory swapaccount=1
+VIRT=none
+UNAME_KERNEL_NAME=Linux
+UNAME_KERNEL_VERSION=#25-Ubuntu SMP PREEMPT_DYNAMIC Mon May 20 14:47:48 UTC 2024
+UNAME_MACHINE=x86_64
+DSNAME=
+DSLIST=MAAS ConfigDrive NoCloud AltCloud Azure Bigstep CloudSigma CloudStack DigitalOcean Vultr AliYun Ec2 GCE OpenNebula OpenStack OVF SmartOS Scaleway Hetzner IBMCloud Oracle Exoscale RbxCloud UpCloud VMware LXD NWCS Akamai WSL
+MODE=enabled
+ON_FOUND=all
+ON_MAYBE=all
+ON_NOTFOUND=disabled
+pid=781 ppid=758
+is_container=false
+mode=enabled. returning 0
+[up 11.69s] returning 0
