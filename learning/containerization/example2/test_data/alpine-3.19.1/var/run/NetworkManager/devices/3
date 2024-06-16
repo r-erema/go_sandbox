@@ -1,0 +1,5 @@
+[device]
+managed=true
+connection-uuid=ad95bbeb-1045-46ec-b358-4f7da3e66357
+route-metric-default-effective=600
+next-server=192.168.0.1
