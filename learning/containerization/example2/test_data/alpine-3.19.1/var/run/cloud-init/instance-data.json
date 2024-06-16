@@ -1,0 +1,61 @@
+{
+ "base64_encoded_keys": [],
+ "ds": {
+  "_doc": "EXPERIMENTAL: The structure and format of content scoped under the 'ds' key may change in subsequent releases of cloud-init.",
+  "meta_data": {
+   "instance-id": "44601b0c-0908-43b2-a01e-94a2fdf306fa"
+  }
+ },
+ "merged_cfg": "redacted for non-root user",
+ "merged_system_cfg": "redacted for non-root user",
+ "sensitive_keys": [
+  "merged_cfg",
+  "merged_system_cfg"
+ ],
+ "sys_info": {
+  "dist": [
+   "ubuntu",
+   "22.04",
+   "jammy"
+  ],
+  "platform": "Linux-6.5.0-1024-oem-x86_64-with-glibc2.35",
+  "python": "3.10.12",
+  "release": "6.5.0-1024-oem",
+  "system": "Linux",
+  "uname": [
+   "Linux",
+   "nbd-151-74a",
+   "6.5.0-1024-oem",
+   "#25-Ubuntu SMP PREEMPT_DYNAMIC Mon May 20 14:47:48 UTC 2024",
+   "x86_64",
+   "x86_64"
+  ],
+  "variant": "ubuntu"
+ },
+ "v1": {
+  "_beta_keys": [
+   "subplatform"
+  ],
+  "availability-zone": null,
+  "availability_zone": null,
+  "cloud-name": "none",
+  "cloud_id": "none",
+  "cloud_name": "none",
+  "distro": "ubuntu",
+  "distro_release": "jammy",
+  "distro_version": "22.04",
+  "instance-id": "iid-datasource-none",
+  "instance_id": "iid-datasource-none",
+  "kernel_release": "6.5.0-1024-oem",
+  "local-hostname": "nbd-151-74a",
+  "local_hostname": "nbd-151-74a",
+  "machine": "x86_64",
+  "platform": "none",
+  "public_ssh_keys": [],
+  "python_version": "3.10.12",
+  "region": null,
+  "subplatform": "config",
+  "system_platform": "Linux-6.5.0-1024-oem-x86_64-with-glibc2.35",
+  "variant": "ubuntu"
+ }
+}

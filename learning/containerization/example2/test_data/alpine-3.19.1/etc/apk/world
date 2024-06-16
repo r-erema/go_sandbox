@@ -1,0 +1,7 @@
+alpine-baselayout
+alpine-keys
+apk-tools
+busybox
+gcompat
+libc-utils
+linux-headers
