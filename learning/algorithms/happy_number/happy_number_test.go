@@ -27,11 +27,10 @@ func TestHappyNumber(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, testCase.want, isHappy(testCase.input))
+			assert.Equal(t, tt.want, isHappy(tt.input))
 		})
 	}
 }

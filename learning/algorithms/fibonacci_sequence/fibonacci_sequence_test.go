@@ -36,13 +36,12 @@ func TestFibonacci(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, testCase.want, fibonacciRecursive(testCase.n))
-			assert.Equal(t, testCase.want, fibonacciCache(testCase.n))
-			assert.Equal(t, testCase.want, fibonacciIterative(testCase.n))
+			assert.Equal(t, tt.want, fibonacciRecursive(tt.n))
+			assert.Equal(t, tt.want, fibonacciCache(tt.n))
+			assert.Equal(t, tt.want, fibonacciIterative(tt.n))
 		})
 	}
 }
