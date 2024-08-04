@@ -42,7 +42,6 @@ func TestBubbleSort(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -65,6 +64,7 @@ func bubbleSort(array *[]int) {
 				arr[i], arr[i+1] = arr[i+1], arr[i]
 			}
 		}
+
 		boundary--
 	}
 }

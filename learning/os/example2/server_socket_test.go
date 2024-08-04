@@ -17,7 +17,7 @@ func TestServer(t *testing.T) {
 
 	go func() {
 		err := example2.Server("127.0.0.1", 7777, serverIncomingData)
-		require.NoError(t, err)
+		assert.NoError(t, err)
 	}()
 
 	time.Sleep(time.Millisecond * 100)

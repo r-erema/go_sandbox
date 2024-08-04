@@ -28,15 +28,15 @@ func TestStockExchange(t *testing.T) {
 
 		nasdaq.updatePrice("AAPL", 150.0)
 		assert.Equal(t, "AAPL", bot1.lastTicket)
-		assert.Equal(t, 150.0, bot1.lastPrice)
+		assert.InEpsilon(t, 150.0, bot1.lastPrice, 0)
 		assert.Equal(t, "AAPL", bot2.lastTicket)
-		assert.Equal(t, 150.0, bot2.lastPrice)
+		assert.InEpsilon(t, 150.0, bot2.lastPrice, 0)
 
 		nyse.updatePrice("GOOGL", 150.0)
 		assert.Equal(t, "GOOGL", bot1.lastTicket)
-		assert.Equal(t, 150.0, bot1.lastPrice)
+		assert.InEpsilon(t, 150.0, bot1.lastPrice, 0)
 		assert.Equal(t, "GOOGL", bot2.lastTicket)
-		assert.Equal(t, 150.0, bot2.lastPrice)
+		assert.InEpsilon(t, 150.0, bot2.lastPrice, 0)
 
 		nasdaq.removeSubscriber(bot1)
 		nyse.removeSubscriber(bot2)

@@ -31,13 +31,12 @@ func TestHammingWeight(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, testCase.want, hammingWeight(testCase.input))
-			assert.Equal(t, testCase.want, hammingWeight2(testCase.input))
-			assert.Equal(t, testCase.want, hammingWeight3(testCase.input))
+			assert.Equal(t, tt.want, hammingWeight(tt.input))
+			assert.Equal(t, tt.want, hammingWeight2(tt.input))
+			assert.Equal(t, tt.want, hammingWeight3(tt.input))
 		})
 	}
 }

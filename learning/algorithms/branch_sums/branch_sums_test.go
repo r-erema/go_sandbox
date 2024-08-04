@@ -49,12 +49,11 @@ func TestFindClosestValue(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			sums := branchSums(testCase.bst)
-			assert.Equal(t, testCase.want, sums)
+			sums := branchSums(tt.bst)
+			assert.Equal(t, tt.want, sums)
 		})
 	}
 }
