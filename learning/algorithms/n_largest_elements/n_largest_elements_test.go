@@ -42,7 +42,6 @@ func TestNLargestElements(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -59,7 +58,7 @@ func nLargestElements(array []int, n int) []int {
 	lastIndex := n - 1
 
 	shift := func(shiftEndIndex int, elementToUpdate int) {
-		for j := 0; j < shiftEndIndex; j++ {
+		for j := range shiftEndIndex {
 			result[j] = result[j+1]
 		}
 

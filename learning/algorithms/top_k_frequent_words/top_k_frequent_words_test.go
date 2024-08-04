@@ -37,7 +37,6 @@ func TestTopKFrequent(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -62,6 +61,7 @@ func topKFrequent(words []string, k int) []string { //nolint: varnamelen
 		if _, ok := wordsCount[word]; !ok {
 			keys = append(keys, word)
 		}
+
 		wordsCount[word]++
 	}
 

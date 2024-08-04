@@ -1,7 +1,5 @@
 package example1
 
-import "fmt"
-
 type Item struct {
 	observers []observer
 	name      string
@@ -14,7 +12,7 @@ func NewItem(name string) *Item {
 
 func (i *Item) SetAsAvailable() {
 	i.inStock = true
-	i.notifyAll(fmt.Sprintf("%s is available", i.name))
+	i.notifyAll(i.name + " is available")
 }
 
 func (i *Item) Register(observer observer) {

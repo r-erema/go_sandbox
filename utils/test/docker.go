@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
@@ -40,7 +40,7 @@ func PullEtcdImage(t *testing.T) {
 
 	cli := dockerClient(t)
 
-	reader, err := cli.ImagePull(context.Background(), etcdImage, types.ImagePullOptions{})
+	reader, err := cli.ImagePull(context.Background(), etcdImage, image.PullOptions{})
 	defer func() {
 		err = reader.Close()
 		require.NoError(t, err)
@@ -69,7 +69,7 @@ func RunEtcdContainer(t *testing.T, hostPortBinding nat.PortBinding) string {
 	}, nil, nil, "")
 	require.NoError(t, err)
 
-	err = cli.ContainerStart(context.Background(), resp.ID, types.ContainerStartOptions{})
+	err = cli.ContainerStart(context.Background(), resp.ID, container.StartOptions{})
 	require.NoError(t, err)
 
 	return resp.ID
@@ -80,7 +80,7 @@ func PullKubeAPIServerImage(t *testing.T) {
 
 	cli := dockerClient(t)
 
-	reader, err := cli.ImagePull(context.Background(), kubeAPIServerImage, types.ImagePullOptions{})
+	reader, err := cli.ImagePull(context.Background(), kubeAPIServerImage, image.PullOptions{})
 	defer func() {
 		err = reader.Close()
 		require.NoError(t, err)
@@ -133,7 +133,7 @@ func RunKubeAPIServer(t *testing.T, port, etcdHost, oidcIssuerURL string) string
 	}, nil, nil, "")
 	require.NoError(t, err)
 
-	err = cli.ContainerStart(context.Background(), resp.ID, types.ContainerStartOptions{})
+	err = cli.ContainerStart(context.Background(), resp.ID, container.StartOptions{})
 	require.NoError(t, err)
 
 	return resp.ID
@@ -144,7 +144,7 @@ func PullKeycloakImage(t *testing.T) {
 
 	cli := dockerClient(t)
 
-	reader, err := cli.ImagePull(context.Background(), keycloakImage, types.ImagePullOptions{})
+	reader, err := cli.ImagePull(context.Background(), keycloakImage, image.PullOptions{})
 	defer func() {
 		err = reader.Close()
 		require.NoError(t, err)
@@ -203,7 +203,7 @@ func RunKeycloakContainer(t *testing.T, hostPortBinding nat.PortBinding) string 
 	}, nil, nil, "")
 	require.NoError(t, err)
 
-	err = cli.ContainerStart(context.Background(), resp.ID, types.ContainerStartOptions{})
+	err = cli.ContainerStart(context.Background(), resp.ID, container.StartOptions{})
 	require.NoError(t, err)
 
 	return resp.ID
@@ -214,10 +214,10 @@ func StopAndRemoveContainer(t *testing.T, containerID string) {
 
 	cli := dockerClient(t)
 
-	err := cli.ContainerStop(context.Background(), containerID, nil)
+	err := cli.ContainerStop(context.Background(), containerID, container.StopOptions{})
 	require.NoError(t, err)
 
-	err = cli.ContainerRemove(context.Background(), containerID, types.ContainerRemoveOptions{
+	err = cli.ContainerRemove(context.Background(), containerID, container.RemoveOptions{
 		RemoveVolumes: true,
 	})
 	require.NoError(t, err)

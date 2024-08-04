@@ -6,11 +6,16 @@ type config struct {
 	tlsPort int
 }
 
+const (
+	port    = 80
+	tlsPort = 80
+)
+
 func defaultConfig() *config {
 	return &config{
 		host:    "0.0.0.0",
-		port:    80,
-		tlsPort: 443,
+		port:    port,
+		tlsPort: tlsPort,
 	}
 }
 

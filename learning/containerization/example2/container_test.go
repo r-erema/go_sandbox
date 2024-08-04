@@ -129,11 +129,10 @@ func TestContainer(t *testing.T) {
 		require.NoError(t, err)
 
 		for _, tt := range tests {
-			testCase := tt
-			t.Run(testCase.name, func(t *testing.T) {
+			t.Run(tt.name, func(t *testing.T) {
 				t.Parallel()
 
-				testCase.assertFn(t)
+				tt.assertFn(t)
 			})
 		}
 	}
@@ -188,7 +187,7 @@ func containerIsAbleToSeeWhatWasMountedInTheHostAssertFn(containerRootPath strin
 			require.NoError(t, err)
 		})
 
-		path := fmt.Sprintf("/tmp/visible_target_in_container/%s", filepath.Base(file.Name()))
+		path := "/tmp/visible_target_in_container/" + filepath.Base(file.Name())
 		containerOutput := string(runCommandInContainer(t, "cat", false, path))
 		assert.Equal(t, fileContent, containerOutput)
 	}
@@ -199,7 +198,7 @@ func only2ProcessesInTheContainerAssertFn(runCommandInContainer runCommandInCont
 		t.Helper()
 
 		containerOutput := string(runCommandInContainer(t, "ps", false, "axu"))
-		assert.Equal(t, 4, len(strings.Split(containerOutput, "\n")))
+		assert.Len(t, strings.Split(containerOutput, "\n"), 4)
 		assert.Contains(t, containerOutput, "1 root")
 		assert.Contains(t, containerOutput, "root      0:00 ps axu")
 	}

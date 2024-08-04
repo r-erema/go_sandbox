@@ -6,10 +6,9 @@ import (
 	"io"
 	"os"
 	"testing"
-	"time"
 
-	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
 	"github.com/stretchr/testify/require"
 )
@@ -41,13 +40,13 @@ func TestBuildImage(t *testing.T) {
 
 	_, err = cli.ImageImport(
 		context.Background(),
-		types.ImageImportSource{Source: f, SourceName: "-"},
+		image.ImportSource{Source: f, SourceName: "-"},
 		imageImportedName,
-		types.ImageImportOptions{},
+		image.ImportOptions{},
 	)
 	require.NoError(t, err)
 	t.Cleanup(func() {
-		_, err = cli.ImageRemove(context.Background(), imageImportedName, types.ImageRemoveOptions{})
+		_, err = cli.ImageRemove(context.Background(), imageImportedName, image.RemoveOptions{})
 		require.NoError(t, err)
 	})
 
@@ -57,14 +56,14 @@ func TestBuildImage(t *testing.T) {
 	}, &container.HostConfig{}, nil, nil, "")
 
 	t.Cleanup(func() {
-		timeout := time.Duration(0)
-		err = cli.ContainerStop(context.Background(), cont.ID, &timeout)
+		timeout := 0
+		err = cli.ContainerStop(context.Background(), cont.ID, container.StopOptions{Timeout: &timeout})
 		require.NoError(t, err)
-		err = cli.ContainerRemove(context.Background(), cont.ID, types.ContainerRemoveOptions{})
+		err = cli.ContainerRemove(context.Background(), cont.ID, container.RemoveOptions{})
 		require.NoError(t, err)
 	})
 
-	err = cli.ContainerStart(context.Background(), cont.ID, types.ContainerStartOptions{})
+	err = cli.ContainerStart(context.Background(), cont.ID, container.StartOptions{})
 	require.NoError(t, err)
 }
 

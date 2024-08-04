@@ -59,14 +59,14 @@ func TestController(t *testing.T) { //nolint: paralleltest
 
 	go func() {
 		err = server.Run(context.Background())
-		require.NoError(t, err)
+		assert.NoError(t, err)
 	}()
 
 	time.Sleep(time.Second)
 
 	go func() {
 		err = watcher.Run(context.Background())
-		require.NoError(t, err)
+		assert.NoError(t, err)
 	}()
 
 	time.Sleep(time.Second)
@@ -74,15 +74,15 @@ func TestController(t *testing.T) { //nolint: paralleltest
 	go func() {
 		srv := http.Server{
 			Addr: fmt.Sprintf("%s:%d", "0.0.0.0", 5050),
-			Handler: http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+			Handler: http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) {
 				_, err = writer.Write([]byte(backendServiceResponse))
-				require.NoError(t, err)
+				assert.NoError(t, err)
 			}),
 			ReadHeaderTimeout: time.Second,
 		}
 
 		err = srv.ListenAndServeTLS(certPath, certKey)
-		require.NoError(t, err)
+		assert.NoError(t, err)
 	}()
 
 	time.Sleep(time.Second)

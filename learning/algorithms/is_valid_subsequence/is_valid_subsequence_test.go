@@ -72,15 +72,13 @@ func Test_validateSubsequence(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			result := isValidSubsequence(testCase.subSequence, testCase.sequence)
-			assert.Equal(t, testCase.isValid, result)
-			result = isValidSubsequence2(testCase.subSequence, testCase.sequence)
-			assert.Equal(t, testCase.isValid, result)
+			result := isValidSubsequence(tt.subSequence, tt.sequence)
+			assert.Equal(t, tt.isValid, result)
+			result = isValidSubsequence2(tt.subSequence, tt.sequence)
+			assert.Equal(t, tt.isValid, result)
 		})
 	}
 }
@@ -93,6 +91,7 @@ func isValidSubsequence(subSequence, sequence []int) bool {
 		if sequence[secIdx] == subSequence[subSeqIdx] {
 			subSeqIdx++
 		}
+
 		secIdx++
 	}
 

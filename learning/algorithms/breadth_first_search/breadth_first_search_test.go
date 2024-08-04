@@ -46,8 +46,7 @@ func TestBFS(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
 			bfs := func(nodeIndex int) {
@@ -55,11 +54,11 @@ func TestBFS(t *testing.T) {
 
 				for len(queue) > 0 {
 					nodeIndex, queue = queue[0], queue[1:]
-					testCase.vertices[nodeIndex] = 1
+					tt.vertices[nodeIndex] = 1
 
-					if nodeIndex < len(testCase.edges) {
-						for _, edge := range testCase.edges[nodeIndex] {
-							if testCase.vertices[edge] == 0 {
+					if nodeIndex < len(tt.edges) {
+						for _, edge := range tt.edges[nodeIndex] {
+							if tt.vertices[edge] == 0 {
 								queue = append(queue, edge)
 							}
 						}
@@ -68,7 +67,7 @@ func TestBFS(t *testing.T) {
 			}
 
 			bfs(0)
-			assert.Equal(t, testCase.want, testCase.vertices)
+			assert.Equal(t, tt.want, tt.vertices)
 		})
 	}
 }

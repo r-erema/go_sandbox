@@ -23,7 +23,6 @@ func Test3Sum(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -39,7 +38,7 @@ func threeSum(nums []int) [][]int { //nolint:cyclop
 
 	var res [][]int
 
-	for i := 0; i < len(nums)-2; i++ {
+	for i := range len(nums) - 2 {
 		if i > 0 && nums[i] == nums[i-1] {
 			continue
 		}
@@ -56,9 +55,11 @@ func threeSum(nums []int) [][]int { //nolint:cyclop
 				res = append(res, []int{nums[i], nums[left], nums[right]})
 				left++
 				right--
+
 				for left < right && nums[left] == nums[left-1] {
 					left++
 				}
+
 				for left < right && nums[right] == nums[right+1] {
 					right--
 				}

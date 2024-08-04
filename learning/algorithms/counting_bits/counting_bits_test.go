@@ -32,11 +32,10 @@ func TestCountBits(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, testCase.want, countBits(testCase.number))
+			assert.Equal(t, tt.want, countBits(tt.number))
 		})
 	}
 }

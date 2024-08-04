@@ -22,7 +22,6 @@ func TestLargestRectangleInHistogram(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -57,12 +56,4 @@ func largestRectangleArea(heights []int) int {
 	}
 
 	return maxArea
-}
-
-func max(n1, n2 int) int {
-	if n1 > n2 {
-		return n1
-	}
-
-	return n2
 }

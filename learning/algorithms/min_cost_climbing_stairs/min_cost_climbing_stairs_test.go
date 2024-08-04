@@ -27,12 +27,10 @@ func TestSubsets(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, testCase.want, minCostClimbingStairs(testCase.cost))
+			assert.Equal(t, tt.want, minCostClimbingStairs(tt.cost))
 		})
 	}
 }
@@ -45,12 +43,4 @@ func minCostClimbingStairs(cost []int) int {
 	}
 
 	return min(cost[0], cost[1])
-}
-
-func min(n1, n2 int) int {
-	if n1 < n2 {
-		return n1
-	}
-
-	return n2
 }

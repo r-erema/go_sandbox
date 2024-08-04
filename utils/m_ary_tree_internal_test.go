@@ -44,13 +44,11 @@ func TestKAryTree_Traverse(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			values := testCase.tree.Traverse()
-			assert.Equal(t, testCase.want, values)
+			values := tt.tree.Traverse()
+			assert.Equal(t, tt.want, values)
 		})
 	}
 }

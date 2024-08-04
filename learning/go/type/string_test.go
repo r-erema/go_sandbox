@@ -11,12 +11,13 @@ func TestStringIteration(t *testing.T) {
 
 	str := "abcАБВ🙂"
 
-	assert.Equal(t, 13, len(str))
+	assert.Len(t, str, 13)
 
 	iterationsCount := 0
 
-	for i := 0; i < len(str); i++ {
+	for i := range len(str) {
 		assert.IsType(t, byte(0), str[i])
+
 		iterationsCount++
 	}
 
@@ -27,6 +28,7 @@ func TestStringIteration(t *testing.T) {
 	for i, r := range str {
 		assert.Contains(t, [7]int{0, 1, 2, 3, 5, 7, 9}, i)
 		assert.IsType(t, '1', r)
+
 		iterationsCount++
 	}
 

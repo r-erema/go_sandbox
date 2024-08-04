@@ -66,12 +66,10 @@ func TestDiameterOfBinaryTree(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, testCase.want, diameterOfBinaryTree(testCase.root))
+			assert.Equal(t, tt.want, diameterOfBinaryTree(tt.root))
 		})
 	}
 }
@@ -95,12 +93,4 @@ func diameterOfBinaryTree(root *TreeNode) int {
 	dfs(root)
 
 	return diameter
-}
-
-func max(n1, n2 int) int {
-	if n1 > n2 {
-		return n1
-	}
-
-	return n2
 }

@@ -20,6 +20,7 @@ type StarReconciler struct {
 func (sr *StarReconciler) Reconcile(_ context.Context, _ reconcile.Request) (reconcile.Result, error) {
 	sr.mu.Lock()
 	defer sr.mu.Unlock()
+
 	sr.reconciledTimes++
 
 	return ctrl.Result{

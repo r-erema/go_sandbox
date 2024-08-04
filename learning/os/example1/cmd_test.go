@@ -67,7 +67,7 @@ func TestUsingDescriptorInOtherProcess(t *testing.T) {
 	require.NoError(t, err)
 
 	err = <-waiter(t, parentSock)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }
 
 func waiter(t *testing.T, reader io.Reader) chan error {
@@ -78,8 +78,8 @@ func waiter(t *testing.T, reader io.Reader) chan error {
 	go func() {
 		buf := make([]byte, 1)
 		_, err := reader.Read(buf)
-		require.NoError(t, err)
-		require.Equal(t, []byte("1"), buf)
+		assert.NoError(t, err)
+		assert.Equal(t, []byte("1"), buf)
 		channel <- nil
 	}()
 

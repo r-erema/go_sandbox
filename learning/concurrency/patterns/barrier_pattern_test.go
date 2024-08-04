@@ -60,7 +60,7 @@ func TestBarrierFirstInstance(t *testing.T) {
 
 	rand.Seed(time.Now().UnixNano())
 
-	for i := 0; i < amount; i++ {
+	for range amount {
 		wg.Add(1)
 
 		go func() {
@@ -71,6 +71,7 @@ func TestBarrierFirstInstance(t *testing.T) {
 
 			mutex.Lock()
 			defer mutex.Unlock()
+
 			sum++
 		}()
 	}
@@ -119,17 +120,19 @@ func TestAllHTTPRequestsShouldBeOKOtherwiseReturnError(t *testing.T) {
 
 	rand.Seed(time.Now().UnixNano())
 
-	microserviceDepositRate := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	microserviceDepositRate := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		time.Sleep(time.Millisecond * time.Duration(rand.Intn(100)))
+
 		_, err := w.Write([]byte("0.02"))
-		require.NoError(t, err)
+		assert.NoError(t, err)
 	}))
 
-	microserviceUserAccountBalance := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	microserviceUserAccountBalance := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		time.Sleep(time.Millisecond * time.Duration(rand.Intn(100)))
+
 		_, err := w.Write([]byte("500"))
 		w.WriteHeader(http.StatusInternalServerError)
-		require.NoError(t, err)
+		assert.NoError(t, err)
 	}))
 
 	tests := []struct {
@@ -155,7 +158,7 @@ func TestAllHTTPRequestsShouldBeOKOtherwiseReturnError(t *testing.T) {
 				balance, err := strconv.ParseFloat(string(<-bodyBalanceCh), 64)
 				require.NoError(t, err)
 
-				assert.Equal(t, float64(10), rate*balance)
+				assert.InEpsilon(t, float64(10), rate*balance, 0)
 			},
 		},
 		{
@@ -164,15 +167,13 @@ func TestAllHTTPRequestsShouldBeOKOtherwiseReturnError(t *testing.T) {
 				go makeRequest("microserviceDepositRate.bad.url", barrier, bodyDepositCh, errDepositCh)
 				go makeRequest(microserviceUserAccountBalance.URL, barrier, bodyBalanceCh, errBalanceCh)
 
-				assert.Error(t, <-errDepositCh)
+				require.Error(t, <-errDepositCh)
 				require.NoError(t, <-errBalanceCh)
 			},
 		},
 	}
 
 	for _, tt := range tests {
-		tt := tt
-
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

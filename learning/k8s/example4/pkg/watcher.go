@@ -59,7 +59,7 @@ func (w Watcher) Run(ctx context.Context) error {
 
 	go func() {
 		informer := factory.Core().V1().Secrets().Informer()
-		informer.AddEventHandler(handler)
+		_, _ = informer.AddEventHandler(handler)
 		informer.Run(ctx.Done())
 		waitGroup.Done()
 	}()
@@ -68,7 +68,7 @@ func (w Watcher) Run(ctx context.Context) error {
 
 	go func() {
 		informer := factory.Networking().V1().Ingresses().Informer()
-		informer.AddEventHandler(handler)
+		_, _ = informer.AddEventHandler(handler)
 		informer.Run(ctx.Done())
 		waitGroup.Done()
 	}()
@@ -77,7 +77,7 @@ func (w Watcher) Run(ctx context.Context) error {
 
 	go func() {
 		informer := factory.Core().V1().Services().Informer()
-		informer.AddEventHandler(handler)
+		_, _ = informer.AddEventHandler(handler)
 		informer.Run(ctx.Done())
 		waitGroup.Done()
 	}()
@@ -157,34 +157,34 @@ func handleIngressSpec(ingress *v1.Ingress, payload *Payload, ingressPayload Ing
 	for _, rec := range ingress.Spec.TLS {
 		if rec.SecretName == "" {
 			continue
-		} else {
-			secret, err := secretsLister.Secrets(ingress.Namespace).Get(rec.SecretName)
-			if err != nil {
-				klog.Errorf(
-					"Getting secrets error: %s. Secret name: %s. Namespace: %s",
-					err,
-					rec.SecretName,
-					ingressPayload.Ingress.Namespace,
-				)
-
-				continue
-			}
-
-			klog.Infof("Secret `%s` has been found, namespace: %s", rec.SecretName, ingressPayload.Ingress.Namespace)
-
-			cert, err := tls.X509KeyPair(secret.Data["tls.crt"], secret.Data["tls.key"])
-			if err != nil {
-				klog.Errorf(
-					"Generating X509 key pair error: %s. Secret name: %s. Namespace: %s",
-					err,
-					rec.SecretName,
-					ingressPayload.Ingress.Namespace,
-				)
-
-				continue
-			}
-
-			payload.TLSCertificates[rec.SecretName] = &cert
 		}
+
+		secret, err := secretsLister.Secrets(ingress.Namespace).Get(rec.SecretName)
+		if err != nil {
+			klog.Errorf(
+				"Getting secrets error: %s. Secret name: %s. Namespace: %s",
+				err,
+				rec.SecretName,
+				ingressPayload.Ingress.Namespace,
+			)
+
+			continue
+		}
+
+		klog.Infof("Secret `%s` has been found, namespace: %s", rec.SecretName, ingressPayload.Ingress.Namespace)
+
+		cert, err := tls.X509KeyPair(secret.Data["tls.crt"], secret.Data["tls.key"])
+		if err != nil {
+			klog.Errorf(
+				"Generating X509 key pair error: %s. Secret name: %s. Namespace: %s",
+				err,
+				rec.SecretName,
+				ingressPayload.Ingress.Namespace,
+			)
+
+			continue
+		}
+
+		payload.TLSCertificates[rec.SecretName] = &cert
 	}
 }

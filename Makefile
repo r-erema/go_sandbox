@@ -1,4 +1,4 @@
-GOLANGCI_IMAGE=golangci/golangci-lint:v1.51.2-alpine
+GOLANGCI_IMAGE=golangci/golangci-lint:v1.59.1-alpine
 
 HOST_IP=`hostname -I | awk '{print $$1}'`
 

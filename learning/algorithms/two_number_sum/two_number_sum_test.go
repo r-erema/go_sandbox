@@ -31,16 +31,15 @@ func Test_sum(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			result := sumLinear(testCase.numbers, testCase.targetSum)
-			assert.ElementsMatch(t, testCase.expectedResult, result)
-			result = sumHashTable(testCase.numbers, testCase.targetSum)
-			assert.ElementsMatch(t, testCase.expectedResult, result)
-			result = sumShiftingPointer(testCase.numbers, testCase.targetSum)
-			assert.ElementsMatch(t, testCase.expectedResult, result)
+
+			result := sumLinear(tt.numbers, tt.targetSum)
+			assert.ElementsMatch(t, tt.expectedResult, result)
+			result = sumHashTable(tt.numbers, tt.targetSum)
+			assert.ElementsMatch(t, tt.expectedResult, result)
+			result = sumShiftingPointer(tt.numbers, tt.targetSum)
+			assert.ElementsMatch(t, tt.expectedResult, result)
 		})
 	}
 }
