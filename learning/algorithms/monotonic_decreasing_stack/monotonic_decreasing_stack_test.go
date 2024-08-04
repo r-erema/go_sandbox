@@ -19,5 +19,5 @@ func TestMonotonicDecreasingStack(t *testing.T) {
 		monoStack = append(monoStack, number)
 	}
 
-	assert.Equal(t, monoStack, []int{6, 5, 4})
+	assert.Equal(t, []int{6, 5, 4}, monoStack)
 }

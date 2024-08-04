@@ -28,7 +28,6 @@ func TestValidAnagram(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -50,7 +49,7 @@ func isAnagram(word1, word2 string) bool {
 
 	arr := [26]int{}
 
-	for i := 0; i < len(word1); i++ {
+	for i := range len(word1) {
 		arr[word1[i]-'a']++
 		arr[word2[i]-'a']--
 	}

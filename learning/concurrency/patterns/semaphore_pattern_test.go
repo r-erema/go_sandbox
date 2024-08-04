@@ -58,8 +58,7 @@ func TestProcess(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
 			processor := orderProcessor{
@@ -67,19 +66,19 @@ func TestProcess(t *testing.T) {
 				wg:        new(sync.WaitGroup),
 			}
 
-			for _, id := range testCase.orderIDs {
+			for _, id := range tt.orderIDs {
 				processor.wg.Add(1)
 				go processor.process(id)
 			}
 
-			for len(processor.semaphore) < testCase.expectedConcurrentProcessingCount {
+			for len(processor.semaphore) < tt.expectedConcurrentProcessingCount {
 				time.Sleep(time.Millisecond)
 			}
 
-			assert.Equal(t, testCase.expectedConcurrentProcessingCount, len(processor.semaphore))
+			assert.Len(t, tt.expectedConcurrentProcessingCount, len(processor.semaphore))
 
 			processor.wg.Wait()
-			assert.Equal(t, 0, len(processor.semaphore))
+			assert.Empty(t, processor.semaphore)
 		})
 	}
 }
@@ -111,6 +110,7 @@ func (lm *licenseManager) Acquire() error {
 	}
 
 	lm.semaphore <- struct{}{}
+
 	lm.usedLicenses++
 
 	return nil
@@ -145,7 +145,7 @@ func TestLicenseManager(t *testing.T) {
 
 		licMgr := buildLicenseManager(2)
 		err := licMgr.Acquire()
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, 1, licMgr.UsedLicenses())
 	})
 
@@ -157,7 +157,7 @@ func TestLicenseManager(t *testing.T) {
 		require.NoError(t, err)
 
 		err = licMgr.Release()
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, 0, licMgr.UsedLicenses())
 	})
 
@@ -166,9 +166,9 @@ func TestLicenseManager(t *testing.T) {
 
 		licMgr := buildLicenseManager(1)
 		err := licMgr.Acquire()
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		err = licMgr.Acquire()
-		assert.Error(t, err)
+		require.Error(t, err)
 	})
 
 	t.Run("Release Without Acquire", func(t *testing.T) {
