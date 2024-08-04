@@ -27,7 +27,6 @@ func TestInsertionSort(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -41,8 +40,8 @@ func TestInsertionSort(t *testing.T) {
 Average, Worst: O(n^2) time | O(1) space.
 */
 func insertionSort(array *[]int) {
-	for i := 0; i < len(*array); i++ {
-		for j := 0; j < len((*array)[i:])-1; j++ {
+	for i := range *array {
+		for j := range (*array)[i:] {
 			if (*array)[j] > (*array)[j+1] {
 				(*array)[j], (*array)[j+1] = (*array)[j+1], (*array)[j]
 			}

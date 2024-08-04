@@ -22,12 +22,10 @@ func TestSubsets(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, testCase.want, subsets(testCase.nums))
+			assert.Equal(t, tt.want, subsets(tt.nums))
 		})
 	}
 }
@@ -50,7 +48,7 @@ func subsets(nums []int) [][]int {
 	}
 
 	subs := [][]int{{}}
-	for i := 0; i < len(nums); i++ {
+	for i := range len(nums) {
 		subs = backtrack(nums[i], subs)
 	}
 

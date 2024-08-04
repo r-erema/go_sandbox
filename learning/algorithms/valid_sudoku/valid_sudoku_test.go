@@ -63,7 +63,6 @@ func TestValidSudoku(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -79,8 +78,8 @@ func isValidSudoku(board [][]byte) bool {
 	cols := make([]map[byte]struct{}, len(board))
 	subSquares := make(map[[2]int]map[byte]struct{}, len(board)*len(board[0])/3)
 
-	for i := 0; i < len(board); i++ {
-		for j := 0; j < len(board[0]); j++ {
+	for i := range len(board) {
+		for j := range len(board[0]) {
 			if board[i][j] == '.' {
 				continue
 			}

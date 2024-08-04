@@ -33,11 +33,11 @@ func scheduleTasks(workerCount, taskCount int, stdout io.Writer) {
 	wg := new(sync.WaitGroup)
 	tasks := make(chan poolTask, 10)
 
-	for i := 0; i < workerCount; i++ {
+	for i := range workerCount {
 		go poolWorker(i, tasks, wg, stdout)
 	}
 
-	for i := 0; i < taskCount; i++ {
+	for i := range taskCount {
 		wg.Add(1)
 		tasks <- func(i int) poolTask {
 			return poolTask{
@@ -72,7 +72,7 @@ func TestTaskManager(t *testing.T) {
 	out, err := io.ReadAll(read)
 	require.NoError(t, err)
 
-	for i := 0; i < tasksCount; i++ {
+	for i := range tasksCount {
 		assert.Contains(t, string(out), fmt.Sprintf("Task `%d` is executed", i))
 	}
 }
@@ -103,7 +103,7 @@ func newWorkerPool(workerCount int, stdOut io.Writer) *workerPool {
 }
 
 func (wp *workerPool) Start() {
-	for i := 0; i < wp.workerCount; i++ {
+	for range wp.workerCount {
 		wp.wg.Add(1)
 
 		go func() {

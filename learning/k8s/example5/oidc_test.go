@@ -73,30 +73,30 @@ func TestOIDC(t *testing.T) { //nolint: paralleltest, tparallel
 	mutex.Unlock()
 
 	for _, tt := range tests {
-		testCase := tt
-
 		util.BehaviorOnFatal(func(msg string, _ int) {
-			if testCase.expectError {
+			if tt.expectError {
 				require.Equal(t, "error: You must be logged in to the server (Unauthorized)\n", msg)
 			}
 		})
 
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
 			mutex.Lock()
 			KeycloakURL, IDPIssuerURL, KubeConfigPath, clean := prepareInfrastructure(t)
+
 			defer clean()
 
 			stepPrepareClusterRole(t, string(KubeConfigPath))
 			time.Sleep(time.Second * 10)
 
 			keycloakUser := defaultKeycloakUser()
-			if !testCase.expectError {
+			if !tt.expectError {
 				keycloakUser.Groups = &[]string{keycloakUserGroup}
 			}
 
 			time.Sleep(time.Second * 5)
+
 			clientID, secret, refreshToken, IDToken := stepPrepareKeycloakClient(
 				t,
 				string(KeycloakURL),
@@ -225,7 +225,7 @@ func TestProveBug_UpdatedGoodRefreshTokenInsteadOfExpiredOneIsNotBeingApplied(t 
 		stepSleepToExpireToken(refreshTokenShortLifetimeSeconds)
 
 		list, err := kubeClientset.CoreV1().Pods("").List(context.Background(), v1.ListOptions{})
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Nil(t, list.Items)
 	}
 
@@ -261,7 +261,7 @@ func TestProveBug_UpdatedGoodRefreshTokenInsteadOfExpiredOneIsNotBeingApplied(t 
 		)
 
 		list, err := kubeClientset.CoreV1().Pods("").List(context.Background(), v1.ListOptions{})
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Nil(t, list.Items)
 	}
 	stepAssertNotAuthorizedEvenWithGoodRefreshToken()
@@ -280,7 +280,7 @@ func stepPrepareKeycloakClient( //nolint:nonamedreturns
 
 	realm, err := keycloakAdmin.CreateRealm(context.Background(), adminToken.AccessToken, *realmRepresentation)
 	require.NoError(t, err)
-	require.Equal(t, realm, keycloakRealm)
+	require.Equal(t, keycloakRealm, realm)
 
 	clientSecret, err := keycloakAdmin.GetClientSecret(context.Background(), adminToken.AccessToken, keycloakRealm, keycloakIDOfClient)
 	require.NoError(t, err)
@@ -413,7 +413,7 @@ func runDockerContainers(t *testing.T, etcdHostPort, keycloakHostPort, kubeAPISe
 	kubeAPIServerContainerID := test.RunKubeAPIServer(
 		t,
 		kubeAPIServerPort,
-		fmt.Sprintf("host.docker.internal:%s", etcdHostPort),
+		"host.docker.internal:"+etcdHostPort,
 		fmt.Sprintf("https://localhost:%s/realms/k8s-realm", keycloakHostPort),
 	)
 	containerIDs[2] = kubeAPIServerContainerID
@@ -581,7 +581,8 @@ func prepareInfrastructure(t *testing.T) (keycloakURL, idpIssuerURL, kubeConfigP
 		k8sAdminAuthCertKeyPath,
 	)
 
-	KeycloakURL := fmt.Sprintf("https://localhost:%s", keycloakHostPort)
+	// KeycloakURL := fmt.Sprintf("https://localhost:%s", keycloakHostPort)
+	KeycloakURL := "https://localhost" + keycloakHostPort
 	IDPIssuerURL := fmt.Sprintf("%s/realms/%s", KeycloakURL, keycloakRealm)
 
 	return keycloakURL(KeycloakURL),

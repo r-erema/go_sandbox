@@ -32,12 +32,11 @@ func TestMissingNumber(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, testCase.want, missingNumber(testCase.input))
-			assert.Equal(t, testCase.want, missingNumber2(testCase.input))
+			assert.Equal(t, tt.want, missingNumber(tt.input))
+			assert.Equal(t, tt.want, missingNumber2(tt.input))
 		})
 	}
 }
@@ -59,7 +58,7 @@ func missingNumber(nums []int) int {
 func missingNumber2(nums []int) int {
 	var res int
 
-	for i := 0; i < len(nums); i++ {
+	for i := range nums {
 		res ^= (i + 1) ^ nums[i]
 	}
 

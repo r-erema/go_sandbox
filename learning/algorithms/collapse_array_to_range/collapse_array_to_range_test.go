@@ -36,7 +36,6 @@ func TestCollapseArrayToRange(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -55,7 +54,7 @@ func collapseArrayToRange(arr []int) string {
 	arrLength := len(arr)
 	indexStartRange := 0
 
-	for i := 0; i < arrLength; i++ {
+	for i := range arrLength {
 		if i+1 == arrLength || isGap(float64(arr[i]), float64(arr[i+1])) {
 			ranges = append(ranges, buildRange(arr[indexStartRange:i+1]))
 			indexStartRange = i + 1
