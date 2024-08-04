@@ -41,14 +41,12 @@ func TestInvertTree(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, testCase.want, maxDepthDFS(testCase.root))
-			assert.Equal(t, testCase.want, maxDepthBFS(testCase.root))
-			assert.Equal(t, testCase.want, maxDepthRecursive(testCase.root))
+			assert.Equal(t, tt.want, maxDepthDFS(tt.root))
+			assert.Equal(t, tt.want, maxDepthBFS(tt.root))
+			assert.Equal(t, tt.want, maxDepthRecursive(tt.root))
 		})
 	}
 }
@@ -71,7 +69,7 @@ func maxDepthBFS(root *TreeNode) int {
 
 	for len(queue) > 0 {
 		queueLen := len(queue)
-		for i := 0; i < queueLen; i++ {
+		for i := range queueLen {
 			if queue[i].Left != nil {
 				queue = append(queue, queue[i].Left)
 			}
@@ -123,12 +121,4 @@ func maxDepthRecursive(root *TreeNode) int {
 	}
 
 	return result
-}
-
-func max(n1, n2 int) int {
-	if n1 > n2 {
-		return n1
-	}
-
-	return n2
 }

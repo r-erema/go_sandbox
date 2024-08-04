@@ -29,15 +29,13 @@ func TestEncodeAndDecodeStrings(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			encoded := encode(testCase.source)
-			assert.Equal(t, testCase.encodedStr, encoded)
+			encoded := encode(tt.source)
+			assert.Equal(t, tt.encodedStr, encoded)
 			decoded := decode(encoded)
-			assert.Equal(t, testCase.source, decoded)
+			assert.Equal(t, tt.source, decoded)
 		})
 	}
 }
@@ -61,7 +59,7 @@ func decode(input string) []string {
 		res             []string
 	)
 
-	for len(input) > 0 {
+	for input != "" {
 		i := 0
 		for input[i] != '#' {
 			i++

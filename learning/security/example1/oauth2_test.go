@@ -28,7 +28,7 @@ const (
 	resourceServerAddr = "localhost:6607"
 )
 
-type tableTestCase struct {
+type tablett struct {
 	name           string
 	expectedStatus int
 	expectedBody   string
@@ -45,10 +45,10 @@ func initTestStorage() map[example1.UserID]example1.BankAccountPIN {
 func Test_ClientCredentialsGrantFlow(t *testing.T) {
 	t.Parallel()
 
-	tests := []tableTestCase{
-		testCaseWithoutCredentials(t),
-		testCaseWithBadCredentials(t),
-		testCaseSuccessful(t),
+	tests := []tablett{
+		ttWithoutCredentials(t),
+		ttWithBadCredentials(t),
+		ttSuccessful(t),
 	}
 
 	authServerStorage := store.NewClientStore()
@@ -74,23 +74,21 @@ func Test_ClientCredentialsGrantFlow(t *testing.T) {
 
 	go func() {
 		err := resourceServer.Run(resourceServerAddr)
-		require.NoError(t, err)
+		assert.NoError(t, err)
 	}()
 
 	go func() {
 		err := authServer.Run(authServerAddr)
-		require.NoError(t, err)
+		assert.NoError(t, err)
 	}()
 
 	time.Sleep(time.Millisecond * 100)
 
 	for _, tt := range tests {
-		testCase := tt
-
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			req := testCase.requestFactory()
+			req := tt.requestFactory()
 
 			resp, err := http.DefaultClient.Do(req)
 			require.NoError(t, err)
@@ -103,16 +101,16 @@ func Test_ClientCredentialsGrantFlow(t *testing.T) {
 			body, err := io.ReadAll(resp.Body)
 			require.NoError(t, err)
 
-			assert.Equal(t, testCase.expectedStatus, resp.StatusCode)
-			assert.Equal(t, testCase.expectedBody, strings.TrimSpace(string(body)))
+			assert.Equal(t, tt.expectedStatus, resp.StatusCode)
+			assert.Equal(t, tt.expectedBody, strings.TrimSpace(string(body)))
 		})
 	}
 }
 
-func testCaseWithoutCredentials(t *testing.T) tableTestCase {
+func ttWithoutCredentials(t *testing.T) tablett {
 	t.Helper()
 
-	return tableTestCase{
+	return tablett{
 		name:           "request without credentials",
 		expectedStatus: http.StatusUnauthorized,
 		expectedBody:   "",
@@ -129,10 +127,10 @@ func testCaseWithoutCredentials(t *testing.T) tableTestCase {
 	}
 }
 
-func testCaseWithBadCredentials(t *testing.T) tableTestCase {
+func ttWithBadCredentials(t *testing.T) tablett {
 	t.Helper()
 
-	return tableTestCase{
+	return tablett{
 		name:           "request with bad credentials",
 		expectedStatus: http.StatusUnauthorized,
 		expectedBody:   "",
@@ -177,10 +175,10 @@ func testCaseWithBadCredentials(t *testing.T) tableTestCase {
 	}
 }
 
-func testCaseSuccessful(t *testing.T) tableTestCase {
+func ttSuccessful(t *testing.T) tablett {
 	t.Helper()
 
-	return tableTestCase{
+	return tablett{
 		name:           "successful request",
 		expectedStatus: http.StatusOK,
 		expectedBody:   bankAccountPIN,

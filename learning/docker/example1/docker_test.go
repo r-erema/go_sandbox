@@ -16,6 +16,6 @@ func Test_docker(t *testing.T) {
 	require.NoError(t, err)
 
 	ping, err := cli.Ping(context.Background())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, ping)
 }
