@@ -1,6 +1,8 @@
 package kokoeatingbananas_test
 
 import (
+	"math"
+	"slices"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -17,9 +19,9 @@ func TestMinEatingSpeed(t *testing.T) {
 	}{
 		{
 			name:  "Normal piles",
-			piles: []int{3, 6, 7, 11},
-			hours: 8,
-			want:  4,
+			piles: []int{30, 11, 23, 4, 20},
+			hours: 5,
+			want:  30,
 		},
 		{
 			name: "Big piles",
@@ -39,7 +41,6 @@ func TestMinEatingSpeed(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -51,46 +52,28 @@ func TestMinEatingSpeed(t *testing.T) {
 // Time O(NlogM), other than the sort invocation, we do a simple linear scan of the list,
 // Space O(1), where N is the length of the input array piles and M is the maximum number of bananas in a pile.
 func minEatingSpeed(piles []int, hours int) int {
-	minSpeed := 0
-	for _, pile := range piles {
-		if pile > minSpeed {
-			minSpeed = pile
+	minSpeed := slices.Max(piles)
+	left, right := 1, minSpeed
+
+	eatingTime := func(speed int) int {
+		var time int
+		for _, pile := range piles {
+			time += int(math.Ceil(float64(pile) / float64(speed)))
 		}
+
+		return time
 	}
 
-	left, right := 0, minSpeed-1
 	for left <= right {
-		middle := (left + right) / 2
-		potentialEatingSpeed := middle + 1
-		time := eatingTime(piles, potentialEatingSpeed)
+		potentialMinSpeed := (left + right) / 2
 
-		if time > hours {
-			left = middle + 1
+		if eatingTime(potentialMinSpeed) <= hours {
+			minSpeed = potentialMinSpeed
+			right = potentialMinSpeed - 1
 		} else {
-			right = middle - 1
-			minSpeed = min(minSpeed, potentialEatingSpeed)
+			left = potentialMinSpeed + 1
 		}
 	}
 
 	return minSpeed
-}
-
-func eatingTime(piles []int, eatingSpeed int) int {
-	hours := 0
-	for _, pile := range piles {
-		hours += pile / eatingSpeed
-		if pile%eatingSpeed > 0 {
-			hours++
-		}
-	}
-
-	return hours
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-
-	return b
 }

@@ -51,9 +51,7 @@ func TestJobProcessing(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
 			jobsCh := make(chan *job)
@@ -61,17 +59,20 @@ func TestJobProcessing(t *testing.T) {
 
 			wg := new(sync.WaitGroup)
 
-			for i := 0; i < testCase.numWorkers; i++ {
+			for range tt.numWorkers {
 				wg.Add(1)
+
 				go worker(jobsCh, done, wg)
 			}
 
-			jobs := make([]*job, testCase.numJobs)
+			jobs := make([]*job, tt.numJobs)
+
 			go func() {
-				for i := 0; i < testCase.numJobs; i++ {
+				for i := range tt.numJobs {
 					jobs[i] = &job{delay: i}
 					jobsCh <- jobs[i]
 				}
+
 				close(jobsCh)
 				done <- struct{}{}
 			}()
@@ -91,9 +92,10 @@ type task struct {
 }
 
 func taskProducer(tasks chan<- task, done chan<- struct{}, tasksCount int) {
-	for i := 0; i < tasksCount; i++ {
+	for i := range tasksCount {
 		tasks <- task{id: i}
 	}
+
 	close(tasks)
 	done <- struct{}{}
 }
@@ -136,23 +138,22 @@ func TestTaskSystem(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
 			tasks := make(chan task)
 			done := make(chan struct{})
-			processedTasks := make(chan task, testCase.tasksCount)
+			processedTasks := make(chan task, tt.tasksCount)
 
 			wgWorkers := new(sync.WaitGroup)
 			wgTasks := new(sync.WaitGroup)
-			wgTasks.Add(testCase.tasksCount)
+			wgTasks.Add(tt.tasksCount)
 
-			go taskProducer(tasks, done, testCase.tasksCount)
+			go taskProducer(tasks, done, tt.tasksCount)
 
-			for i := 0; i < testCase.workersCount; i++ {
+			for i := range tt.workersCount {
 				wgWorkers.Add(1)
+
 				go taskWorker(i, tasks, done, processedTasks, wgWorkers, wgTasks)
 			}
 
@@ -165,11 +166,14 @@ func TestTaskSystem(t *testing.T) {
 			}()
 
 			processedTasksCount := 0
+
 			for processedTask := range processedTasks {
 				assert.True(t, processedTask.processed)
+
 				processedTasksCount++
 			}
-			assert.Equal(t, testCase.tasksCount, processedTasksCount)
+
+			assert.Equal(t, tt.tasksCount, processedTasksCount)
 		})
 	}
 }

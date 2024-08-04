@@ -11,7 +11,7 @@ type (
 		Value int
 		Next  *ListNode
 	}
-	testCase struct {
+	tt struct {
 		name  string
 		list1 *ListNode
 		list2 *ListNode
@@ -23,14 +23,13 @@ type (
 func TestMerge2SortedLists(t *testing.T) {
 	t.Parallel()
 
-	tests := []testCase{
-		normalListsTestCase(),
+	tests := []tt{
+		normalListstt(),
 		listIsNil(),
 		listHasNegativeNumber(),
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -72,8 +71,8 @@ func mergeTwoSortedLists(list1, list2 *ListNode) *ListNode {
 	return dummyNode.Next
 }
 
-func normalListsTestCase() testCase {
-	return testCase{
+func normalListstt() tt {
+	return tt{
 		name: "Normal lists",
 		list1: &ListNode{
 			Value: 1,
@@ -117,8 +116,8 @@ func normalListsTestCase() testCase {
 	}
 }
 
-func listIsNil() testCase {
-	return testCase{
+func listIsNil() tt {
+	return tt{
 		name: "List is nil",
 		list1: &ListNode{
 			Value: 1,
@@ -132,8 +131,8 @@ func listIsNil() testCase {
 	}
 }
 
-func listHasNegativeNumber() testCase {
-	return testCase{
+func listHasNegativeNumber() tt {
+	return tt{
 		name: "List has a negative number",
 		list1: &ListNode{
 			Value: -9,

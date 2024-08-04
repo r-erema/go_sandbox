@@ -27,12 +27,10 @@ func TestLongestConsecutive(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, testCase.want, longestConsecutive(testCase.nums))
+			assert.Equal(t, tt.want, longestConsecutive(tt.nums))
 		})
 	}
 }
@@ -53,6 +51,7 @@ func longestConsecutive(nums []int) int {
 				if _, ok := numsMap[num+i]; !ok {
 					break
 				}
+
 				i++
 			}
 
@@ -61,12 +60,4 @@ func longestConsecutive(nums []int) int {
 	}
 
 	return result
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-
-	return b
 }

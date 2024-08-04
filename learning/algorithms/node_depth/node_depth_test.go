@@ -49,15 +49,15 @@ func TestFindClosestValue(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			depth := nodeDepthRecursively(testCase.bst)
-			assert.Equal(t, testCase.want, depth)
-			depth = nodeDepthIterative(testCase.bst)
-			assert.Equal(t, testCase.want, depth)
-			depth = nodeDepthIterative2(testCase.bst)
-			assert.Equal(t, testCase.want, depth)
+
+			depth := nodeDepthRecursively(tt.bst)
+			assert.Equal(t, tt.want, depth)
+			depth = nodeDepthIterative(tt.bst)
+			assert.Equal(t, tt.want, depth)
+			depth = nodeDepthIterative2(tt.bst)
+			assert.Equal(t, tt.want, depth)
 		})
 	}
 }

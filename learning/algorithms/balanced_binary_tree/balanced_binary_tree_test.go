@@ -81,7 +81,6 @@ func TestBalancedTree(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -111,12 +110,4 @@ func isBalanced(root *TreeNode) bool {
 	}
 
 	return dfs(root).isBalanced
-}
-
-func max(n1, n2 float64) float64 {
-	if n1 > n2 {
-		return n1
-	}
-
-	return n2
 }
