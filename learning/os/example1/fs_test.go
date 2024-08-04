@@ -31,13 +31,13 @@ func TestMount(t *testing.T) { //nolint:paralleltest
 
 	var sourceEntries, targetEntries []string
 
-	err = filepath.Walk(testFSSourcePath, func(path string, info fs.FileInfo, err error) error {
+	err = filepath.Walk(testFSSourcePath, func(_ string, info fs.FileInfo, _ error) error {
 		sourceEntries = append(sourceEntries, info.Name())
 
 		return nil
 	})
 	sourceEntries = sourceEntries[1:]
-	err = filepath.Walk(mountPoint, func(path string, info fs.FileInfo, err error) error {
+	err = filepath.Walk(mountPoint, func(_ string, info fs.FileInfo, _ error) error {
 		targetEntries = append(targetEntries, info.Name())
 
 		return nil
@@ -61,7 +61,7 @@ func TestChroot(t *testing.T) { //nolint:paralleltest
 	require.NoError(t, err)
 
 	assert.Greater(t, len(resp.DirsBeforeChroot), 3)
-	assert.Equal(t, 3, len(resp.DirsAfterChroot))
+	assert.Len(t, resp.DirsAfterChroot, 3)
 }
 
 func TestRootFSFilesWillBeRevertedAfterUnmountTempFS(t *testing.T) { //nolint:paralleltest
@@ -156,7 +156,7 @@ func contentInDirectory(t *testing.T, dirPath string) []string {
 
 	var content []string
 
-	err := filepath.Walk(dirPath, func(path string, info fs.FileInfo, err error) error {
+	err := filepath.Walk(dirPath, func(_ string, info fs.FileInfo, _ error) error {
 		content = append(content, info.Name())
 
 		return nil

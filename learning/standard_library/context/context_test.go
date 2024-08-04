@@ -25,7 +25,7 @@ func TestContext(t *testing.T) {
 	router := http.NewServeMux()
 	router.HandleFunc(httpEndpointDelayResponse, func(writer http.ResponseWriter, request *http.Request) {
 		body, err := io.ReadAll(request.Body)
-		require.NoError(t, err)
+		assert.NoError(t, err)
 
 		symbols, err := serviceExcludeCommas(request.Context(), body)
 		if err != nil {
@@ -37,7 +37,7 @@ func TestContext(t *testing.T) {
 		writer.WriteHeader(http.StatusOK)
 		_, err = writer.Write(symbols)
 
-		require.NoError(t, err)
+		assert.NoError(t, err)
 	})
 
 	server := httptest.NewServer(router)
@@ -55,7 +55,7 @@ func TestContext(t *testing.T) {
 					context.Background(),
 					http.MethodPost,
 					server.URL+httpEndpointDelayResponse,
-					bytes.NewBuffer([]byte("1,2,3,4")),
+					bytes.NewBufferString("1,2,3,4"),
 				)
 				require.NoError(t, err)
 
@@ -63,7 +63,7 @@ func TestContext(t *testing.T) {
 			},
 			assert: func(t *testing.T, response *http.Response, err error) {
 				t.Helper()
-				assert.NoError(t, err)
+				require.NoError(t, err)
 				body, err := io.ReadAll(response.Body)
 				require.NoError(t, err)
 				assert.Equal(t, []byte{'1', '2', '3', '4'}, body)
@@ -79,7 +79,7 @@ func TestContext(t *testing.T) {
 					ctx,
 					http.MethodPost,
 					server.URL+httpEndpointDelayResponse,
-					bytes.NewBuffer([]byte("1,2,3,4,5,6,7,8")),
+					bytes.NewBufferString("1,2,3,4,5,6,7,8"),
 				)
 				require.NoError(t, err)
 
@@ -93,22 +93,23 @@ func TestContext(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			request := testCase.request(t)
+			request := tt.request(t)
 			t.Cleanup(func() {
 				require.NoError(t, request.Body.Close())
 			})
+
 			response, err := http.DefaultClient.Do(request)
+
 			t.Cleanup(func() {
 				if response != nil {
 					require.NoError(t, response.Body.Close())
 				}
 			})
 
-			testCase.assert(t, response, err)
+			tt.assert(t, response, err)
 		})
 	}
 }

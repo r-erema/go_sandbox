@@ -33,7 +33,6 @@ func TestMergeIntervals(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -71,12 +70,4 @@ func mergeIntervals(intervals [][]int) [][]int {
 	}
 
 	return output
-}
-
-func max(num1, num2 int) int {
-	if num1 > num2 {
-		return num1
-	}
-
-	return num2
 }

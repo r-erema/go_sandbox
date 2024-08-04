@@ -73,12 +73,10 @@ func TestNumberOfIslands(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, testCase.want, numIslands(testCase.grid))
+			assert.Equal(t, tt.want, numIslands(tt.grid))
 		})
 	}
 }
@@ -93,10 +91,11 @@ func TestNumberOfIslands(t *testing.T) {
 func numIslands(grid [][]byte) int {
 	rows, cols, islandsCount := len(grid), len(grid[0]), 0
 
-	for i := 0; i < rows; i++ {
-		for j := 0; j < cols; j++ {
+	for i := range rows {
+		for j := range cols {
 			if grid[i][j] == '1' {
 				breadthFirstSearch(grid, i, j)
+
 				islandsCount++
 			}
 		}
