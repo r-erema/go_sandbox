@@ -86,15 +86,15 @@ func NewController(
 
 	klog.Info("Setting up event handlers")
 
-	fooInformer.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
+	_, _ = fooInformer.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: controller.enqueueFoo,
-		UpdateFunc: func(oldObj, newObj interface{}) {
+		UpdateFunc: func(_, newObj interface{}) {
 			controller.enqueueFoo(newObj)
 		},
 		DeleteFunc: nil,
 	})
 
-	deploymentInformer.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
+	_, _ = deploymentInformer.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: controller.handleObject,
 		UpdateFunc: func(oldObj, newObj interface{}) {
 			var (
@@ -140,7 +140,7 @@ func (c *Controller) Run(workers int, stopCh <-chan struct{}) error {
 
 	klog.Info("Starting workers")
 
-	for i := 0; i < workers; i++ {
+	for range workers {
 		go wait.Until(c.runWorker, time.Second, stopCh)
 	}
 

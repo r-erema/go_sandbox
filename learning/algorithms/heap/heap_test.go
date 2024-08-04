@@ -230,6 +230,7 @@ func heapify(tree *TreeNode) {
 	for cur > 0 {
 		i := cur
 		percolateDown(i, arrTree)
+
 		cur--
 	}
 
