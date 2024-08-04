@@ -13,13 +13,13 @@ type user struct {
 	hasPrize bool
 }
 
-type testCase struct {
+type tt struct {
 	name     string
 	testFlow func() []user
 }
 
-func busyWaitTestCase() testCase {
-	return testCase{
+func busyWaittt() tt {
+	return tt{
 		name: "Bad approach: busy-wait",
 		testFlow: func() []user {
 			loggedInUsers := make([]user, 0)
@@ -54,8 +54,8 @@ func busyWaitTestCase() testCase {
 	}
 }
 
-func blockByChannelTestCase() testCase {
-	return testCase{
+func blockByChanneltt() tt {
+	return tt{
 		name: "Better approach: block by channel",
 		testFlow: func() []user {
 			loggedInUsers := make([]user, 0)
@@ -90,8 +90,8 @@ func blockByChannelTestCase() testCase {
 	}
 }
 
-func syncCondTestCase() testCase {
-	return testCase{
+func syncCondtt() tt {
+	return tt{
 		name: "Even better approach: sync.Cond",
 		testFlow: func() []user {
 			loggedInUsers := make([]user, 0)
@@ -136,13 +136,12 @@ func TestPrizeFirst10LoggedInUsers(t *testing.T) {
 		name     string
 		testFlow func() []user
 	}{
-		busyWaitTestCase(),
-		blockByChannelTestCase(),
-		syncCondTestCase(),
+		busyWaittt(),
+		blockByChanneltt(),
+		syncCondtt(),
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -175,26 +174,32 @@ func TestSyncCondBroadcast(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
 			var runningGoroutinesCount int64
+
 			var runningGoroutinesWG, finishedGoroutinesWG sync.WaitGroup
 
-			for i := 0; i < 4; i++ {
+			for range 4 {
 				runningGoroutinesWG.Add(1)
 				finishedGoroutinesWG.Add(1)
+
 				go func() {
 					cond.L.Lock()
+
 					runningGoroutinesCount++
+
 					runningGoroutinesWG.Done()
 					cond.Wait()
+
 					runningGoroutinesCount--
+
 					cond.L.Unlock()
 					finishedGoroutinesWG.Done()
 				}()
 			}
+
 			runningGoroutinesWG.Wait()
 
 			cond.L.Lock()
@@ -203,7 +208,7 @@ func TestSyncCondBroadcast(t *testing.T) {
 
 			finishedGoroutinesWG.Wait()
 
-			assert.Equal(t, testCase.expectedGoroutinesCount, runningGoroutinesCount)
+			assert.Equal(t, tt.expectedGoroutinesCount, runningGoroutinesCount)
 		})
 	}
 }

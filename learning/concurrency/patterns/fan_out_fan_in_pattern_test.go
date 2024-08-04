@@ -3,6 +3,7 @@ package patterns_test
 import (
 	"context"
 	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"log"
@@ -22,10 +23,10 @@ func TestCrawler(t *testing.T) {
 		switch r.URL.Path {
 		case "/":
 			_, err := writer.Write([]byte(`{"title": "root"}`))
-			require.NoError(t, err)
+			assert.NoError(t, err)
 		case "/path-0":
 			_, err := writer.Write([]byte(`{"title": "path-0"}`))
-			require.NoError(t, err)
+			assert.NoError(t, err)
 		}
 	}))
 
@@ -38,7 +39,7 @@ func TestCrawler(t *testing.T) {
 
 	results, errors := crawl(urls, fch)
 	for _, err := range errors {
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	}
 
 	for _, res := range results {
@@ -166,7 +167,7 @@ func TestVideoProcessor(t *testing.T) {
 			segments[3].id: "396a14ab206e2b44e03c4e00393e948cce36a6b0f0d7489cb46d944b33ad51c8",
 		}
 		for _, segment := range encodedSegments {
-			assert.Equal(t, expectedEncodedResults[segment.id], fmt.Sprintf("%x", segment.encodedData))
+			assert.Equal(t, expectedEncodedResults[segment.id], hex.EncodeToString(segment.encodedData))
 		}
 	})
 }
@@ -205,7 +206,7 @@ func fanOutFanIn(segments []videoSegment, numWorkers int) []encodedSegment {
 
 	var wg sync.WaitGroup
 
-	for i := 0; i < numWorkers; i++ {
+	for range numWorkers {
 		wg.Add(1)
 
 		go func() {

@@ -52,6 +52,7 @@ func (rs ResourceServer) Run(addr string) error {
 
 		uid := request.URL.Query().Get("uid")
 		pin, ok := rs.storage[UserID(uid)]
+
 		if !ok {
 			http.Error(writer, "", http.StatusBadRequest)
 

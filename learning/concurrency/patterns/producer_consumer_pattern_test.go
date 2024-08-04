@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 type betOrder struct {
@@ -85,15 +86,14 @@ func TestBetting(t *testing.T) {
 	go processor.processOrders()
 
 	for _, tt := range tests {
-		testCase := tt
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			err := processor.receiveOrders(testCase.order)
+			err := processor.receiveOrders(tt.order)
 			processor.wg.Wait()
 
-			assert.ErrorIs(t, testCase.expectedError, err)
-			assert.Equal(t, testCase.expectedWin, testCase.order.potentialWin)
+			require.ErrorIs(t, tt.expectedError, err)
+			assert.InEpsilon(t, tt.expectedWin, tt.order.potentialWin, 0)
 		})
 	}
 }
@@ -165,17 +165,17 @@ func TestProducerConsumer(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
 			stream := buildStreamer(10)
 			processedItems := make([]item, 0)
-			stream.producer(testCase.itemsToProduce)
+
+			stream.producer(tt.itemsToProduce)
 			stream.consumer(&processedItems)
 			stream.wait()
 
-			assert.Equal(t, testCase.expected, processedItems)
+			assert.Equal(t, tt.expected, processedItems)
 		})
 	}
 }

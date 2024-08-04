@@ -54,7 +54,7 @@ func nodeFromTheMiddle() *LinkedListNode {
 	return node2
 }
 
-type testCaseBoolAssertion struct {
+type ttBoolAssertion struct {
 	name string
 	list *LinkedListNode
 	want bool
@@ -81,13 +81,11 @@ func TestLinkedList_Build(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			resultList := Build(testCase.nodes)
-			assert.Equal(t, testCase.want, resultList)
+			resultList := Build(tt.nodes)
+			assert.Equal(t, tt.want, resultList)
 		})
 	}
 }
@@ -95,7 +93,7 @@ func TestLinkedList_Build(t *testing.T) {
 func TestLinkedList_IsHead(t *testing.T) {
 	t.Parallel()
 
-	tests := []testCaseBoolAssertion{
+	tests := []ttBoolAssertion{
 		{
 			name: "Head case",
 			list: nodeFromTheHead(),
@@ -109,8 +107,6 @@ func TestLinkedList_IsHead(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
-
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -122,7 +118,7 @@ func TestLinkedList_IsHead(t *testing.T) {
 func TestLinkedList_IsTail(t *testing.T) {
 	t.Parallel()
 
-	tests := []testCaseBoolAssertion{
+	tests := []ttBoolAssertion{
 		{
 			name: "Tail case",
 			list: nodeFromTheTail(),
@@ -136,8 +132,6 @@ func TestLinkedList_IsTail(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
-
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -162,12 +156,10 @@ func TestLinkedListNode_Head(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
-
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, tt.want, tt.listBuilder().Head().value)
+			assert.InEpsilon(t, tt.want, tt.listBuilder().Head().value, 0)
 		})
 	}
 }
@@ -188,12 +180,10 @@ func TestLinkedListNode_Tail(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
-
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, tt.want, tt.listBuilder().Tail().value)
+			assert.InEpsilon(t, tt.want, tt.listBuilder().Tail().value, 0)
 		})
 	}
 }
@@ -238,16 +228,15 @@ func TestLinkedListNode_Append(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			resultList := testCase.listBuilder()
-			for _, nodeToAppend := range testCase.nodesToAppend {
+			resultList := tt.listBuilder()
+			for _, nodeToAppend := range tt.nodesToAppend {
 				resultList.Append(nodeToAppend)
 			}
-			wantedList := testCase.want()
+
+			wantedList := tt.want()
 			assert.Equal(t, wantedList, resultList)
 		})
 	}
@@ -293,16 +282,15 @@ func TestLinkedListNode_Prepend(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			resultList := testCase.listBuilder()
-			for _, nodeToPrepend := range testCase.nodesToPrepend {
+			resultList := tt.listBuilder()
+			for _, nodeToPrepend := range tt.nodesToPrepend {
 				resultList.Prepend(nodeToPrepend)
 			}
-			wantedList := testCase.want()
+
+			wantedList := tt.want()
 			assert.Equal(t, wantedList, resultList)
 		})
 	}
@@ -344,12 +332,11 @@ func TestLinkedListNode_Search(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
-
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, tt.list.Search(tt.needle), tt.want)
+			res := tt.list.Search(tt.needle)
+			assert.Equal(t, tt.want, res)
 		})
 	}
 }
@@ -400,14 +387,12 @@ func TestLinkedListNode_Remove(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			testCase.list.Remove(testCase.nodeToRemove)
-			wantedList := testCase.want()
-			assert.Equal(t, wantedList, testCase.list)
+			tt.list.Remove(tt.nodeToRemove)
+			wantedList := tt.want()
+			assert.Equal(t, wantedList, tt.list)
 		})
 	}
 }
@@ -451,13 +436,11 @@ func TestLinkedListNode_InsertAfter(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			testCase.list.InsertAfter(testCase.nodeToInsert, testCase.insertAfter)
-			assert.Equal(t, testCase.want, testCase.list)
+			tt.list.InsertAfter(tt.nodeToInsert, tt.insertAfter)
+			assert.Equal(t, tt.want, tt.list)
 		})
 	}
 }

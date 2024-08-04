@@ -43,7 +43,7 @@ func sendToQueue(queueName string) {
 		log.Fatalf(fmt.Sprintf("sending to queue erro %v", err))
 	}
 
-	_, err = os.Stdout.WriteString(fmt.Sprintf("OK(queue descr: %d)", descriptor))
+	_, err = fmt.Fprintf(os.Stdout, "OK(queue descr: %d)", descriptor)
 	if err != nil {
 		log.Fatalf(fmt.Sprintf("error writing to STDOUT: %v", err))
 	}

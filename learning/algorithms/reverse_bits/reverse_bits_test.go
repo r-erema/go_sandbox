@@ -27,11 +27,10 @@ func TestReverseBits(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, testCase.want, reverseBits(testCase.number))
+			assert.Equal(t, tt.want, reverseBits(tt.number))
 		})
 	}
 }
@@ -41,7 +40,7 @@ func TestReverseBits(t *testing.T) {
 func reverseBits(num uint32) uint32 {
 	var res uint32
 
-	for i := 0; i < 32; i++ {
+	for i := range 32 {
 		bit := (num >> i) & 1
 		res |= bit << (31 - i)
 	}

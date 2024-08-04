@@ -79,7 +79,7 @@ func TestController_Run(t *testing.T) {
 	)
 
 	err = addCRD(defaultConfigFlags)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	time.Sleep(time.Second * delaySeconds)
 
 	_, err = exampleClient.SamplecontrollerV1alpha1().Foos(namespace).Create(
@@ -87,7 +87,7 @@ func TestController_Run(t *testing.T) {
 		util.NewFoo(replicas, namespace, fooName, deploymentName),
 		util.NewCreateOptions(),
 	)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	time.Sleep(time.Second * delaySeconds)
 
 	defer cleanUp(t, kubeClient, exampleClient, defaultConfigFlags)
@@ -98,7 +98,7 @@ func TestController_Run(t *testing.T) {
 
 	go func() {
 		err = controller.Run(workersCount, stopCh)
-		require.NoError(t, err)
+		assert.NoError(t, err)
 	}()
 
 	time.Sleep(time.Second * delaySeconds)
@@ -176,15 +176,15 @@ func cleanUp(
 		deploymentName,
 		util.NewDeletionOptions(),
 	)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	err = exampleClient.SamplecontrollerV1alpha1().Foos(namespace).Delete(
 		context.Background(),
 		fooName,
 		util.NewDeletionOptions(),
 	)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	err = deleteCRD(defaultConfigFlags)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }

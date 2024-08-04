@@ -37,10 +37,7 @@ func TestController(t *testing.T) { //nolint: paralleltest
 		require.NoError(t, err)
 	}()
 
-	syncPeriod := time.Second * 2
-	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
-		SyncPeriod: &syncPeriod,
-	})
+	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{})
 	require.NoError(t, err)
 
 	err = v1.AddToScheme(mgr.GetScheme())
@@ -57,7 +54,7 @@ func TestController(t *testing.T) { //nolint: paralleltest
 
 	go func() {
 		err = mgr.Start(ctrl.SetupSignalHandler())
-		require.NoError(t, err)
+		assert.NoError(t, err)
 	}()
 
 	time.Sleep(time.Second * 5)

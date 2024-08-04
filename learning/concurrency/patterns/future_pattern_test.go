@@ -82,18 +82,19 @@ func TestCalculateAverage(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			f := calculateAverage(testCase.data)
+			f := calculateAverage(tt.data)
 			avg, err := f.Get()
-			if testCase.hasError {
-				assert.Error(t, err)
+
+			if tt.hasError {
+				require.Error(t, err)
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			}
-			assert.Equal(t, testCase.expected, avg)
+
+			assert.InEpsilon(t, tt.expected, avg, 0)
 		})
 	}
 }
@@ -150,10 +151,11 @@ func fetch(url string) (result, error) {
 func TestFetch(t *testing.T) {
 	t.Parallel()
 
-	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) {
 		time.Sleep(time.Millisecond * 100)
+
 		_, err := writer.Write([]byte("fetched data"))
-		require.NoError(t, err)
+		assert.NoError(t, err)
 		writer.WriteHeader(http.StatusOK)
 	}))
 
@@ -162,6 +164,6 @@ func TestFetch(t *testing.T) {
 	})
 
 	res := f.Get()
-	assert.NoError(t, res.err)
+	require.NoError(t, res.err)
 	assert.Equal(t, []byte("fetched data"), res.body)
 }

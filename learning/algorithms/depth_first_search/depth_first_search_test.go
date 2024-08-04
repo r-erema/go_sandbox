@@ -10,9 +10,10 @@ func TestDFS(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name           string
-		edges          [][]int
-		vertices, want []int
+		name       string
+		edges      [][]int
+		startIndex int
+		want       []int
 	}{
 		{
 			name: "8 nodes graph",
@@ -27,8 +28,8 @@ func TestDFS(t *testing.T) {
 				7: {4},
 				8: {1},
 			},
-			vertices: []int{0, 0, 0, 0, 0, 0, 0, 0, 0},
-			want:     []int{1, 1, 1, 1, 1, 1, 1, 1, 1},
+			startIndex: 2,
+			want:       []int{1, 1, 1, 1, 1, 1, 1, 1, 1},
 		},
 		{
 			name: "2 unconnected graphs",
@@ -40,37 +41,38 @@ func TestDFS(t *testing.T) {
 				4: {3, 5},
 				5: {3, 4},
 			},
-			vertices: []int{0, 0, 0, 0, 0, 0},
-			want:     []int{1, 1, 1, 0, 0, 0},
+			startIndex: 5,
+			want:       []int{0, 0, 0, 1, 1, 1},
 		},
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
 			var dfsRecursive func(nodeIndex int)
-			dfsRecursiveVertices := make([]int, len(testCase.vertices))
-			copy(dfsRecursiveVertices, testCase.vertices)
+
+			dfsRecursiveVertices := make([]int, len(tt.want))
+
 			dfsRecursive = func(nodeIndex int) {
 				dfsRecursiveVertices[nodeIndex] = 1
-				for _, adjIndex := range testCase.edges[nodeIndex] {
+				for _, adjIndex := range tt.edges[nodeIndex] {
 					if dfsRecursiveVertices[adjIndex] != 1 {
 						dfsRecursive(adjIndex)
 					}
 				}
 			}
 
-			dfsStackVertices := make([]int, len(testCase.vertices))
-			copy(dfsStackVertices, testCase.vertices)
+			dfsStackVertices := make([]int, len(tt.want))
+
 			dfsStack := func(nodeIndex int) {
 				stack := []int{nodeIndex}
 
 				for len(stack) > 0 {
 					nodeIndex, stack = stack[len(stack)-1], stack[:len(stack)-1]
 					dfsStackVertices[nodeIndex] = 1
-					for _, edge := range testCase.edges[nodeIndex] {
+
+					for _, edge := range tt.edges[nodeIndex] {
 						if dfsStackVertices[edge] == 0 {
 							stack = append(stack, edge)
 						}
@@ -78,11 +80,11 @@ func TestDFS(t *testing.T) {
 				}
 			}
 
-			dfsRecursive(0)
-			assert.Equal(t, testCase.want, dfsRecursiveVertices)
+			dfsRecursive(tt.startIndex)
+			assert.Equal(t, tt.want, dfsRecursiveVertices)
 
-			dfsStack(0)
-			assert.Equal(t, testCase.want, dfsStackVertices)
+			dfsStack(tt.startIndex)
+			assert.Equal(t, tt.want, dfsStackVertices)
 		})
 	}
 }

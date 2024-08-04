@@ -103,12 +103,12 @@ func TestInformer(t *testing.T) {
 		defer mutex.Unlock()
 
 		err = addTestPOD(defaultConfigFlags)
-		require.NoError(t, err)
+		assert.NoError(t, err)
 	}(&mutex)
 
 	event := <-streamer.ResultChan()
 
-	assert.Equal(t, event.Type, watch.Added)
+	assert.Equal(t, watch.Added, event.Type)
 }
 
 func addTestPOD(defaultConfigFlags *genericclioptions.ConfigFlags) error {

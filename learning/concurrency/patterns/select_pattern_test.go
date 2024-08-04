@@ -57,11 +57,10 @@ func TestSelectPatternNonBlockingCases(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			testCase.assertFunc(t)
+			tt.assertFunc(t)
 		})
 	}
 }
@@ -113,11 +112,10 @@ func TestSelectPatternTimeoutCases(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testCase := tt
-		t.Run(testCase.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			testCase.assertFunc(t)
+			tt.assertFunc(t)
 		})
 	}
 }

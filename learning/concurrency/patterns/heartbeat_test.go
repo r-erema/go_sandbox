@@ -30,6 +30,7 @@ func TestHeartbeat(t *testing.T) {
 				if !ok {
 					return
 				}
+
 				heartbeatsCount++
 			case res, ok := <-results:
 				if !ok {
@@ -37,13 +38,14 @@ func TestHeartbeat(t *testing.T) {
 				}
 
 				require.Contains(t, res, "some work is done")
+
 				resultsCount++
 			}
 		}
 	}()
 
-	assert.Greater(t, heartbeatsCount, 0)
-	assert.Greater(t, resultsCount, 0)
+	assert.Positive(t, heartbeatsCount)
+	assert.Positive(t, resultsCount)
 }
 
 func doWork(done <-chan struct{}, pulseInterval time.Duration) (heartbeat chan struct{}, results chan string) { //nolint:nonamedreturns

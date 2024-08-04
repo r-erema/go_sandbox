@@ -41,7 +41,6 @@ func TestCarFleet(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -52,7 +51,7 @@ func TestCarFleet(t *testing.T) {
 
 func carFleet(target int, position, speed []int) int {
 	cars := make([][2]int, len(position))
-	for i := 0; i < len(position); i++ {
+	for i := range len(position) {
 		cars[i] = [2]int{position[i], speed[i]}
 	}
 
