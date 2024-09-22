@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="kube" type="CompoundRunConfigurationType">
+    <toRun name="api-server" type="GoApplicationRunConfiguration" />
+    <toRun name="controller-manager" type="GoApplicationRunConfiguration" />
+    <toRun name="kubelet" type="GoApplicationRunConfiguration" />
+    <toRun name="proxy" type="GoApplicationRunConfiguration" />
+    <toRun name="scheduler" type="GoApplicationRunConfiguration" />
+    <method v="2" />
+  </configuration>
+</component>
