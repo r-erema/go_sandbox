@@ -1,0 +1,14 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="api-server" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="kubernetes" />
+    <working_directory value="$PROJECT_DIR$" />
+    <parameters value="--etcd-servers http://192.168.0.68:2379 --tls-private-key-file $PROJECT_DIR$/../go_sandbox/k8s/dev_environment/assets/common_cert_key_for_all.key --tls-cert-file $PROJECT_DIR$/../go_sandbox/k8s/dev_environment/assets/common_cert_for_all.crt --client-ca-file $PROJECT_DIR$/../go_sandbox/k8s/dev_environment/assets/rootCA.crt --service-account-signing-key-file $PROJECT_DIR$/../go_sandbox/k8s/dev_environment/assets/common_cert_key_for_all.key --service-account-key-file $PROJECT_DIR$/../go_sandbox/k8s/dev_environment/assets/common_cert_for_all.crt --service-account-issuer https://kube.local --authorization-mode RBAC --oidc-issuer-url &quot;https://localhost:8443/realms/master&quot; --oidc-client-id test-CLIENT --oidc-username-claim email --oidc-groups-claim groups --oidc-ca-file $PROJECT_DIR$/../go_sandbox/k8s/dev_environment/assets/common_cert_for_all.crt --allow-privileged=true" />
+    <kind value="PACKAGE" />
+    <package value="k8s.io/kubernetes/cmd/kube-apiserver" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$/cmd/kube-apiserver/apiserver.go" />
+    <method v="2">
+      <option name="LaunchBrowser.Before.Run" />
+    </method>
+  </configuration>
+</component>
