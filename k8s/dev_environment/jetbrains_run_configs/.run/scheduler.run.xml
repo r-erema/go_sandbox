@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="scheduler" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="kubernetes" />
+    <working_directory value="$PROJECT_DIR$" />
+    <parameters value="--authentication-kubeconfig $PROJECT_DIR$/../go_sandbox/k8s/dev_environment/assets/kubeconfig-dev --kubeconfig $PROJECT_DIR$/../go_sandbox/k8s/dev_environment/assets/kubeconfig-dev --tls-private-key-file $PROJECT_DIR$/../go_sandbox/k8s/dev_environment/assets/common_cert_key_for_all.key --tls-cert-file $PROJECT_DIR$/../go_sandbox/k8s/dev_environment/assets/common_cert_for_all.crt --client-ca-file $PROJECT_DIR$/../go_sandbox/k8s/dev_environment/assets/rootCA.crt --requestheader-client-ca-file $PROJECT_DIR$/../go_sandbox/k8s/dev_environment/assets/rootCA.crt" />
+    <kind value="PACKAGE" />
+    <package value="k8s.io/kubernetes/cmd/kube-scheduler" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$/cmd/kube-scheduler/scheduler.go" />
+    <method v="2" />
+  </configuration>
+</component>

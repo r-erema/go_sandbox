@@ -3,55 +3,40 @@ GOLANGCI_IMAGE=golangci/golangci-lint:v1.59.1-alpine
 HOST_IP=`hostname -I | awk '{print $$1}'`
 
 K8S_CLUSTER_NAME=dev-cluster
-DATA_DIR=./docker/k8s
+ASSETS_DIR=/home/erema/h/go_sandbox/k8s/dev_environment/assets
 CLUSTER_NAME=dev-cluster
 CLUSTER_USER=cluster-admin
 KUBE_API_PORT=6443
 DOMAIN=localhost
-CA_CERT_PATH=${DATA_DIR}/rootCA.crt
-CA_KEY_PATH=${DATA_DIR}/rootCA.key
-CSR_PATH=${DATA_DIR}/cluster.csr
-CERT_KEY_PATH=${DATA_DIR}/common_cert_key_for_all.key
-CERT_PATH=${DATA_DIR}/common_cert_for_all.crt
-CA_AUTH_PATH=${DATA_DIR}/admin-auth.crt
-CA_KEY_AUTH_PATH=${DATA_DIR}/admin-auth.key
+CA_CERT_PATH=${ASSETS_DIR}/rootCA.crt
+CA_KEY_PATH=${ASSETS_DIR}/rootCA.key
+CSR_PATH=${ASSETS_DIR}/csr_for_common_cert_for_all.csr
+CERT_KEY_PATH=${ASSETS_DIR}/common_cert_key_for_all.key
+CERT_PATH=${ASSETS_DIR}/common_cert_for_all.crt
 
-KUBECONFIG_PATH=${DATA_DIR}/kubeconfig-dev
+KUBECONFIG_PATH=${ASSETS_DIR}/kubeconfig-dev
 
 gen-sa-certs:
-	mkdir -p ${DATA_DIR}
-	openssl req -new -newkey rsa:4096 -days 365 -nodes -x509 \
-		-subj "/C=BY/ST=Minsk Region/L=Minsk/O=${DOMAIN} Office/CN=${DOMAIN}/subjectAltName=DNS.1=${DOMAIN}" \
-		-keyout ${CA_KEY_PATH} -out ${CA_CERT_PATH}
-	echo "CA Key ${CA_KEY_PATH} is ready"
-	echo "CA Cert ${CA_CERT_PATH} is ready"
+	openssl genrsa -out ${CA_KEY_PATH} 2048
+	openssl req -x509 -new -nodes -key ${CA_KEY_PATH} -days 10000 -out ${CA_CERT_PATH} -config csr.conf
 	openssl genrsa -out ${CERT_KEY_PATH} 2048
-	echo "Cert Key ${CERT_KEY_PATH} is ready"
-	openssl req -new -key ${CERT_KEY_PATH} \
-		-subj "/C=BY/ST=Minsk Region/L=Minsk/O=${DOMAIN} Office/CN=${DOMAIN}/subjectAltName=DNS.1=${DOMAIN}" \
-		-out ${CSR_PATH}
-	echo "CSR ${CSR_PATH} is ready"
-	printf "subjectAltName=DNS:${DOMAIN}" > tmp-ext-file
-	openssl x509 -req -extfile tmp-ext-file -in ${CSR_PATH} -days 365 \
-		-CA ${CA_CERT_PATH} \
-		-CAkey ${CA_KEY_PATH} \
-		-CAcreateserial \
-		-out ${CERT_PATH}
-	echo "cert ${CERT_PATH} is ready"
-	rm tmp-ext-file
-	openssl req -new -newkey rsa:4096 -days 365 -nodes -x509 -subj "/O=system:masters/CN=${CLUSTER_USER}" \
-		-out ${CA_AUTH_PATH} -keyout ${CA_KEY_AUTH_PATH}
+	openssl req -new -key ${CERT_KEY_PATH} -out ${CSR_PATH} -config csr.conf
+	openssl x509 -req -in ${CSR_PATH} -CA ${CA_CERT_PATH} -CAkey ${CA_KEY_PATH} \
+		-CAcreateserial -out ${CERT_PATH} -days 10000 \
+		-extensions v3_ext -extfile csr.conf -sha256
+	openssl req  -noout -text -in ${CSR_PATH}
+	openssl x509  -noout -text -in ${CERT_PATH}
 
 trust-ca-cert:
-	sudo -S cp ${CA_CERT_PATH} ${CSR_PATH} ${CERT_PATH} /usr/local/share/ca-certificates/
+	sudo -S cp ${CA_CERT_PATH} ${CERT_PATH} /usr/local/share/ca-certificates/
 	sudo update-ca-certificates -f
 
 gen-kubeconfig:
 	touch ${KUBECONFIG_PATH}
 	kubectl config set-credentials ${CLUSTER_USER} \
 		--kubeconfig=${KUBECONFIG_PATH} \
-		--client-certificate=${CA_AUTH_PATH} \
-		--client-key=${CA_KEY_AUTH_PATH} \
+		--client-certificate=${CERT_PATH} \
+		--client-key=${CERT_KEY_PATH} \
 		--embed-certs=true
 	kubectl config set-cluster ${K8S_CLUSTER_NAME} \
 		--kubeconfig=${KUBECONFIG_PATH} \
@@ -126,55 +111,6 @@ set-oidc-in-kubeconfig:
 		--kubeconfig=${KUBECONFIG_PATH} \
 		--cluster=${K8S_CLUSTER_NAME} \
 		--user=developer-user
-
-debug-k8s-api-server:
-	cd ${K8S_SOURCE_CODE_REPO_PATH}; go build -o ${PWD}/apiserver_debug -gcflags "all=-N -l" ${K8S_SOURCE_CODE_REPO_PATH}/cmd/kube-apiserver;
-	${DELVE_BIN_PATH} --listen=127.0.0.1:${K8S_API_SERVER_DEBUG_PORT} --headless=true --api-version=2 --check-go-version=false --only-same-user=false exec \
-		${PWD}/apiserver_debug -- \
-			--etcd-servers http://${HOST_IP}:2379 \
-			--cert-dir ${DATA_DIR} \
-			--tls-private-key-file ${CERT_KEY_PATH} \
-			--tls-cert-file ${CERT_PATH} \
-			--client-ca-file ${CA_AUTH_PATH} \
-			--service-account-signing-key-file ${CERT_KEY_PATH} \
-			--service-account-key-file ${CERT_PATH} \
-			--service-account-issuer https://kube.local \
-			--authorization-mode RBAC \
-			--oidc-issuer-url "https://localhost:8443/realms/master" \
-			--oidc-client-id test-CLIENT \
-			--oidc-username-claim email \
-			--oidc-groups-claim groups \
-			--oidc-ca-file ${CERT_PATH}
-
-debug-k8s-controller-manager:
-	cd ${K8S_SOURCE_CODE_REPO_PATH}; go build -o ${PWD}/controller_manager_debug -gcflags "all=-N -l" ${K8S_SOURCE_CODE_REPO_PATH}/cmd/kube-controller-manager
-	${DELVE_BIN_PATH} --listen=127.0.0.1:${K8S_CONTROLLER_MANAGER_DEBUG_PORT} --headless=true --api-version=2 --check-go-version=false --only-same-user=false exec \
-		${PWD}/controller_manager_debug -- \
-			--kubeconfig ${KUBECONFIG_PATH} \
-			--tls-private-key-file ${CERT_KEY_PATH} \
-			--tls-cert-file ${CERT_PATH} \
-			--cluster-signing-cert-file ${CA_CERT_PATH} \
-			--cluster-signing-key-file ${CA_KEY_PATH}
-
-debug-k8s-scheduler:
-	cd ${K8S_SOURCE_CODE_REPO_PATH}; go build -o ${PWD}/scheduler_debug -gcflags "all=-N -l" ${K8S_SOURCE_CODE_REPO_PATH}/cmd/kube-scheduler
-	${DELVE_BIN_PATH} --listen=127.0.0.1:${K8S_SCHEDULER_DEBUG_PORT} --headless=true --api-version=2 --check-go-version=false --only-same-user=false exec \
-		${PWD}/scheduler_debug -- \
-			--authentication-kubeconfig ${KUBECONFIG_PATH} \
-			--kubeconfig ${KUBECONFIG_PATH} \
-			--tls-private-key-file ${CERT_KEY_PATH} \
-			--tls-cert-file ${CERT_PATH} \
-			--client-ca-file ${CA_CERT_PATH} \
-			--requestheader-client-ca-file ${CA_CERT_PATH}
-
-debug-k8s-kubelet:
-	cd ${K8S_SOURCE_CODE_REPO_PATH}; go build -o ${PWD}/kubelet_debug -gcflags "all=-N -l" ${K8S_SOURCE_CODE_REPO_PATH}/cmd/kubelet
-	${DELVE_BIN_PATH} --listen=127.0.0.1:${K8S_KUBELET_DEBUG_PORT} --headless=true --api-version=2 --check-go-version=false --only-same-user=false exec \
-		${PWD}/kubelet_debug -- \
-			--kubeconfig ${KUBECONFIG_PATH} \
-			--node-ip ${HOST_IP} \
-			--container-runtime-endpoint unix:///run/containerd/containerd.sock \
-			--config=./kubeletconfig.yaml
 
 # https://about.gitlab.com/blog/2018/06/07/keeping-git-commit-history-clean/
 start-changing-git-commit:
