@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="controller-manager" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="kubernetes" />
+    <working_directory value="$PROJECT_DIR$" />
+    <parameters value="--kubeconfig $PROJECT_DIR$/../go_sandbox/k8s/dev_environment/assets/kubeconfig-dev --tls-private-key-file $PROJECT_DIR$/../go_sandbox/k8s/dev_environment/assets/common_cert_key_for_all.key --tls-cert-file $PROJECT_DIR$/../go_sandbox/k8s/dev_environment/assets/common_cert_for_all.crt --cluster-signing-cert-file $PROJECT_DIR$/../go_sandbox/k8s/dev_environment/assets/rootCA.crt --cluster-signing-key-file $PROJECT_DIR$/../go_sandbox/k8s/dev_environment/assets/rootCA.key --root-ca-file $PROJECT_DIR$/../go_sandbox/k8s/dev_environment/assets/rootCA.crt" />
+    <kind value="PACKAGE" />
+    <package value="k8s.io/kubernetes/cmd/kube-controller-manager" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$/cmd/kube-controller-manager/controller-manager.go" />
+    <method v="2" />
+  </configuration>
+</component>
