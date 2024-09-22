@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="kubelet" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="kubernetes" />
+    <working_directory value="$PROJECT_DIR$" />
+    <parameters value="--kubeconfig $PROJECT_DIR$/../go_sandbox/k8s/dev_environment/assets/kubeconfig-dev --node-ip 192.168.0.68 --config $PROJECT_DIR$/../go_sandbox/k8s/dev_environment/kubeletconfig" />
+    <sudo value="true" />
+    <kind value="PACKAGE" />
+    <package value="k8s.io/kubernetes/cmd/kubelet" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$/cmd/kubelet/kubelet.go" />
+    <method v="2" />
+  </configuration>
+</component>
