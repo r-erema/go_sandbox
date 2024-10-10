@@ -2,8 +2,18 @@
   <configuration default="false" name="kubelet" type="GoApplicationRunConfiguration" factoryName="Go Application">
     <module name="kubernetes" />
     <working_directory value="$PROJECT_DIR$" />
-    <parameters value="--kubeconfig $PROJECT_DIR$/../go_sandbox/k8s/dev_environment/assets/kubeconfig-dev --node-ip 192.168.0.68 --config $PROJECT_DIR$/../go_sandbox/k8s/dev_environment/kubeletconfig" />
+    <parameters value="--kubeconfig $PROJECT_DIR$/../go_sandbox/k8s/dev_environment/assets/kubeconfig-dev --node-ip 192.168.0.68 --config $PROJECT_DIR$/../go_sandbox/k8s/dev_environment/kubeletconfig --container-runtime-endpoint unix:///run/containerd/containerd.sock" />
     <sudo value="true" />
+    <EXTENSION ID="net.ashald.envfile">
+      <option name="IS_ENABLED" value="false" />
+      <option name="IS_SUBST" value="false" />
+      <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
+      <option name="IS_IGNORE_MISSING_FILES" value="false" />
+      <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
+      <ENTRIES>
+        <ENTRY IS_ENABLED="true" PARSER="runconfig" IS_EXECUTABLE="false" />
+      </ENTRIES>
+    </EXTENSION>
     <kind value="PACKAGE" />
     <package value="k8s.io/kubernetes/cmd/kubelet" />
     <directory value="$PROJECT_DIR$" />
