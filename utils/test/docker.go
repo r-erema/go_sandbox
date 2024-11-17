@@ -20,6 +20,7 @@ const (
 	etcdImage          = "quay.io/coreos/etcd:v3.5.1"
 	kubeAPIServerImage = "k8s.gcr.io/kube-apiserver:v1.23.4"
 	keycloakImage      = "quay.io/keycloak/keycloak:19.0.2"
+	prometheusImage    = "prom/prometheus:v2.55.0"
 
 	dockerStuffPath = "../../../docker/k8s"
 	certPath        = "../../../docker/k8s/common_cert_for_all.crt"
@@ -139,6 +140,22 @@ func RunKubeAPIServer(t *testing.T, port, etcdHost, oidcIssuerURL string) string
 	return resp.ID
 }
 
+func PullImage(t *testing.T, imageName string) {
+	t.Helper()
+
+	cli := dockerClient(t)
+
+	reader, err := cli.ImagePull(context.Background(), imageName, image.PullOptions{})
+	defer func() {
+		err = reader.Close()
+		require.NoError(t, err)
+	}()
+	require.NoError(t, err)
+
+	_, err = io.Copy(os.Stdout, reader)
+	require.NoError(t, err)
+}
+
 func PullKeycloakImage(t *testing.T) {
 	t.Helper()
 
@@ -221,4 +238,45 @@ func StopAndRemoveContainer(t *testing.T, containerID string) {
 		RemoveVolumes: true,
 	})
 	require.NoError(t, err)
+}
+
+func RunPrometheusContainer(t *testing.T, hostPortBinding nat.PortBinding, hostConfigPath string) string {
+	t.Helper()
+
+	cli := dockerClient(t)
+
+	PullImage(t, prometheusImage)
+
+	resp, err := cli.ContainerCreate(context.Background(), &container.Config{
+		Image: prometheusImage,
+		ExposedPorts: nat.PortSet{
+			"9090/tcp": struct{}{},
+		},
+	}, &container.HostConfig{
+		PortBindings: nat.PortMap{
+			"9090/tcp": []nat.PortBinding{hostPortBinding},
+		},
+		Mounts: []mount.Mount{
+			{
+				Type:   mount.TypeBind,
+				Source: hostConfigPath,
+				Target: "/etc/prometheus/prometheus.yml",
+			},
+		},
+		ExtraHosts: []string{"host.docker.internal:host-gateway"},
+	}, nil, nil, "")
+	require.NoError(t, err)
+
+	respCh, errCh := cli.ContainerWait(context.Background(), resp.ID, container.WaitConditionNotRunning)
+
+	err = cli.ContainerStart(context.Background(), resp.ID, container.StartOptions{})
+	require.NoError(t, err)
+
+	select {
+	case <-respCh:
+	case err = <-errCh:
+		require.NoError(t, err)
+	}
+
+	return resp.ID
 }
