@@ -3,48 +3,54 @@ package branchsums_test
 import (
 	"testing"
 
-	"github.com/r-erema/go_sendbox/utils"
+	"github.com/r-erema/go_sendbox/utils/data_structure/tree"
 	"github.com/stretchr/testify/assert"
 )
-
-func tree() *utils.BST {
-	return utils.NewBST(5).
-		InsertRecursively(utils.NewBST(2)).
-		InsertRecursively(utils.NewBST(10)).
-		InsertRecursively(utils.NewBST(8)).
-		InsertRecursively(utils.NewBST(34))
-}
-
-func tree2() *utils.BST {
-	return utils.NewBST(9).
-		InsertRecursively(utils.NewBST(4)).
-		InsertRecursively(utils.NewBST(17)).
-		InsertRecursively(utils.NewBST(3)).
-		InsertRecursively(utils.NewBST(6)).
-		InsertRecursively(utils.NewBST(22)).
-		InsertRecursively(utils.NewBST(5)).
-		InsertRecursively(utils.NewBST(7)).
-		InsertRecursively(utils.NewBST(20)).
-		InsertRecursively(utils.NewBST(23))
-}
 
 func TestFindClosestValue(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
 		name string
-		bst  *utils.BST
-		want []float32
+		bst  *tree.Node
+		want []int
 	}{
 		{
-			name: "Case 0",
-			bst:  tree(),
-			want: []float32{7, 23, 49},
+			name: "Short tree",
+			bst: &tree.Node{
+				Val:  5,
+				Left: &tree.Node{Val: 2},
+				Right: &tree.Node{
+					Val:   10,
+					Left:  &tree.Node{Val: 8},
+					Right: &tree.Node{Val: 34},
+				},
+			},
+			want: []int{7, 23, 49},
 		},
 		{
-			name: "Case 1",
-			bst:  tree2(),
-			want: []float32{16, 24, 26, 68, 71},
+			name: "Long tree",
+			bst: &tree.Node{
+				Val: 9,
+				Left: &tree.Node{
+					Val:  4,
+					Left: &tree.Node{Val: 3},
+					Right: &tree.Node{
+						Val:   6,
+						Left:  &tree.Node{Val: 5},
+						Right: &tree.Node{Val: 7},
+					},
+				},
+				Right: &tree.Node{
+					Val: 17,
+					Right: &tree.Node{
+						Val:   22,
+						Left:  &tree.Node{Val: 20},
+						Right: &tree.Node{Val: 23},
+					},
+				},
+			},
+			want: []int{16, 24, 26, 68, 71},
 		},
 	}
 
@@ -58,27 +64,34 @@ func TestFindClosestValue(t *testing.T) {
 	}
 }
 
-/*
-Worst: O(n) time | O(n) space.
-*/
-func branchSums(bst *utils.BST) []float32 {
-	return helper(bst, 0, []float32{})
-}
+// Time O(n), since we visit each node of the tree
+// Space O(n), since the recursion stack grows as nodes count.
+func branchSums(bst *tree.Node) []int {
+	var sums []int
 
-func helper(node *utils.BST, sum float32, sums []float32) []float32 {
-	sum += node.Value()
+	var helper func(node *tree.Node)
+	helper = func(node *tree.Node) {
+		if node == nil {
+			return
+		}
 
-	if node.IsLeaf() {
-		return append(sums, sum)
+		if node.Left != nil {
+			node.Left.Val += node.Val
+		}
+
+		if node.Right != nil {
+			node.Right.Val += node.Val
+		}
+
+		if node.Left == nil && node.Right == nil {
+			sums = append(sums, node.Val)
+		}
+
+		helper(node.Left)
+		helper(node.Right)
 	}
 
-	if node.Left() != nil {
-		sums = helper(node.Left(), sum, sums)
-	}
-
-	if node.Right() != nil {
-		sums = helper(node.Right(), sum, sums)
-	}
+	helper(bst)
 
 	return sums
 }
