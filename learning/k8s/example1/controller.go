@@ -54,7 +54,9 @@ type Controller struct {
 	fooLister        listers.FooLister
 	fooSynced        cache.InformerSynced
 
-	workQueue workqueue.RateLimitingInterface
+	//nolint
+	// todo: get rid of nolint
+	workQueue workqueue.RateLimitingInterface //nolint
 
 	recorder record.EventRecorder
 }
@@ -80,8 +82,11 @@ func NewController(
 		deploymentSynced: deploymentInformer.Informer().HasSynced,
 		fooLister:        fooInformer.Lister(),
 		fooSynced:        fooInformer.Informer().HasSynced,
-		workQueue:        workqueue.NewNamedRateLimitingQueue(workqueue.DefaultControllerRateLimiter(), "Foos"),
-		recorder:         recorder,
+
+		//nolint
+		// todo: get rid of nolint
+		workQueue: workqueue.NewNamedRateLimitingQueue(workqueue.DefaultControllerRateLimiter(), "Foos"), //nolint
+		recorder:  recorder,
 	}
 
 	klog.Info("Setting up event handlers")

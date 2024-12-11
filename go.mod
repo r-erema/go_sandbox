@@ -23,9 +23,10 @@ require (
 	k8s.io/apimachinery v0.31.0
 	k8s.io/cli-runtime v0.30.3
 	k8s.io/client-go v0.31.0
-	k8s.io/code-generator v0.30.3
+	k8s.io/code-generator v0.31.0
 	k8s.io/klog/v2 v2.130.1
 	k8s.io/kubectl v0.30.3
+	sigs.k8s.io/controller-runtime v0.19.3
 )
 
 require (
@@ -51,6 +52,7 @@ require (
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/emicklei/go-restful/v3 v3.12.1 // indirect
 	github.com/evanphx/json-patch v5.9.0+incompatible // indirect
+	github.com/evanphx/json-patch/v5 v5.9.0 // indirect
 	github.com/exponent-io/jsonpath v0.0.0-20210407135951-1de76d718b3f // indirect
 	github.com/fatih/camelcase v1.0.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
@@ -144,6 +146,7 @@ require (
 	golang.org/x/text v0.18.0 // indirect
 	golang.org/x/time v0.6.0 // indirect
 	golang.org/x/tools v0.24.0 // indirect
+	gomodules.xyz/jsonpatch/v2 v2.4.0 // indirect
 	google.golang.org/api v0.195.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240903143218-8af14fe29dc1 // indirect
 	google.golang.org/grpc v1.66.0 // indirect
@@ -152,7 +155,8 @@ require (
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gotest.tools/v3 v3.5.1 // indirect
-	k8s.io/component-base v0.30.3 // indirect
+	k8s.io/apiextensions-apiserver v0.31.0 // indirect
+	k8s.io/component-base v0.31.0 // indirect
 	k8s.io/component-helpers v0.30.3 // indirect
 	k8s.io/gengo/v2 v2.0.0-20240228010128-51d4e06bde70 // indirect
 	k8s.io/kube-openapi v0.0.0-20240730131305-7a9a4e85957e // indirect
