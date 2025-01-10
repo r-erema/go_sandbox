@@ -1,10 +1,10 @@
-package example2_test
+package serveronsyscalls_test
 
 import (
 	"testing"
 	"time"
 
-	"github.com/r-erema/go_sendbox/learning/os/example2"
+	"github.com/r-erema/go_sendbox/learning/os/serveronsyscalls"
 	"github.com/reiver/go-telnet"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -16,7 +16,7 @@ func TestServer(t *testing.T) {
 	serverIncomingData := make(chan []byte)
 
 	go func() {
-		err := example2.Server("127.0.0.1", 7777, serverIncomingData)
+		err := serveronsyscalls.Server("127.0.0.1", 7777, serverIncomingData)
 		assert.NoError(t, err)
 	}()
 
