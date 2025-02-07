@@ -3,39 +3,35 @@ package sametree_test
 import (
 	"testing"
 
+	"github.com/r-erema/go_sendbox/utils/data_structure/tree"
 	"github.com/stretchr/testify/assert"
 )
-
-type TreeNode struct {
-	Val         int
-	Left, Right *TreeNode
-}
 
 func TestSameTree(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
 		name         string
-		tree1, tree2 *TreeNode
+		tree1, tree2 *tree.Node
 		want         bool
 	}{
 		{
 			name: "same tree",
-			tree1: &TreeNode{
+			tree1: &tree.Node{
 				Val: 1,
-				Left: &TreeNode{
+				Left: &tree.Node{
 					Val: 2,
 				},
-				Right: &TreeNode{
+				Right: &tree.Node{
 					Val: 3,
 				},
 			},
-			tree2: &TreeNode{
+			tree2: &tree.Node{
 				Val: 1,
-				Left: &TreeNode{
+				Left: &tree.Node{
 					Val: 2,
 				},
-				Right: &TreeNode{
+				Right: &tree.Node{
 					Val: 3,
 				},
 			},
@@ -43,15 +39,15 @@ func TestSameTree(t *testing.T) {
 		},
 		{
 			name: "not same tree with 2 nodes",
-			tree1: &TreeNode{
+			tree1: &tree.Node{
 				Val: 1,
-				Left: &TreeNode{
+				Left: &tree.Node{
 					Val: 2,
 				},
 			},
-			tree2: &TreeNode{
+			tree2: &tree.Node{
 				Val: 1,
-				Right: &TreeNode{
+				Right: &tree.Node{
 					Val: 2,
 				},
 			},
@@ -59,21 +55,21 @@ func TestSameTree(t *testing.T) {
 		},
 		{
 			name: "not same tree with 3 nodes",
-			tree1: &TreeNode{
+			tree1: &tree.Node{
 				Val: 1,
-				Left: &TreeNode{
+				Left: &tree.Node{
 					Val: 2,
 				},
-				Right: &TreeNode{
+				Right: &tree.Node{
 					Val: 1,
 				},
 			},
-			tree2: &TreeNode{
+			tree2: &tree.Node{
 				Val: 1,
-				Left: &TreeNode{
+				Left: &tree.Node{
 					Val: 1,
 				},
-				Right: &TreeNode{
+				Right: &tree.Node{
 					Val: 2,
 				},
 			},
@@ -91,8 +87,8 @@ func TestSameTree(t *testing.T) {
 }
 
 // Time O(p+q), since we should iterate recursively through the both trees
-// Space O(1), we don't allocate additional memory.
-func isSameTree(tree1, tree2 *TreeNode) bool {
+// Space O(n), in case of degenerate tree.
+func isSameTree(tree1, tree2 *tree.Node) bool {
 	if tree1 == nil && tree2 == nil {
 		return true
 	}
