@@ -1,8 +1,6 @@
 module github.com/r-erema/go_sendbox
 
-go 1.22.0
-
-toolchain go1.22.3
+go 1.24.1
 
 require (
 	github.com/Nerzal/gocloak/v11 v11.2.0
@@ -13,9 +11,9 @@ require (
 	github.com/prometheus/client_golang v1.20.3
 	github.com/prometheus/common v0.59.1
 	github.com/prometheus/prometheus v0.55.0
-	github.com/reiver/go-telnet v0.0.0-20180421082511-9ff0b2ab096e
 	github.com/stretchr/testify v1.9.0
 	github.com/thoas/go-funk v0.9.3
+	golang.org/x/crypto v0.26.0
 	golang.org/x/net v0.28.0
 	golang.org/x/sys v0.25.0
 	gopkg.in/yaml.v3 v3.0.1
@@ -116,7 +114,6 @@ require (
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common/sigv4 v0.1.0 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
-	github.com/reiver/go-oi v1.0.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/segmentio/ksuid v1.0.4 // indirect
 	github.com/spf13/cobra v1.8.1 // indirect
@@ -137,7 +134,6 @@ require (
 	go.opentelemetry.io/otel/metric v1.29.0 // indirect
 	go.opentelemetry.io/otel/trace v1.29.0 // indirect
 	go.starlark.net v0.0.0-20240725214946-42030a7cedce // indirect
-	golang.org/x/crypto v0.26.0 // indirect
 	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56 // indirect
 	golang.org/x/mod v0.20.0 // indirect
 	golang.org/x/oauth2 v0.23.0 // indirect
