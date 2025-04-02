@@ -9,12 +9,16 @@ import (
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/kubectl/pkg/cmd"
 	"k8s.io/kubectl/pkg/cmd/plugin"
+	kindcmd "sigs.k8s.io/kind/pkg/cmd"
+	"sigs.k8s.io/kind/pkg/cmd/kind"
 )
 
 const (
 	kubeConfigPathEnvVar = "KUBECONFIG"
 	discoveryBurst       = 300
 	discoveryQPS         = 50.0
+
+	kindK8SVersion = "v1.32.0"
 )
 
 func CLIConfigFlags(t *testing.T) *genericclioptions.ConfigFlags {
@@ -111,5 +115,32 @@ func PrepareKubeConfigContext(
 	require.NoError(t, err)
 
 	err = RunKubectlCommand(DefaultConfigFlags(), []string{"config", "use-context", clusterContext, kubeConfigFlag})
+	require.NoError(t, err)
+}
+
+func CreateKindCluster(t *testing.T, name string) (deleteClusterFn func()) {
+	t.Helper()
+
+	kindCmd := kind.NewCommand(kindcmd.NewLogger(), kindcmd.StandardIOStreams())
+	kindCmd.SetArgs([]string{
+		"create",
+		"cluster",
+		fmt.Sprintf("--image=kindest/node:%s", kindK8SVersion),
+		fmt.Sprintf("--name=%s", name),
+	})
+	err := kindCmd.Execute()
+	require.NoError(t, err)
+
+	deleteClusterFn = func() {
+		DeleteKindCluster(t, name)
+	}
+
+	return deleteClusterFn
+}
+
+func DeleteKindCluster(t *testing.T, name string) {
+	kindCmd := kind.NewCommand(kindcmd.NewLogger(), kindcmd.StandardIOStreams())
+	kindCmd.SetArgs([]string{"delete", "cluster", fmt.Sprintf("--name=%s", name)})
+	err := kindCmd.Execute()
 	require.NoError(t, err)
 }
