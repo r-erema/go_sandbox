@@ -138,13 +138,19 @@ func TestContainer(t *testing.T) {
 	}
 }
 
-func hostAndContainerInDifferentMountNamespacesAssertFn(parentPID int, runCommandInContainer runCommandInContainerFn) asserFn {
+func hostAndContainerInDifferentMountNamespacesAssertFn(
+	parentPID int,
+	runCommandInContainer runCommandInContainerFn,
+) asserFn {
 	return func(t *testing.T) {
 		t.Helper()
 
 		hostNamespace, err := utils.MountNamespaceInodeNumber(parentPID)
 		require.NoError(t, err)
-		nsLink := strings.Trim(string(runCommandInContainer(t, "readlink", false, fmt.Sprintf("/proc/%d/ns/mnt", 1))), "\n")
+		nsLink := strings.Trim(
+			string(runCommandInContainer(t, "readlink", false, fmt.Sprintf("/proc/%d/ns/mnt", 1))),
+			"\n",
+		)
 		containerNamespace, err := utils.ParseNSID("mnt:[", nsLink)
 		require.NoError(t, err)
 		assert.NotEqual(t, hostNamespace, containerNamespace)
@@ -168,7 +174,10 @@ func hostDoesNotSeeTheMountPointInTheContainerAssertFn(runCommandInContainer run
 	}
 }
 
-func containerIsAbleToSeeWhatWasMountedInTheHostAssertFn(containerRootPath string, runCommandInContainer runCommandInContainerFn) asserFn {
+func containerIsAbleToSeeWhatWasMountedInTheHostAssertFn(
+	containerRootPath string,
+	runCommandInContainer runCommandInContainerFn,
+) asserFn {
 	return func(t *testing.T) {
 		t.Helper()
 
@@ -221,7 +230,7 @@ func hostSeesProcessesInContainerButWithDifferentIDs(runCommandInContainer runCo
 		require.NoError(t, err)
 
 		pidStr := strconv.Itoa(pidInHost)
-		commandName, err := exec.Command("ps", "-p", pidStr, "-o", "comm=").CombinedOutput()
+		commandName, err := exec.Command("ps", "-p", pidStr, "-o", "comm=").CombinedOutput() //nolint:gosec
 		require.NoError(t, err)
 
 		commandName = bytes.TrimSpace(commandName)
@@ -248,7 +257,7 @@ func killProcessRunningInContainerFromHost(runCommandInContainer runCommandInCon
 		require.NoError(t, err)
 
 		pidInHostStr := strconv.Itoa(pidInHost)
-		err = exec.Command("kill", "-9", pidInHostStr).Run()
+		err = exec.Command("kill", "-9", pidInHostStr).Run() //nolint:gosec
 		require.NoError(t, err)
 
 		containerOutputBytes = runCommandInContainer(t, "ps", false, "axu")
@@ -280,7 +289,7 @@ func containerDoesNotSeeQueueOfHost(runCommandInContainer runCommandInContainerF
 
 		posixQueueBinOnHost := filepath.Join(testRootFS, "bin", "posix-queue")
 		queueName := strconv.Itoa(time.Now().Nanosecond())
-		cmd := exec.Command(posixQueueBinOnHost, "send-to-queue", queueName, "test data")
+		cmd := exec.Command(posixQueueBinOnHost, "send-to-queue", queueName, "test data") //nolint:gosec
 		err := cmd.Run()
 		require.NoError(t, err)
 

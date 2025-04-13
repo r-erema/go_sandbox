@@ -64,11 +64,12 @@ func TestLowestCommonAncestor(t *testing.T) {
 
 func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
 	for root != nil {
-		if p.Val > root.Val && q.Val > root.Val {
+		switch {
+		case p.Val > root.Val && q.Val > root.Val:
 			root = root.Right
-		} else if p.Val < root.Val && q.Val < root.Val {
+		case p.Val < root.Val && q.Val < root.Val:
 			root = root.Left
-		} else {
+		default:
 			return root
 		}
 	}

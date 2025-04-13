@@ -17,7 +17,10 @@ type StarReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-func (sr *StarReconciler) Reconcile(_ context.Context, _ reconcile.Request) (reconcile.Result, error) {
+func (sr *StarReconciler) Reconcile(
+	_ context.Context,
+	_ reconcile.Request,
+) (reconcile.Result, error) {
 	sr.mu.Lock()
 	defer sr.mu.Unlock()
 

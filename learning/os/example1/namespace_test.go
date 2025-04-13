@@ -60,7 +60,10 @@ func TestSetNamespaceToExtraneousProcess(t *testing.T) {
 	returnToRootNamespace()
 
 	newNamespacesFDInNewProcess := "3"
-	cmd := exec.Command("./test_data/test_bin_source/process_assigned_to_namespace/main", newNamespacesFDInNewProcess)
+	cmd := exec.Command(
+		"./test_data/test_bin_source/process_assigned_to_namespace/main",
+		newNamespacesFDInNewProcess,
+	)
 	cmd.ExtraFiles = append(cmd.ExtraFiles, os.NewFile(newNamespacesFD, "ns-fd"))
 	output, err := cmd.Output()
 	require.NoError(t, err)
@@ -81,7 +84,12 @@ func TestNewPIDNamespace(t *testing.T) {
 	parentPidNS, err := utils.PIDNamespaceInodeNumber(parentPid, parentTid)
 	require.NoError(t, err)
 
-	childPid, _, errno := unix.Syscall(syscall.SYS_CLONE, uintptr(syscall.SIGCHLD|syscall.CLONE_NEWNS|syscall.CLONE_NEWPID), 0, 0)
+	childPid, _, errno := unix.Syscall(
+		syscall.SYS_CLONE,
+		uintptr(syscall.SIGCHLD|syscall.CLONE_NEWNS|syscall.CLONE_NEWPID),
+		0,
+		0,
+	)
 	require.Equal(t, 0, int(errno))
 
 	if os.Getpid() == parentPid {

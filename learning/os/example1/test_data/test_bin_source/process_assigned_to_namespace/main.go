@@ -21,7 +21,9 @@ func main() {
 
 	err = unix.Setns(namespaceFD, unix.CLONE_NEWNET)
 	if err != nil {
-		log.Print(fmt.Errorf("setting namespace for file descriptor `%d` error: %w", namespaceFD, err))
+		log.Print(
+			fmt.Errorf("setting namespace for file descriptor `%d` error: %w", namespaceFD, err),
+		)
 		os.Exit(1)
 	}
 
