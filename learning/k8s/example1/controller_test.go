@@ -1,12 +1,10 @@
 package example1_test
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"io"
 	"os"
-	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -83,7 +81,7 @@ func TestController_Run(t *testing.T) {
 	time.Sleep(time.Second * delaySeconds)
 
 	_, err = exampleClient.SamplecontrollerV1alpha1().Foos(namespace).Create(
-		context.Background(),
+		t.Context(),
 		util.NewFoo(replicas, namespace, fooName, deploymentName),
 		util.NewCreateOptions(),
 	)
@@ -103,7 +101,7 @@ func TestController_Run(t *testing.T) {
 
 	time.Sleep(time.Second * delaySeconds)
 
-	assert.True(t, strings.Contains(outputBuf.String(), "Successfully synced 'default/test.foo'"))
+	assert.Contains(t, outputBuf.String(), "Successfully synced 'default/test.foo'")
 
 	stopCh <- struct{}{}
 
@@ -172,14 +170,14 @@ func cleanUp(
 	t.Helper()
 
 	err := kubeClient.AppsV1().Deployments(namespace).Delete(
-		context.Background(),
+		t.Context(),
 		deploymentName,
 		util.NewDeletionOptions(),
 	)
 	require.NoError(t, err)
 
 	err = exampleClient.SamplecontrollerV1alpha1().Foos(namespace).Delete(
-		context.Background(),
+		t.Context(),
 		fooName,
 		util.NewDeletionOptions(),
 	)

@@ -87,7 +87,11 @@ func (w Watcher) Run(ctx context.Context) error {
 	return nil
 }
 
-func addBackend(servicesLister listersCoreV1.ServiceLister, ingressPayload *IngressPayload, backend v1.IngressBackend) {
+func addBackend(
+	servicesLister listersCoreV1.ServiceLister,
+	ingressPayload *IngressPayload,
+	backend v1.IngressBackend,
+) {
 	svc, err := servicesLister.Services(ingressPayload.Ingress.Namespace).Get(backend.Service.Name)
 	if err != nil {
 		klog.Errorf(
@@ -153,7 +157,12 @@ func onChange(
 	watcherOnChange(payload)
 }
 
-func handleIngressSpec(ingress *v1.Ingress, payload *Payload, ingressPayload IngressPayload, secretsLister listersCoreV1.SecretLister) {
+func handleIngressSpec(
+	ingress *v1.Ingress,
+	payload *Payload,
+	ingressPayload IngressPayload,
+	secretsLister listersCoreV1.SecretLister,
+) {
 	for _, rec := range ingress.Spec.TLS {
 		if rec.SecretName == "" {
 			continue
@@ -171,7 +180,11 @@ func handleIngressSpec(ingress *v1.Ingress, payload *Payload, ingressPayload Ing
 			continue
 		}
 
-		klog.Infof("Secret `%s` has been found, namespace: %s", rec.SecretName, ingressPayload.Ingress.Namespace)
+		klog.Infof(
+			"Secret `%s` has been found, namespace: %s",
+			rec.SecretName,
+			ingressPayload.Ingress.Namespace,
+		)
 
 		cert, err := tls.X509KeyPair(secret.Data["tls.crt"], secret.Data["tls.key"])
 		if err != nil {
