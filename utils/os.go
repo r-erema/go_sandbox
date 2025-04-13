@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -51,8 +52,8 @@ func PIDNamespaceInodeNumber(pid, tid int) (int, error) {
 		return -1, fmt.Errorf("reading link `%s` error: %w", path, err)
 	}
 
-	IDStr := strings.Replace(link, "pid:[", "", -1)
-	IDStr = strings.Replace(IDStr, "]", "", -1)
+	IDStr := strings.ReplaceAll(link, "pid:[", "")
+	IDStr = strings.ReplaceAll(IDStr, "]", "")
 
 	ID, err := strconv.Atoi(IDStr)
 	if err != nil {
@@ -65,7 +66,7 @@ func PIDNamespaceInodeNumber(pid, tid int) (int, error) {
 func NewNetworkNamespaceDescriptor(pid, tid int) (uintptr, error) {
 	path := fmt.Sprintf("/proc/%d/task/%d/ns/net", pid, tid)
 
-	file, err := os.Open(path)
+	file, err := os.Open(filepath.Clean(path))
 	if err != nil {
 		return uintptr(0), fmt.Errorf("opening file `%s` error: %w", path, err)
 	}
@@ -74,8 +75,8 @@ func NewNetworkNamespaceDescriptor(pid, tid int) (uintptr, error) {
 }
 
 func ParseNSID(prefix, link string) (int, error) {
-	IDStr := strings.Replace(link, prefix, "", -1)
-	IDStr = strings.Replace(IDStr, "]", "", -1)
+	IDStr := strings.ReplaceAll(link, prefix, "")
+	IDStr = strings.ReplaceAll(IDStr, "]", "")
 
 	ID, err := strconv.Atoi(IDStr)
 	if err != nil {
@@ -125,10 +126,17 @@ func GrepPIDInHostPIDNSAndChildPIDNS(command string) (map[int]int, error) {
 
 var errPIDNotFound = errors.New("PID not found")
 
-func ProcessParentPIDInHostByChildPIDInContainer(processName string, childPIDInContainer int) (int, error) {
+func ProcessParentPIDInHostByChildPIDInContainer(
+	processName string,
+	childPIDInContainer int,
+) (int, error) {
 	parentChildPIDsMap, err := GrepPIDInHostPIDNSAndChildPIDNS(processName)
 	if err != nil {
-		return -1, fmt.Errorf("getting parent-child PIDs map for process `%s` error: %w", processName, err)
+		return -1, fmt.Errorf(
+			"getting parent-child PIDs map for process `%s` error: %w",
+			processName,
+			err,
+		)
 	}
 
 	var foundParentPID, chPID int

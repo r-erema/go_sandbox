@@ -8,7 +8,12 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-func Server(ipAddr string, port uint16, publicKey [32]byte, handler func(incomingBuf []byte) []byte) error {
+func Server(
+	ipAddr string,
+	port uint16,
+	publicKey [32]byte,
+	handler func(incomingBuf []byte) []byte,
+) error {
 	socketFD, err := syscall.SocketFD(unix.AF_INET, unix.SOCK_STREAM)
 	if err != nil {
 		return fmt.Errorf("failed to create socket: %w", err)
@@ -34,7 +39,12 @@ func Server(ipAddr string, port uint16, publicKey [32]byte, handler func(incomin
 
 		buf, err := syscall.Read(connFD)
 		if err != nil {
-			return fmt.Errorf("failed to read connection fd `%d` of socket fd `%d`: %w", connFD, socketFD, err)
+			return fmt.Errorf(
+				"failed to read connection fd `%d` of socket fd `%d`: %w",
+				connFD,
+				socketFD,
+				err,
+			)
 		}
 
 		buf = handler(buf)

@@ -1,7 +1,6 @@
 package example2_test
 
 import (
-	"context"
 	"fmt"
 	"mime"
 	"net/http"
@@ -61,7 +60,7 @@ func TestInformer(t *testing.T) {
 
 	url := request.URL().String()
 
-	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, http.NoBody)
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, url, http.NoBody)
 	require.NoError(t, err)
 
 	RESTClient, ok := kubeClientset.CoreV1().RESTClient().(*rest.RESTClient)
@@ -89,7 +88,11 @@ func TestInformer(t *testing.T) {
 
 	streamer := watch.NewStreamWatcher(
 		versioned.NewDecoder(watchEventDecoder, objectDecoder),
-		errors.NewClientErrorReporter(http.StatusInternalServerError, http.MethodGet, "ClientWatchDecoding"),
+		errors.NewClientErrorReporter(
+			http.StatusInternalServerError,
+			http.MethodGet,
+			"ClientWatchDecoding",
+		),
 	)
 
 	defaultConfigFlags := test.CLIConfigFlags(t)

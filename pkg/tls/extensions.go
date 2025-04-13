@@ -4,13 +4,11 @@ import (
 	"encoding/binary"
 	"fmt"
 
+	"github.com/spf13/cast"
 	"golang.org/x/crypto/cryptobyte"
 )
 
 const (
-	bytesCountForExtensionShortDataLength = 1
-	bytesCountForExtensionLongDataLength  = 2
-
 	extensionTypeServerName                = 0x00
 	extensionTypeEllipticCurvePointFormats = 0x0b
 	extensionTypeSupportedGroups           = 0x0a
@@ -71,33 +69,77 @@ type (
 func clientExtensions(hostNames []string, keys []publicKey) ([]byte, error) {
 	var res []byte
 
-	serverNameExtData, err := encodeServerNameExtension(hostNames)
+	data, err := encodeServerNameExtension(hostNames)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode server name extension: %w", err)
 	}
 
-	res = append(res, serverNameExtData...)
-	res = append(res, encodeECPointFormatsExtension()...)
-	res = append(res, encodeSupportedGroupsExtension([]supportedKeyExchangeGroup{
-		x25519,
-	})...)
+	res = append(res, data...)
+
+	data, err = encodeECPointFormatsExtension()
+	if err != nil {
+		return nil, fmt.Errorf("failed to encode EC point formats extension: %w", err)
+	}
+
+	res = append(res, data...)
+
+	data, err = encodeSupportedGroupsExtension([]supportedKeyExchangeGroup{
+		x25519(),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to encode supported groups extension: %w", err)
+	}
+
+	res = append(res, data...)
 	res = append(res, encodeSessionTicketExtension()...)
 	res = append(res, encodeEncryptThenMACExtension()...)
 	res = append(res, encodeExtendedMasterSecretExtension()...)
-	res = append(res, encodeSignatureAlgorithmsExtension([]signatureAlgorithm{rsaPssRsaeSha512})...)
-	res = append(res, encodeSupportedVersionsExtension([]supportedTLSVersion{tls13})...)
+
+	data, err = encodeSignatureAlgorithmsExtension([]signatureAlgorithm{rsaPssRsaeSha512()})
+	if err != nil {
+		return nil, fmt.Errorf("failed to encode signature algorithms: %w", err)
+	}
+
+	res = append(
+		res,
+		data...)
+
+	data, err = encodeSupportedVersionsExtension([]supportedTLSVersion{tls13()})
+	if err != nil {
+		return nil, fmt.Errorf("failed to encode supported versions: %w", err)
+	}
+
+	res = append(res, data...)
 	res = append(res, encodePSKKeyExchangeModesExtension()...)
-	res = append(res, encodeClientKeyShareExtension(keys)...)
+
+	keyShareExtensionData, err := encodeClientKeyShareExtension(keys)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encode key share extension: %w", err)
+	}
+
+	res = append(res, keyShareExtensionData...)
 
 	return res, nil
 }
 
-func serverExtensions(key publicKey) []byte {
+func serverExtensions(key publicKey) ([]byte, error) {
 	var res []byte
-	res = append(res, encodeSupportedVersionsExtension([]supportedTLSVersion{tls13})...)
-	res = append(res, encodeServerKeyShareExtension(key)...)
 
-	return res
+	data, err := encodeSupportedVersionsExtension([]supportedTLSVersion{tls13()})
+	if err != nil {
+		return nil, fmt.Errorf("failed to encode supported versions extension: %w", err)
+	}
+
+	res = append(res, data...)
+
+	data, err = encodeServerKeyShareExtension(key)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encode key share extension: %w", err)
+	}
+
+	res = append(res, data...)
+
+	return res, nil
 }
 
 func encodeServerNameExtension(hostNames []string) ([]byte, error) {
@@ -110,14 +152,23 @@ func encodeServerNameExtension(hostNames []string) ([]byte, error) {
 	for _, host := range hostNames {
 		hostNameEncoded := []byte(host)
 
-		hostNameLen := len(hostNameEncoded)
-
 		entry := make([]byte, entryMetaLength)
-		binary.BigEndian.PutUint16(entry[0:], uint16(hostNameLen+hostNameMetaLength))
-		binary.BigEndian.PutUint16(entry[2:], dnsHostNameType)
-		binary.BigEndian.PutUint16(entry[3:], uint16(hostNameLen))
 
-		entry, err := binary.Append(entry, binary.BigEndian, hostNameEncoded)
+		hostLen, err := cast.ToUint16E(len(hostNameEncoded) + hostNameMetaLength)
+		if err != nil {
+			return nil, fmt.Errorf("failed to convert host length to uint16 type: %w", err)
+		}
+
+		hostNameLen, err := cast.ToUint16E(len(hostNameEncoded))
+		if err != nil {
+			return nil, fmt.Errorf("failed to convert host length to uint16 type: %w", err)
+		}
+
+		binary.BigEndian.PutUint16(entry[0:], hostLen)
+		binary.BigEndian.PutUint16(entry[2:], dnsHostNameType)
+		binary.BigEndian.PutUint16(entry[3:], hostNameLen)
+
+		entry, err = binary.Append(entry, binary.BigEndian, hostNameEncoded)
 		if err != nil {
 			return nil, fmt.Errorf("appending hostname binary data error: %w", err)
 		}
@@ -130,8 +181,15 @@ func encodeServerNameExtension(hostNames []string) ([]byte, error) {
 
 	res := make([]byte, extMetaLength)
 	binary.BigEndian.PutUint16(res[0:], extensionTypeServerName)
-	binary.BigEndian.PutUint16(res[2:], uint16(len(entries)))
-	res, err := binary.Append(res, binary.BigEndian, entries)
+
+	entriesLen, err := cast.ToUint16E(len(entries))
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert hastname entries length to uint16 type: %w", err)
+	}
+
+	binary.BigEndian.PutUint16(res[2:], entriesLen)
+
+	res, err = binary.Append(res, binary.BigEndian, entries)
 	if err != nil {
 		return nil, fmt.Errorf("appending hostname entries error: %w", err)
 	}
@@ -150,7 +208,9 @@ func decodeServerNameExtension(extensionPayload cryptobyte.String) extensionServ
 		extensionPayload.ReadUint16LengthPrefixed(&listEntryRaw)
 
 		listEntryRaw.ReadUint8(&listEntry.entryType)
+
 		var listEntryPayload cryptobyte.String
+
 		listEntryRaw.ReadUint16LengthPrefixed(&listEntryPayload)
 		listEntry.host = listEntryPayload
 
@@ -160,31 +220,41 @@ func decodeServerNameExtension(extensionPayload cryptobyte.String) extensionServ
 	return res
 }
 
-func encodeECPointFormatsExtension() []byte {
+func encodeECPointFormatsExtension() ([]byte, error) {
 	const (
 		uncompressed            = 0x0
 		ansix962CompressedPrime = 0x1
 		ansix962CompressedChar2 = 0x2
 	)
 
-	supportedFormatsLen := len([]byte{uncompressed, ansix962CompressedPrime, ansix962CompressedChar2})
+	supportedFormatsLen := len(
+		[]byte{uncompressed, ansix962CompressedPrime, ansix962CompressedChar2},
+	)
 
 	extMetaLength := 8
 
 	res := make([]byte, extMetaLength)
 
 	binary.BigEndian.PutUint16(res[0:], extensionTypeEllipticCurvePointFormats)
-	binary.BigEndian.PutUint16(res[2:], uint16(supportedFormatsLen+bytesCountForExtensionShortDataLength))
+
+	formatsLen, err := cast.ToUint16E(supportedFormatsLen + bytesCountForShortDataLength)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert supported formats length to uint16 type: %w", err)
+	}
+
+	binary.BigEndian.PutUint16(res[2:], formatsLen)
+
 	res[4] = byte(supportedFormatsLen)
 	res[5] = uncompressed
 	res[6] = ansix962CompressedPrime
 	res[7] = ansix962CompressedChar2
 
-	return res
+	return res, nil
 }
 
 func decodeECPointFormatsExtension(extensionPayload cryptobyte.String) extensionECPointFormats {
 	var formats cryptobyte.String
+
 	extensionPayload.ReadUint8LengthPrefixed(&formats)
 
 	ext := extensionECPointFormats{
@@ -198,7 +268,7 @@ func decodeECPointFormatsExtension(extensionPayload cryptobyte.String) extension
 	return ext
 }
 
-func encodeSupportedGroupsExtension(groups []supportedKeyExchangeGroup) []byte {
+func encodeSupportedGroupsExtension(groups []supportedKeyExchangeGroup) ([]byte, error) {
 	var entries []byte
 
 	for _, group := range groups {
@@ -208,11 +278,21 @@ func encodeSupportedGroupsExtension(groups []supportedKeyExchangeGroup) []byte {
 	extMetaLength := 6
 	res := make([]byte, extMetaLength)
 	binary.BigEndian.PutUint16(res[0:], extensionTypeSupportedGroups)
-	binary.BigEndian.PutUint16(res[2:], uint16(len(entries)+bytesCountForExtensionLongDataLength))
-	binary.BigEndian.PutUint16(res[4:], uint16(len(entries)))
-	res = append(res, entries...)
 
-	return res
+	entriesLen, err := cast.ToUint16E(len(entries))
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert supported groups entries length to uint16 type: %w", err)
+	}
+
+	binary.BigEndian.PutUint16(res[2:], entriesLen+bytesCountForLongDataLength)
+	binary.BigEndian.PutUint16(res[4:], entriesLen)
+
+	res, err = binary.Append(res, binary.BigEndian, entries)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert supported groups entries error: %w", err)
+	}
+
+	return res, nil
 }
 
 func decodeSupportedGroupExtension(extensionPayload cryptobyte.String) extensionSupportedGroups {
@@ -222,8 +302,10 @@ func decodeSupportedGroupExtension(extensionPayload cryptobyte.String) extension
 
 	ext := extensionSupportedGroups{}
 	groupsMetaLength := 2
+
 	for !groups.Empty() {
 		var buf []byte
+
 		groups.ReadBytes(&buf, groupsMetaLength)
 		ext.groups = append(ext.groups, supportedKeyExchangeGroup(buf))
 	}
@@ -239,11 +321,15 @@ func decodeEncryptThenMACExtension(extensionPayload cryptobyte.String) extension
 	return extensionEncryptThenMAC{payload: extensionPayload}
 }
 
-func decodeExtendedMasterSecretExtension(extensionPayload cryptobyte.String) extensionExtendedMasterSecret {
+func decodeExtendedMasterSecretExtension(
+	extensionPayload cryptobyte.String,
+) extensionExtendedMasterSecret {
 	return extensionExtendedMasterSecret{payload: extensionPayload}
 }
 
-func decodeSignatureAlgorithmsExtension(extensionPayload cryptobyte.String) extensionSignatureAlgorithms {
+func decodeSignatureAlgorithmsExtension(
+	extensionPayload cryptobyte.String,
+) extensionSignatureAlgorithms {
 	var algorithms cryptobyte.String
 
 	extensionPayload.ReadUint16LengthPrefixed(&algorithms)
@@ -251,8 +337,10 @@ func decodeSignatureAlgorithmsExtension(extensionPayload cryptobyte.String) exte
 	ext := extensionSignatureAlgorithms{}
 
 	algorithmsMetaLength := 2
+
 	for !algorithms.Empty() {
 		var buf []byte
+
 		algorithms.ReadBytes(&buf, algorithmsMetaLength)
 		ext.algorithms = append(ext.algorithms, signatureAlgorithm(buf))
 	}
@@ -260,29 +348,37 @@ func decodeSignatureAlgorithmsExtension(extensionPayload cryptobyte.String) exte
 	return ext
 }
 
-func decodeSupportedTLSVersionsExtension(extensionPayload cryptobyte.String) extensionSupportedTLSVersions {
+func decodeSupportedTLSVersionsExtension(
+	extensionPayload cryptobyte.String,
+) extensionSupportedTLSVersions {
 	var versions cryptobyte.String
+
 	extensionPayload.ReadUint8LengthPrefixed(&versions)
 
 	ext := extensionSupportedTLSVersions{}
 
 	for !versions.Empty() {
 		var buf []byte
-		versions.ReadBytes(&buf, 2)
+
+		versions.ReadBytes(&buf, bytesCountForLongDataLength)
 		ext.versions = append(ext.versions, supportedTLSVersion(buf))
 	}
 
 	return ext
 }
 
-func decodePSKKeyExchangeModesExtension(extensionPayload cryptobyte.String) extensionPSKKeyExchangeModes {
+func decodePSKKeyExchangeModesExtension(
+	extensionPayload cryptobyte.String,
+) extensionPSKKeyExchangeModes {
 	var versions cryptobyte.String
+
 	extensionPayload.ReadUint8LengthPrefixed(&versions)
 
 	ext := extensionPSKKeyExchangeModes{}
 
 	for !versions.Empty() {
 		var buf []byte
+
 		versions.ReadBytes(&buf, 1)
 		ext.modes = append(ext.modes, pskKeyExchangeMode(buf))
 	}
@@ -292,19 +388,22 @@ func decodePSKKeyExchangeModesExtension(extensionPayload cryptobyte.String) exte
 
 func decodeClientKeyShareExtension(extensionPayload cryptobyte.String) extensionKeyShare {
 	var keys cryptobyte.String
+
 	extensionPayload.ReadUint16LengthPrefixed(&keys)
 
 	ext := extensionKeyShare{}
 
 	for !keys.Empty() {
 		var buf []byte
+
 		var key publicKey
 
-		keys.ReadBytes(&buf, 2)
+		keys.ReadBytes(&buf, bytesCountForLongDataLength)
 		key.exchangeGroup = supportedKeyExchangeGroup(buf)
+
 		keys.ReadUint16LengthPrefixed(&keys)
-		keys.ReadBytes(&buf, 32)
-		key.payload = [32]byte(buf)
+		keys.ReadBytes(&buf, publicKeyLength)
+		key.payload = [publicKeyLength]byte(buf)
 
 		ext.publicKeys = append(ext.publicKeys, key)
 	}
@@ -316,12 +415,14 @@ func decodeServerKeyShareExtension(extensionPayload cryptobyte.String) extension
 	ext := extensionKeyShare{}
 
 	var buf []byte
+
 	key := publicKey{}
-	extensionPayload.ReadBytes(&buf, 2)
+
+	extensionPayload.ReadBytes(&buf, bytesCountForLongDataLength)
 	key.exchangeGroup = supportedKeyExchangeGroup(buf)
 
 	extensionPayload.ReadUint16LengthPrefixed(&extensionPayload)
-	key.payload = [32]byte(extensionPayload)
+	key.payload = [publicKeyLength]byte(extensionPayload)
 
 	ext.publicKeys = append(ext.publicKeys, key)
 
@@ -329,7 +430,8 @@ func decodeServerKeyShareExtension(extensionPayload cryptobyte.String) extension
 }
 
 func encodeSessionTicketExtension() []byte {
-	res := make([]byte, 4)
+	extLength := 4
+	res := make([]byte, extLength)
 	binary.BigEndian.PutUint16(res[0:], extensionTypeSessionTicket)
 
 	return res
@@ -349,36 +451,59 @@ func encodeExtendedMasterSecretExtension() []byte {
 	}
 }
 
-func encodeSignatureAlgorithmsExtension(algos []signatureAlgorithm) []byte {
+func encodeSignatureAlgorithmsExtension(algos []signatureAlgorithm) ([]byte, error) {
 	var entries []byte
 
 	for _, algoBytes := range algos {
 		entries = append(entries, algoBytes[:]...)
 	}
 
-	res := make([]byte, 6)
-	binary.BigEndian.PutUint16(res[0:], extensionTypeSignatureAlgorithms)
-	binary.BigEndian.PutUint16(res[2:], uint16(len(entries)+bytesCountForExtensionLongDataLength))
-	binary.BigEndian.PutUint16(res[4:], uint16(len(entries)))
-	res = append(res, entries...)
+	initialLength := 6
 
-	return res
+	res := make([]byte, initialLength)
+	binary.BigEndian.PutUint16(res[0:], extensionTypeSignatureAlgorithms)
+
+	entriesLen, err := cast.ToUint16E(len(entries))
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert signature algorithms entries length to uint16 type: %w", err)
+	}
+
+	binary.BigEndian.PutUint16(res[2:], entriesLen+bytesCountForLongDataLength)
+	binary.BigEndian.PutUint16(res[4:], entriesLen)
+
+	res, err = binary.Append(res, binary.BigEndian, entries)
+	if err != nil {
+		return nil, fmt.Errorf("failed to append entries data: %w", err)
+	}
+
+	return res, nil
 }
 
-func encodeSupportedVersionsExtension(versions []supportedTLSVersion) []byte {
+func encodeSupportedVersionsExtension(versions []supportedTLSVersion) ([]byte, error) {
 	var entries []byte
 
 	for _, versionBytes := range versions {
 		entries = append(entries, versionBytes[:]...)
 	}
 
-	res := make([]byte, 5)
+	initialLength := 5
+	res := make([]byte, initialLength)
 	binary.BigEndian.PutUint16(res[0:], extensionTypeSupportedTLSVersions)
-	binary.BigEndian.PutUint16(res[2:], uint16(len(entries)+bytesCountForExtensionShortDataLength))
-	res[4] = byte(len(entries))
-	res = append(res, entries...)
 
-	return res
+	entriesLen, err := cast.ToUint16E(len(entries))
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert supported versions entries length to uint16 type: %w", err)
+	}
+
+	binary.BigEndian.PutUint16(res[2:], entriesLen+bytesCountForShortDataLength)
+	res[4] = byte(len(entries))
+
+	res, err = binary.Append(res, binary.BigEndian, entries)
+	if err != nil {
+		return nil, fmt.Errorf("failed to append entries data: %w", err)
+	}
+
+	return res, nil
 }
 
 func encodePSKKeyExchangeModesExtension() []byte {
@@ -387,42 +512,172 @@ func encodePSKKeyExchangeModesExtension() []byte {
 		0x0, 0x02,
 		0x01,
 	}
-	ext = append(ext, pskWithECDHEKeyEstablishment[:]...)
+
+	exchangeMode := pskWithECDHEKeyEstablishment()
+	ext = append(ext, exchangeMode[:]...)
 
 	return ext
 }
 
-func encodeClientKeyShareExtension(publicKeys []publicKey) []byte {
+func encodeClientKeyShareExtension(publicKeys []publicKey) ([]byte, error) {
 	var entries []byte
 
 	for _, publicKey := range publicKeys {
-		keyPayload := make([]byte, 2)
-		binary.BigEndian.PutUint16(keyPayload[0:], uint16(len(publicKey.payload)))
-		keyPayload = append(keyPayload, publicKey.payload[:]...)
+		keyPayload := make([]byte, bytesCountForLongDataLength)
 
-		entry := make([]byte, 2)
-		entryPayload := append(publicKey.exchangeGroup[:], keyPayload...)
-		binary.BigEndian.PutUint16(entry[0:], uint16(len(entryPayload)))
-		entry = append(entry, entryPayload...)
+		keyLen, err := cast.ToUint16E(len(publicKey.payload))
+		if err != nil {
+			return nil, fmt.Errorf("failed to convert public key length to uint16 type: %w", err)
+		}
 
-		entries = append(entries, entry...)
+		binary.BigEndian.PutUint16(keyPayload[0:], keyLen)
+
+		keyPayload, err = binary.Append(keyPayload, binary.BigEndian, publicKey.payload[:])
+		if err != nil {
+			return nil, fmt.Errorf("failed to append entries data: %w", err)
+		}
+
+		entry := make([]byte, bytesCountForLongDataLength)
+
+		entryPayload, err := binary.Append(publicKey.exchangeGroup[:], binary.BigEndian, keyPayload)
+		if err != nil {
+			return nil, fmt.Errorf("failed to append bytes to the entry payload: %w", err)
+		}
+
+		entryLen, err := cast.ToUint16E(len(entryPayload))
+		if err != nil {
+			return nil, fmt.Errorf("failed to convert public key entry payload length to uint16 type: %w", err)
+		}
+
+		binary.BigEndian.PutUint16(entry[0:], entryLen)
+
+		entry, err = binary.Append(entry, binary.BigEndian, entryPayload)
+		if err != nil {
+			return nil, fmt.Errorf("failed to append entries data: %w", err)
+		}
+
+		entries, err = binary.Append(entries, binary.BigEndian, entry)
+		if err != nil {
+			return nil, fmt.Errorf("failed to append entries data: %w", err)
+		}
 	}
 
-	res := make([]byte, 4)
+	initialLength := 4
+	res := make([]byte, initialLength)
 	binary.BigEndian.PutUint16(res[0:], extensionTypeKeyShare)
-	binary.BigEndian.PutUint16(res[2:], uint16(len(entries)))
-	res = append(res, entries...)
 
-	return res
+	entriesLen, err := cast.ToUint16E(len(entries))
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert public key entries length to uint16 type: %w", err)
+	}
+
+	binary.BigEndian.PutUint16(res[2:], entriesLen)
+
+	res, err = binary.Append(res, binary.BigEndian, entries)
+	if err != nil {
+		return nil, fmt.Errorf("failed to append entries data: %w", err)
+	}
+
+	return res, nil
 }
 
-func encodeServerKeyShareExtension(publicKey publicKey) []byte {
-	res := make([]byte, 8)
+func encodeServerKeyShareExtension(publicKey publicKey) ([]byte, error) {
+	initialLength := 8
+
+	res := make([]byte, initialLength)
 	binary.BigEndian.PutUint16(res[0:], extensionTypeKeyShare)
-	binary.BigEndian.PutUint16(res[2:], uint16(len(publicKey.exchangeGroup)+len(publicKey.payload)+bytesCountForExtensionLongDataLength))
+	binary.BigEndian.PutUint16(
+		res[2:],
+		uint16(
+			len(
+				publicKey.exchangeGroup,
+			)+len(
+				publicKey.payload,
+			)+bytesCountForLongDataLength,
+		),
+	)
 	binary.BigEndian.PutUint16(res[4:], binary.BigEndian.Uint16(publicKey.exchangeGroup[:]))
 	binary.BigEndian.PutUint16(res[6:], uint16(len(publicKey.payload)))
-	res = append(res, publicKey.payload[:]...)
 
-	return res
+	res, err := binary.Append(res, binary.BigEndian, publicKey.payload[:])
+	if err != nil {
+		return nil, fmt.Errorf("failed to append public key payload data: %w", err)
+	}
+
+	return res, nil
+}
+
+func parseExtensions(raw cryptobyte.String, helloMsg *hello) error {
+	clientDecoders := map[uint16]func(*hello, cryptobyte.String){
+		extensionTypeServerName: func(helloMsg *hello, payload cryptobyte.String) {
+			helloMsg.extensionServerName = decodeServerNameExtension(payload)
+		},
+		extensionTypeEllipticCurvePointFormats: func(helloMsg *hello, payload cryptobyte.String) {
+			helloMsg.extensionECPointFormats = decodeECPointFormatsExtension(payload)
+		},
+		extensionTypeSupportedGroups: func(helloMsg *hello, payload cryptobyte.String) {
+			helloMsg.extensionSupportedGroups = decodeSupportedGroupExtension(payload)
+		},
+		extensionTypeSessionTicket: func(h *hello, payload cryptobyte.String) {
+			h.extensionSessionTicket = decodeSessionTicketExtension(payload)
+		},
+		extensionTypeEncryptThenMAC: func(h *hello, payload cryptobyte.String) {
+			h.extensionEncryptThenMAC = decodeEncryptThenMACExtension(payload)
+		},
+		extensionTypeExtendedMasterSecret: func(h *hello, payload cryptobyte.String) {
+			h.extensionExtendedMasterSecret = decodeExtendedMasterSecretExtension(payload)
+		},
+		extensionTypeSignatureAlgorithms: func(h *hello, payload cryptobyte.String) {
+			h.extensionSignatureAlgorithms = decodeSignatureAlgorithmsExtension(payload)
+		},
+		extensionTypePSKKeyExchangeModes: func(h *hello, payload cryptobyte.String) {
+			h.extensionPSKKeyExchangeModes = decodePSKKeyExchangeModesExtension(payload)
+		},
+		extensionTypeSupportedTLSVersions: func(h *hello, payload cryptobyte.String) {
+			h.extensionSupportedTLSVersions = decodeSupportedTLSVersionsExtension(payload)
+		},
+		extensionTypeKeyShare: func(h *hello, payload cryptobyte.String) {
+			h.extensionKeyShare = decodeClientKeyShareExtension(payload)
+		},
+	}
+
+	serverDecoders := map[uint16]func(*hello, cryptobyte.String){
+		extensionTypeSupportedTLSVersions: func(helloMsg *hello, payload cryptobyte.String) {
+			helloMsg.extensionSupportedTLSVersions = decodeSupportedTLSVersionsExtension(payload)
+		},
+		extensionTypeKeyShare: func(helloMsg *hello, payload cryptobyte.String) {
+			helloMsg.extensionKeyShare = decodeServerKeyShareExtension(payload)
+		},
+	}
+
+	var decoders map[uint16]func(*hello, cryptobyte.String)
+
+	switch {
+	case helloMsg.handshakeType == clientType():
+		decoders = clientDecoders
+	case helloMsg.handshakeType == serverType():
+		decoders = serverDecoders
+	default:
+		return NewError(fmt.Sprintf("unknown handshake type: %d", helloMsg.handshakeType))
+	}
+
+	var (
+		extType          uint16
+		extensionPayload cryptobyte.String
+	)
+
+	for !raw.Empty() {
+		raw.ReadUint16(&extType)
+		raw.ReadUint16LengthPrefixed(&extensionPayload)
+
+		if decoder, ok := decoders[extType]; ok {
+			decoder(helloMsg, extensionPayload)
+
+			continue
+		}
+
+		return NewError(fmt.Sprintf("unknown extension type: %d", extType))
+	}
+
+	return nil
 }

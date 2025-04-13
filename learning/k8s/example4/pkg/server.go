@@ -66,7 +66,17 @@ func (s *Server) Run(ctx context.Context) error {
 }
 
 func (s *Server) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
-	backendURL, err := s.routingTable.Load().(*RoutingTable).GetBackend(request.Host, request.URL.Path)
+	routingTable, ok := s.routingTable.Load().(*RoutingTable)
+	if !ok {
+		http.Error(writer, "getting backend error", http.StatusInternalServerError)
+
+		return
+	}
+
+	backendURL, err := routingTable.GetBackend(
+		request.Host,
+		request.URL.Path,
+	)
 	if err != nil {
 		http.Error(writer, "getting backend error", http.StatusInternalServerError)
 

@@ -51,15 +51,17 @@ func searchMatrix(matrix [][]int, target int) bool {
 
 	top, bottom := 0, len(matrix)-1
 
+search:
 	for top <= bottom {
 		row = (top + bottom) / 2
 
-		if target > matrix[row][len(matrix[0])-1] {
+		switch {
+		case target > matrix[row][len(matrix[0])-1]:
 			top = row + 1
-		} else if target < matrix[row][0] {
+		case target < matrix[row][0]:
 			bottom = row - 1
-		} else {
-			break
+		default:
+			break search
 		}
 	}
 
@@ -67,11 +69,12 @@ func searchMatrix(matrix [][]int, target int) bool {
 	for left <= right {
 		pointer := (left + right) / 2
 
-		if matrix[row][pointer] < target {
+		switch cmp := matrix[row][pointer]; {
+		case cmp < target:
 			left = pointer + 1
-		} else if matrix[row][pointer] > target {
+		case cmp > target:
 			right = pointer - 1
-		} else {
+		default:
 			return true
 		}
 	}

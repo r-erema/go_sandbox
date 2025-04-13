@@ -49,25 +49,25 @@ func TestBFS(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			bfs := func(nodeIndex int) {
-				queue := []int{nodeIndex}
-
-				for len(queue) > 0 {
-					nodeIndex, queue = queue[0], queue[1:]
-					tt.vertices[nodeIndex] = 1
-
-					if nodeIndex < len(tt.edges) {
-						for _, edge := range tt.edges[nodeIndex] {
-							if tt.vertices[edge] == 0 {
-								queue = append(queue, edge)
-							}
-						}
-					}
-				}
-			}
-
-			bfs(0)
+			bfs(0, tt.edges, tt.vertices)
 			assert.Equal(t, tt.want, tt.vertices)
 		})
+	}
+}
+
+func bfs(nodeIndex int, edges [][]int, vertices []int) {
+	queue := []int{nodeIndex}
+
+	for len(queue) > 0 {
+		nodeIndex, queue = queue[0], queue[1:]
+		vertices[nodeIndex] = 1
+
+		if nodeIndex < len(edges) {
+			for _, edge := range edges[nodeIndex] {
+				if vertices[edge] == 0 {
+					queue = append(queue, edge)
+				}
+			}
+		}
 	}
 }

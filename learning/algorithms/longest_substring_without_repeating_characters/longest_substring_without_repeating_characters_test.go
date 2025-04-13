@@ -63,7 +63,8 @@ func lengthOfLongestSubstring(input string) int {
 	encounteredChars := make(map[byte]int)
 
 	for left, right = 0, 0; right < len(input); right++ {
-		if prevCharIndex, stopExpandWindow := encounteredChars[input[right]]; stopExpandWindow && prevCharIndex >= left {
+		if prevCharIndex, stopExpandWindow := encounteredChars[input[right]]; stopExpandWindow &&
+			prevCharIndex >= left {
 			res = max(res, right-left)
 			left = prevCharIndex + 1
 		}

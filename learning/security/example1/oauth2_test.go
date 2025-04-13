@@ -1,7 +1,6 @@
 package example1_test
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -60,7 +59,10 @@ func Test_ClientCredentialsGrantFlow(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	resourceServer := example1.NewResourceServer(initTestStorage(), fmt.Sprintf("http://%s/interception-endpoint", authServerAddr))
+	resourceServer := example1.NewResourceServer(
+		initTestStorage(),
+		fmt.Sprintf("http://%s/interception-endpoint", authServerAddr),
+	)
 
 	oAuth2Manager := manage.NewDefaultManager()
 	oAuth2Manager.MapClientStorage(authServerStorage)
@@ -116,7 +118,7 @@ func ttWithoutCredentials(t *testing.T) tablett {
 		expectedBody:   "",
 		requestFactory: func() *http.Request {
 			request, err := http.NewRequestWithContext(
-				context.Background(),
+				t.Context(),
 				http.MethodGet, fmt.Sprintf("http://%s/bank-account-pin", resourceServerAddr),
 				http.NoBody,
 			)
@@ -137,7 +139,7 @@ func ttWithBadCredentials(t *testing.T) tablett {
 		requestFactory: func() *http.Request {
 			var err error
 
-			tokenRequest, err := http.NewRequestWithContext(context.Background(),
+			tokenRequest, err := http.NewRequestWithContext(t.Context(),
 				http.MethodGet,
 				fmt.Sprintf(
 					"http://%s/token?grant_type=client_credentials&client_id=%s&client_secret=%s&scope=all",
@@ -161,7 +163,7 @@ func ttWithBadCredentials(t *testing.T) tablett {
 			err = json.NewDecoder(tokenResponse.Body).Decode(&data)
 
 			request, err := http.NewRequestWithContext(
-				context.Background(),
+				t.Context(),
 				http.MethodGet,
 				fmt.Sprintf("http://%s/bank-account-pin?uid=%s", resourceServerAddr, userID),
 				http.NoBody,
@@ -183,7 +185,7 @@ func ttSuccessful(t *testing.T) tablett {
 		expectedStatus: http.StatusOK,
 		expectedBody:   bankAccountPIN,
 		requestFactory: func() *http.Request {
-			tokenRequest, err := http.NewRequestWithContext(context.Background(),
+			tokenRequest, err := http.NewRequestWithContext(t.Context(),
 				http.MethodGet,
 				fmt.Sprintf(
 					"http://%s/token?grant_type=client_credentials&client_id=%s&client_secret=%s&scope=all",
@@ -207,7 +209,7 @@ func ttSuccessful(t *testing.T) tablett {
 			err = json.NewDecoder(tokenResponse.Body).Decode(&data)
 
 			request, err := http.NewRequestWithContext(
-				context.Background(),
+				t.Context(),
 				http.MethodGet,
 				fmt.Sprintf("http://%s/bank-account-pin?uid=%s", resourceServerAddr, userID),
 				http.NoBody,

@@ -203,7 +203,8 @@ func push(heap *TreeNode, val int) *TreeNode {
 	return arrayToTree(arrHeap[1:])
 }
 
-// Time O(log(N)), the new root has to be swapped with its child on each level until it reaches the bottom level of the heap
+// Time O(log(N)), the new root has to be swapped with its child on each level
+// until it reaches the bottom level of the heap
 // Space O(N), since we need an array containing elements from input heap.
 func pop(heap *TreeNode) int {
 	arrHeap := leadingZeroArray(treeToArray(heap))
@@ -258,15 +259,17 @@ func percolateDown(i int, arr []int) {
 		return arr[i] > arr[2*i]
 	}
 
+loop:
 	for leftChildExists() {
-		if rightChildExists() && rightChildLessThanLeftChild() && parentGreaterThanRightChild() {
+		switch {
+		case rightChildExists() && rightChildLessThanLeftChild() && parentGreaterThanRightChild():
 			arr[i], arr[2*i+1] = arr[2*i+1], arr[i]
 			i = 2*i + 1
-		} else if parentGreaterThanLeftChild() {
+		case parentGreaterThanLeftChild():
 			arr[i], arr[2*i] = arr[2*i], arr[i]
 			i *= 2
-		} else {
-			break
+		default:
+			break loop
 		}
 	}
 }
