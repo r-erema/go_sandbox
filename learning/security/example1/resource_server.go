@@ -18,53 +18,62 @@ type ResourceServer struct {
 	authServerInterceptionEndpoint string
 }
 
-func NewResourceServer(storage map[UserID]BankAccountPIN, authServerInterceptionEndpoint string) *ResourceServer {
-	return &ResourceServer{storage: storage, authServerInterceptionEndpoint: authServerInterceptionEndpoint}
+func NewResourceServer(
+	storage map[UserID]BankAccountPIN,
+	authServerInterceptionEndpoint string,
+) *ResourceServer {
+	return &ResourceServer{
+		storage:                        storage,
+		authServerInterceptionEndpoint: authServerInterceptionEndpoint,
+	}
 }
 
 func (rs ResourceServer) Run(addr string) error {
 	router := http.NewServeMux()
 
-	router.Handle("/bank-account-pin", http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		if request.Method != http.MethodGet {
-			http.Error(writer, "", http.StatusMethodNotAllowed)
+	router.Handle(
+		"/bank-account-pin",
+		http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+			if request.Method != http.MethodGet {
+				http.Error(writer, "", http.StatusMethodNotAllowed)
 
-			return
-		}
+				return
+			}
 
-		authResponse, err := rs.authRequest(request.Context(), request)
-		if err != nil {
-			http.Error(writer, "", http.StatusBadRequest)
+			authResponse, err := rs.authRequest(request.Context(), request)
+			if err != nil {
+				http.Error(writer, "", http.StatusBadRequest)
 
-			return
-		}
+				return
+			}
 
-		defer func() {
-			err = authResponse.Body.Close()
-			log.Printf("body close error: %s", err)
-		}()
+			defer func() {
+				err = authResponse.Body.Close()
+				log.Printf("body close error: %s", err)
+			}()
 
-		if authResponse.StatusCode != http.StatusOK {
-			http.Error(writer, "", authResponse.StatusCode)
+			if authResponse.StatusCode != http.StatusOK {
+				http.Error(writer, "", authResponse.StatusCode)
 
-			return
-		}
+				return
+			}
 
-		uid := request.URL.Query().Get("uid")
-		pin, ok := rs.storage[UserID(uid)]
+			uid := request.URL.Query().Get("uid")
+			pin, ok := rs.storage[UserID(uid)]
 
-		if !ok {
-			http.Error(writer, "", http.StatusBadRequest)
+			if !ok {
+				http.Error(writer, "", http.StatusBadRequest)
 
-			return
-		}
+				return
+			}
 
-		if _, err := writer.Write([]byte(pin)); err != nil {
-			http.Error(writer, "", http.StatusInternalServerError)
+			if _, err := writer.Write([]byte(pin)); err != nil {
+				http.Error(writer, "", http.StatusInternalServerError)
 
-			return
-		}
-	}))
+				return
+			}
+		}),
+	)
 
 	if err := (&http.Server{
 		Addr:              addr,
@@ -77,7 +86,10 @@ func (rs ResourceServer) Run(addr string) error {
 	return nil
 }
 
-func (rs ResourceServer) authRequest(ctx context.Context, request *http.Request) (*http.Response, error) {
+func (rs ResourceServer) authRequest(
+	ctx context.Context,
+	request *http.Request,
+) (*http.Response, error) {
 	tokenCheckRequest, err := http.NewRequestWithContext(
 		ctx,
 		http.MethodGet,

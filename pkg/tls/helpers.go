@@ -5,20 +5,24 @@ import (
 	"fmt"
 )
 
-func Rand32Bytes() ([32]byte, error) {
-	buf := make([]byte, 32)
+func Rand32Bytes() ([secretLength]byte, error) {
+	buf := make([]byte, secretLength)
 	if _, err := rand.Read(buf); err != nil {
 		return [32]byte{}, fmt.Errorf("rand Read error: %w", err)
 	}
+
 	return [32]byte(buf), nil
 }
 
-func BigEndianAppend24(b []byte, v uint32) ([]byte, error) {
-	if v > 0xffffff {
-		return nil, fmt.Errorf("value out of range of 24 bits: %d", v)
+func BigEndianAppend24(buf []byte, val uint32) ([]byte, error) {
+	var maxBits uint32 = 0xffffff
+	if val > maxBits {
+		return nil, NewError(fmt.Sprintf("value out of range of 24 bits: %d", val))
 	}
 
-	b = append(b, byte(v>>16), byte(v>>8), byte(v))
+	offset16, offset8 := 16, 8
 
-	return b, nil
+	buf = append(buf, byte(val>>offset16), byte(val>>offset8), byte(val))
+
+	return buf, nil
 }

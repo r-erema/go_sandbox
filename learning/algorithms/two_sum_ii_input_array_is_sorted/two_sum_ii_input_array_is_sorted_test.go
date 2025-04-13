@@ -39,11 +39,13 @@ func twoSum(numbers []int, target int) []int {
 
 	for left <= right {
 		sum := numbers[left] + numbers[right]
-		if sum > target {
+
+		switch {
+		case sum > target:
 			right--
-		} else if sum < target {
+		case sum < target:
 			left++
-		} else {
+		default:
 			return []int{left + 1, right + 1}
 		}
 	}

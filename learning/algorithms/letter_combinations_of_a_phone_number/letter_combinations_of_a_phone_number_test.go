@@ -1,8 +1,9 @@
 package lettercombinationsofaphonenumber_test
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPermute(t *testing.T) {
@@ -29,8 +30,7 @@ func TestPermute(t *testing.T) {
 	}
 }
 
-// Time O(?),
-// Space O(?),
+// Space O(?),.
 func letterCombinations(digits string) []string {
 	return nil
 }

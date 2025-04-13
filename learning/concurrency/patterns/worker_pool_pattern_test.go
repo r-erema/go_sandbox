@@ -137,7 +137,12 @@ func processTask(task gameServerTask, stdout io.Writer) {
 	rand.Seed(time.Now().UnixNano())
 	time.Sleep(time.Millisecond * time.Duration(rand.Intn(100)))
 
-	_, _ = fmt.Fprintf(stdout, "Task `%s` for player `%s` is executed\n", task.action, task.playerID)
+	_, _ = fmt.Fprintf(
+		stdout,
+		"Task `%s` for player `%s` is executed\n",
+		task.action,
+		task.playerID,
+	)
 }
 
 func (wp *workerPool) Stop() {
@@ -181,7 +186,11 @@ func TestGameServer(t *testing.T) {
 		assert.Contains(
 			t,
 			string(out),
-			fmt.Sprintf("Task `%s` for player `%s` is executed\n", serverTask.action, serverTask.playerID),
+			fmt.Sprintf(
+				"Task `%s` for player `%s` is executed\n",
+				serverTask.action,
+				serverTask.playerID,
+			),
 		)
 	}
 }

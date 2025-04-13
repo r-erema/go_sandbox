@@ -19,6 +19,7 @@ func generator(maxAmount int) <-chan int {
 		for i := 0; i <= maxAmount; i++ {
 			out <- i
 		}
+
 		close(out)
 	}()
 
@@ -154,7 +155,11 @@ func vectorised(in <-chan []string) <-chan []float64 {
 	out := make(chan []float64)
 	go func() {
 		for token := range in {
-			dummyVector := []float64{float64(len(token)) / 10, float64(len(token)) / 11, float64(len(token)) / 12}
+			dummyVector := []float64{
+				float64(len(token)) / 10,
+				float64(len(token)) / 11,
+				float64(len(token)) / 12,
+			}
 			out <- dummyVector
 		}
 

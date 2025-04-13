@@ -51,7 +51,7 @@ func TestCarFleet(t *testing.T) {
 
 func carFleet(target int, position, speed []int) int {
 	cars := make([][2]int, len(position))
-	for i := range len(position) {
+	for i := range position {
 		cars[i] = [2]int{position[i], speed[i]}
 	}
 
@@ -61,7 +61,11 @@ func carFleet(target int, position, speed []int) int {
 
 	fleets := len(cars)
 
-	currentCarTimeToDestination := float32(target-cars[len(cars)-1][0]) / float32(cars[len(cars)-1][1])
+	currentCarTimeToDestination := float32(
+		target-cars[len(cars)-1][0],
+	) / float32(
+		cars[len(cars)-1][1],
+	)
 
 	for i := len(cars) - 1; i > 0; i-- {
 		previousCarTimeToDestination := float32(target-cars[i-1][0]) / float32(cars[i-1][1])

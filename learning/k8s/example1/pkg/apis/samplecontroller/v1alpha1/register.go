@@ -9,7 +9,11 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-var SchemeGroupVersion = schema.GroupVersion{Group: samplecontroller.GroupName, Version: "v1alpha1"} //nolint:gochecknoglobals
+//nolint:gochecknoglobals
+var SchemeGroupVersion = schema.GroupVersion{
+	Group:   samplecontroller.GroupName,
+	Version: "v1alpha1",
+}
 
 func Kind(kind string) schema.GroupKind {
 	return SchemeGroupVersion.WithKind(kind).GroupKind()

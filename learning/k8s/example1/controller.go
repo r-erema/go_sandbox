@@ -72,8 +72,14 @@ func NewController(
 
 	eventBroadcaster := record.NewBroadcaster()
 	eventBroadcaster.StartStructuredLogging(0)
-	eventBroadcaster.StartRecordingToSink(&typedCoreV1.EventSinkImpl{Interface: kubeClientSet.CoreV1().Events("")})
-	recorder := eventBroadcaster.NewRecorder(scheme.Scheme, coreV1.EventSource{Component: controllerAgentName, Host: ""})
+	eventBroadcaster.StartRecordingToSink(
+		&typedCoreV1.EventSinkImpl{Interface: kubeClientSet.CoreV1().Events("")},
+	)
+
+	recorder := eventBroadcaster.NewRecorder(
+		scheme.Scheme,
+		coreV1.EventSource{Component: controllerAgentName, Host: ""},
+	)
 
 	controller := &Controller{
 		kubeClientset:    kubeClientSet,
@@ -85,8 +91,11 @@ func NewController(
 
 		//nolint
 		// todo: get rid of nolint
-		workQueue: workqueue.NewNamedRateLimitingQueue(workqueue.DefaultControllerRateLimiter(), "Foos"), //nolint
-		recorder:  recorder,
+		workQueue: workqueue.NewNamedRateLimitingQueue(
+			workqueue.DefaultControllerRateLimiter(),
+			"Foos",
+		), //nolint
+		recorder: recorder,
 	}
 
 	klog.Info("Setting up event handlers")
@@ -178,7 +187,9 @@ func (c *Controller) processNextWorkItem() bool {
 
 		if key, ok = obj.(string); !ok {
 			c.workQueue.Forget(obj)
-			utilRuntime.HandleError(fmt.Errorf("%w, expected string in work queue but got %#v", errWorkQueue, obj))
+			utilRuntime.HandleError(
+				fmt.Errorf("%w, expected string in work queue but got %#v", errWorkQueue, obj),
+			)
 
 			return nil
 		}
@@ -219,7 +230,9 @@ func (c *Controller) handleObject(obj interface{}) {
 
 		object, ok = tombstone.Obj.(metaV1.Object)
 		if !ok {
-			c.handleObject(fmt.Errorf("%w, %s", errInvalidObjectType, "error decoding object tombstone"))
+			c.handleObject(
+				fmt.Errorf("%w, %s", errInvalidObjectType, "error decoding object tombstone"),
+			)
 
 			return
 		}
@@ -236,7 +249,8 @@ func (c *Controller) handleObject(obj interface{}) {
 
 		foo, err := c.fooLister.Foos(object.GetNamespace()).Get(ownerRef.Name)
 		if err != nil {
-			klog.V(logLevel).Infof("ignoring orphaned object '%s/%s' of foo '%s'", object.GetNamespace(), object.GetName(), ownerRef.Name)
+			klog.V(logLevel).
+				Infof("ignoring orphaned object '%s/%s' of foo '%s'", object.GetNamespace(), object.GetName(), ownerRef.Name)
 
 			return
 		}
@@ -273,7 +287,9 @@ func (c *Controller) syncHandler(key string) error {
 	foo, err := c.fooLister.Foos(namespace).Get(name)
 	if err != nil {
 		if k8sErrors.IsNotFound(err) {
-			utilRuntime.HandleError(fmt.Errorf("%w, foo '%s' in work queue no longer exists", errWorkQueue, key))
+			utilRuntime.HandleError(
+				fmt.Errorf("%w, foo '%s' in work queue no longer exists", errWorkQueue, key),
+			)
 
 			return nil
 		}
@@ -283,7 +299,9 @@ func (c *Controller) syncHandler(key string) error {
 
 	deploymentName := foo.Spec.DeploymentName
 	if deploymentName == "" {
-		utilRuntime.HandleError(fmt.Errorf("%w, %s: deployment name must be specified", errBadResourceName, key))
+		utilRuntime.HandleError(
+			fmt.Errorf("%w, %s: deployment name must be specified", errBadResourceName, key),
+		)
 
 		return nil
 	}
@@ -331,7 +349,9 @@ func (c *Controller) handleDeploymentUpdate(
 	var err error
 
 	if foo.Spec.Replicas != nil && *foo.Spec.Replicas != *deployment.Spec.Replicas {
-		klog.V(logLevel).Infof("Foo %s replicas: %d, deployment replicas: %d", name, *foo.Spec.Replicas, *deployment.Spec.Replicas)
+		klog.V(logLevel).
+			Infof("Foo %s replicas: %d, deployment replicas: %d", name, *foo.Spec.Replicas, *deployment.Spec.Replicas)
+
 		deployment, err = c.kubeClientset.AppsV1().Deployments(foo.Namespace).Update(
 			context.TODO(),
 			util.NewDeployment(foo),

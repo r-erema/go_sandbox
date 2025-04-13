@@ -1,7 +1,6 @@
 package prometheus_test
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -43,7 +42,10 @@ func TestGauge(t *testing.T) {
 	}()
 	t.Logf("Exporter started on port: http://localhost:%d", exporterPort)
 
-	cfg := preparePrometheusConfig(t, model.LabelValue(fmt.Sprintf("host.docker.internal:%d", exporterPort)))
+	cfg := preparePrometheusConfig(
+		t,
+		model.LabelValue(fmt.Sprintf("host.docker.internal:%d", exporterPort)),
+	)
 	defer func() {
 		err = cfg.Close()
 		require.NoError(t, err)
@@ -54,7 +56,12 @@ func TestGauge(t *testing.T) {
 
 	prometheusURL := fmt.Sprintf("http://localhost:%d", prometheusPort)
 	t.Logf("Prometheus started on port: %s", prometheusURL)
-	containerID := test.RunPrometheusContainer(t, nat.PortBinding{HostIP: "0.0.0.0", HostPort: strconv.Itoa(prometheusPort)}, cfg.Name())
+	containerID := test.RunPrometheusContainer(
+		t,
+		nat.PortBinding{HostIP: "0.0.0.0", HostPort: strconv.Itoa(prometheusPort)},
+		cfg.Name(),
+	)
+
 	t.Cleanup(func() {
 		test.StopAndRemoveContainer(t, containerID)
 	})
@@ -64,14 +71,22 @@ func TestGauge(t *testing.T) {
 	waitPrometheusReady(t, client)
 	promAPI := v1.NewAPI(client)
 
-	value, _, err := promAPI.Query(context.Background(), fmt.Sprintf("{__name__=%q}", testMetricName), time.Now())
+	value, _, err := promAPI.Query(
+		t.Context(),
+		fmt.Sprintf("{__name__=%q}", testMetricName),
+		time.Now(),
+	)
 	require.NoError(t, err)
 
 	maxAttempts := 10
 	for value.String() == "" && maxAttempts > 0 {
 		time.Sleep(time.Second)
 
-		value, _, err = promAPI.Query(context.Background(), fmt.Sprintf("{__name__=%q}", testMetricName), time.Now())
+		value, _, err = promAPI.Query(
+			t.Context(),
+			fmt.Sprintf("{__name__=%q}", testMetricName),
+			time.Now(),
+		)
 		require.NoError(t, err)
 
 		maxAttempts--
@@ -83,7 +98,11 @@ func TestGauge(t *testing.T) {
 func preparePrometheusConfig(t *testing.T, scraperPath model.LabelValue) *os.File {
 	t.Helper()
 
-	cfgFile, err := os.OpenFile(filepath.Join(t.TempDir(), "prometheus.yml"), os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o644)
+	cfgFile, err := os.OpenFile(
+		filepath.Join(t.TempDir(), "prometheus.yml"),
+		os.O_RDWR|os.O_CREATE|os.O_TRUNC,
+		0o600,
+	)
 	require.NoError(t, err)
 
 	cfg := config.Config{ScrapeConfigs: []*config.ScrapeConfig{
@@ -151,7 +170,7 @@ func waitPrometheusReady(t *testing.T, client api.Client) {
 	t.Helper()
 
 	req, err := http.NewRequestWithContext(
-		context.Background(),
+		t.Context(),
 		http.MethodGet,
 		client.URL("/-/ready", make(map[string]string)).String(),
 		http.NoBody,
@@ -160,7 +179,7 @@ func waitPrometheusReady(t *testing.T, client api.Client) {
 
 	callWaitTime := time.Millisecond * 100
 	for range time.Tick(callWaitTime) {
-		resp, _, err := client.Do(context.Background(), req)
+		resp, _, err := client.Do(t.Context(), req)
 		if err != nil {
 			if errors.Is(err, syscall.ECONNRESET) {
 				continue

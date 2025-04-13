@@ -21,7 +21,15 @@ func TestObserver(t *testing.T) {
 	item.Deregister(customer2)
 	item.SetAsAvailable()
 
-	assert.Equal(t, "I got your message about `iPhone 13 is available`, thanks! Best regards, M. Salah", customer.Log()[0])
+	assert.Equal(
+		t,
+		"I got your message about `iPhone 13 is available`, thanks! Best regards, M. Salah",
+		customer.Log()[0],
+	)
 	assert.Empty(t, customer2.Log())
-	assert.Equal(t, "I got your message about `iPhone 13 is available`, thanks! Best regards, J. Henderson", customer3.Log()[0])
+	assert.Equal(
+		t,
+		"I got your message about `iPhone 13 is available`, thanks! Best regards, J. Henderson",
+		customer3.Log()[0],
+	)
 }

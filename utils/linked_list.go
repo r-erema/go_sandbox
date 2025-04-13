@@ -33,7 +33,7 @@ func Build(nodes []*LinkedListNode) *LinkedListNode {
 	return startNode
 }
 
-func (node LinkedListNode) IsHead() bool {
+func (node *LinkedListNode) IsHead() bool {
 	return node.prev == nil
 }
 

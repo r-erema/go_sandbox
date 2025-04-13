@@ -52,17 +52,19 @@ func TestFindClosestValue(t *testing.T) {
 func closestValueInBST(root *TreeNode, target float64) float64 {
 	closest := root.Val
 
+loop:
 	for root != nil {
 		if math.Abs(root.Val-target) < math.Abs(closest-target) {
 			closest = root.Val
 		}
 
-		if target < root.Val {
+		switch {
+		case target < root.Val:
 			root = root.Left
-		} else if target > root.Val {
+		case target > root.Val:
 			root = root.Right
-		} else {
-			break
+		default:
+			break loop
 		}
 	}
 

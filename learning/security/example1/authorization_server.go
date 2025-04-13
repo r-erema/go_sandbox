@@ -21,39 +21,45 @@ func NewAuthorizationServer(oAuthHandler *server.Server) *AuthorizationServer {
 func (at AuthorizationServer) Run(addr string) error {
 	router := http.NewServeMux()
 
-	router.Handle("/token", http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		if err := at.oAuthHandler.HandleTokenRequest(writer, request); err != nil {
-			log.Printf("handling token request error: %s", err)
+	router.Handle(
+		"/token",
+		http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+			if err := at.oAuthHandler.HandleTokenRequest(writer, request); err != nil {
+				log.Printf("handling token request error: %s", err)
 
-			http.Error(writer, "", http.StatusUnauthorized)
-		}
-	}))
+				http.Error(writer, "", http.StatusUnauthorized)
+			}
+		}),
+	)
 
-	router.Handle("/interception-endpoint", http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		tokenInfo, err := at.oAuthHandler.ValidationBearerToken(request)
-		if err != nil {
-			log.Printf("validation token request error: %s", err)
-			http.Error(writer, "", http.StatusUnauthorized)
+	router.Handle(
+		"/interception-endpoint",
+		http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+			tokenInfo, err := at.oAuthHandler.ValidationBearerToken(request)
+			if err != nil {
+				log.Printf("validation token request error: %s", err)
+				http.Error(writer, "", http.StatusUnauthorized)
 
-			return
-		}
+				return
+			}
 
-		body, err := json.Marshal(tokenInfo)
-		if err != nil {
-			log.Printf("marshaling token info error: %s", err)
-			http.Error(writer, "", http.StatusInternalServerError)
+			body, err := json.Marshal(tokenInfo)
+			if err != nil {
+				log.Printf("marshaling token info error: %s", err)
+				http.Error(writer, "", http.StatusInternalServerError)
 
-			return
-		}
+				return
+			}
 
-		_, err = writer.Write(body)
-		if err != nil {
-			log.Printf("writing body error: %s", err)
-			http.Error(writer, "", http.StatusInternalServerError)
+			_, err = writer.Write(body)
+			if err != nil {
+				log.Printf("writing body error: %s", err)
+				http.Error(writer, "", http.StatusInternalServerError)
 
-			return
-		}
-	}))
+				return
+			}
+		}),
+	)
 
 	if err := (&http.Server{
 		Addr:              addr,

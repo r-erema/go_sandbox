@@ -19,16 +19,18 @@ import (
 func TestCrawler(t *testing.T) {
 	t.Parallel()
 
-	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, r *http.Request) {
-		switch r.URL.Path {
-		case "/":
-			_, err := writer.Write([]byte(`{"title": "root"}`))
-			assert.NoError(t, err)
-		case "/path-0":
-			_, err := writer.Write([]byte(`{"title": "path-0"}`))
-			assert.NoError(t, err)
-		}
-	}))
+	server := httptest.NewServer(
+		http.HandlerFunc(func(writer http.ResponseWriter, r *http.Request) {
+			switch r.URL.Path {
+			case "/":
+				_, err := writer.Write([]byte(`{"title": "root"}`))
+				assert.NoError(t, err)
+			case "/path-0":
+				_, err := writer.Write([]byte(`{"title": "path-0"}`))
+				assert.NoError(t, err)
+			}
+		}),
+	)
 
 	fch := &httpFetcher{}
 
@@ -158,7 +160,7 @@ func TestVideoProcessor(t *testing.T) {
 		numWorkers := 2
 
 		encodedSegments := fanOutFanIn(segments, numWorkers)
-		assert.Equal(t, len(segments), len(encodedSegments))
+		assert.Len(t, encodedSegments, len(segments))
 
 		expectedEncodedResults := map[int]string{
 			segments[0].id: "43663f6ec7d1d7292c6d4c38545c834d7cf1769745d1ebabacac687fd0c9584d",
@@ -167,7 +169,11 @@ func TestVideoProcessor(t *testing.T) {
 			segments[3].id: "396a14ab206e2b44e03c4e00393e948cce36a6b0f0d7489cb46d944b33ad51c8",
 		}
 		for _, segment := range encodedSegments {
-			assert.Equal(t, expectedEncodedResults[segment.id], hex.EncodeToString(segment.encodedData))
+			assert.Equal(
+				t,
+				expectedEncodedResults[segment.id],
+				hex.EncodeToString(segment.encodedData),
+			)
 		}
 	})
 }

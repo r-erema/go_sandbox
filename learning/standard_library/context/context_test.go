@@ -23,22 +23,25 @@ func TestContext(t *testing.T) {
 	t.Parallel()
 
 	router := http.NewServeMux()
-	router.HandleFunc(httpEndpointDelayResponse, func(writer http.ResponseWriter, request *http.Request) {
-		body, err := io.ReadAll(request.Body)
-		assert.NoError(t, err)
+	router.HandleFunc(
+		httpEndpointDelayResponse,
+		func(writer http.ResponseWriter, request *http.Request) {
+			body, err := io.ReadAll(request.Body)
+			assert.NoError(t, err)
 
-		symbols, err := serviceExcludeCommas(request.Context(), body)
-		if err != nil {
-			writer.WriteHeader(http.StatusBadRequest)
+			symbols, err := serviceExcludeCommas(request.Context(), body)
+			if err != nil {
+				writer.WriteHeader(http.StatusBadRequest)
 
-			return
-		}
+				return
+			}
 
-		writer.WriteHeader(http.StatusOK)
-		_, err = writer.Write(symbols)
+			writer.WriteHeader(http.StatusOK)
+			_, err = writer.Write(symbols)
 
-		assert.NoError(t, err)
-	})
+			assert.NoError(t, err)
+		},
+	)
 
 	server := httptest.NewServer(router)
 
@@ -52,7 +55,7 @@ func TestContext(t *testing.T) {
 			request: func(t *testing.T) *http.Request {
 				t.Helper()
 				request, err := http.NewRequestWithContext(
-					context.Background(),
+					t.Context(),
 					http.MethodPost,
 					server.URL+httpEndpointDelayResponse,
 					bytes.NewBufferString("1,2,3,4"),
@@ -73,7 +76,7 @@ func TestContext(t *testing.T) {
 			name: "context timeout",
 			request: func(t *testing.T) *http.Request {
 				t.Helper()
-				ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*500)
+				ctx, cancel := context.WithTimeout(t.Context(), time.Millisecond*500)
 				t.Cleanup(cancel)
 				request, err := http.NewRequestWithContext(
 					ctx,

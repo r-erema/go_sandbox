@@ -1,7 +1,6 @@
 package test
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"os"
@@ -41,7 +40,7 @@ func PullEtcdImage(t *testing.T) {
 
 	cli := dockerClient(t)
 
-	reader, err := cli.ImagePull(context.Background(), etcdImage, image.PullOptions{})
+	reader, err := cli.ImagePull(t.Context(), etcdImage, image.PullOptions{})
 	defer func() {
 		err = reader.Close()
 		require.NoError(t, err)
@@ -57,9 +56,13 @@ func RunEtcdContainer(t *testing.T, hostPortBinding nat.PortBinding) string {
 
 	cli := dockerClient(t)
 
-	resp, err := cli.ContainerCreate(context.Background(), &container.Config{
+	resp, err := cli.ContainerCreate(t.Context(), &container.Config{
 		Image: etcdImage,
-		Cmd:   []string{"/usr/local/bin/etcd", "--advertise-client-urls=http://localhost:2379", "--listen-client-urls=http://0.0.0.0:2379"},
+		Cmd: []string{
+			"/usr/local/bin/etcd",
+			"--advertise-client-urls=http://localhost:2379",
+			"--listen-client-urls=http://0.0.0.0:2379",
+		},
 		ExposedPorts: nat.PortSet{
 			"2379/tcp": struct{}{},
 		},
@@ -70,7 +73,7 @@ func RunEtcdContainer(t *testing.T, hostPortBinding nat.PortBinding) string {
 	}, nil, nil, "")
 	require.NoError(t, err)
 
-	err = cli.ContainerStart(context.Background(), resp.ID, container.StartOptions{})
+	err = cli.ContainerStart(t.Context(), resp.ID, container.StartOptions{})
 	require.NoError(t, err)
 
 	return resp.ID
@@ -81,7 +84,7 @@ func PullKubeAPIServerImage(t *testing.T) {
 
 	cli := dockerClient(t)
 
-	reader, err := cli.ImagePull(context.Background(), kubeAPIServerImage, image.PullOptions{})
+	reader, err := cli.ImagePull(t.Context(), kubeAPIServerImage, image.PullOptions{})
 	defer func() {
 		err = reader.Close()
 		require.NoError(t, err)
@@ -100,7 +103,7 @@ func RunKubeAPIServer(t *testing.T, port, etcdHost, oidcIssuerURL string) string
 	absDockerStuffPath, err := filepath.Abs(dockerStuffPath)
 	require.NoError(t, err)
 
-	resp, err := cli.ContainerCreate(context.Background(), &container.Config{
+	resp, err := cli.ContainerCreate(t.Context(), &container.Config{
 		Image: kubeAPIServerImage,
 		Cmd: []string{
 			"kube-apiserver",
@@ -134,7 +137,7 @@ func RunKubeAPIServer(t *testing.T, port, etcdHost, oidcIssuerURL string) string
 	}, nil, nil, "")
 	require.NoError(t, err)
 
-	err = cli.ContainerStart(context.Background(), resp.ID, container.StartOptions{})
+	err = cli.ContainerStart(t.Context(), resp.ID, container.StartOptions{})
 	require.NoError(t, err)
 
 	return resp.ID
@@ -145,7 +148,7 @@ func PullImage(t *testing.T, imageName string) {
 
 	cli := dockerClient(t)
 
-	reader, err := cli.ImagePull(context.Background(), imageName, image.PullOptions{})
+	reader, err := cli.ImagePull(t.Context(), imageName, image.PullOptions{})
 	defer func() {
 		err = reader.Close()
 		require.NoError(t, err)
@@ -161,7 +164,7 @@ func PullKeycloakImage(t *testing.T) {
 
 	cli := dockerClient(t)
 
-	reader, err := cli.ImagePull(context.Background(), keycloakImage, image.PullOptions{})
+	reader, err := cli.ImagePull(t.Context(), keycloakImage, image.PullOptions{})
 	defer func() {
 		err = reader.Close()
 		require.NoError(t, err)
@@ -182,7 +185,7 @@ func RunKeycloakContainer(t *testing.T, hostPortBinding nat.PortBinding) string 
 	absKeyCertPath, err := filepath.Abs(certKeyPath)
 	require.NoError(t, err)
 
-	resp, err := cli.ContainerCreate(context.Background(), &container.Config{
+	resp, err := cli.ContainerCreate(t.Context(), &container.Config{
 		Image: keycloakImage,
 		Env: []string{
 			"KEYCLOAK_ADMIN=admin",
@@ -220,7 +223,7 @@ func RunKeycloakContainer(t *testing.T, hostPortBinding nat.PortBinding) string 
 	}, nil, nil, "")
 	require.NoError(t, err)
 
-	err = cli.ContainerStart(context.Background(), resp.ID, container.StartOptions{})
+	err = cli.ContainerStart(t.Context(), resp.ID, container.StartOptions{})
 	require.NoError(t, err)
 
 	return resp.ID
@@ -231,23 +234,27 @@ func StopAndRemoveContainer(t *testing.T, containerID string) {
 
 	cli := dockerClient(t)
 
-	err := cli.ContainerStop(context.Background(), containerID, container.StopOptions{})
+	err := cli.ContainerStop(t.Context(), containerID, container.StopOptions{})
 	require.NoError(t, err)
 
-	err = cli.ContainerRemove(context.Background(), containerID, container.RemoveOptions{
+	err = cli.ContainerRemove(t.Context(), containerID, container.RemoveOptions{
 		RemoveVolumes: true,
 	})
 	require.NoError(t, err)
 }
 
-func RunPrometheusContainer(t *testing.T, hostPortBinding nat.PortBinding, hostConfigPath string) string {
+func RunPrometheusContainer(
+	t *testing.T,
+	hostPortBinding nat.PortBinding,
+	hostConfigPath string,
+) string {
 	t.Helper()
 
 	cli := dockerClient(t)
 
 	PullImage(t, prometheusImage)
 
-	resp, err := cli.ContainerCreate(context.Background(), &container.Config{
+	resp, err := cli.ContainerCreate(t.Context(), &container.Config{
 		Image: prometheusImage,
 		ExposedPorts: nat.PortSet{
 			"9090/tcp": struct{}{},
@@ -267,9 +274,9 @@ func RunPrometheusContainer(t *testing.T, hostPortBinding nat.PortBinding, hostC
 	}, nil, nil, "")
 	require.NoError(t, err)
 
-	respCh, errCh := cli.ContainerWait(context.Background(), resp.ID, container.WaitConditionNotRunning)
+	respCh, errCh := cli.ContainerWait(t.Context(), resp.ID, container.WaitConditionNotRunning)
 
-	err = cli.ContainerStart(context.Background(), resp.ID, container.StartOptions{})
+	err = cli.ContainerStart(t.Context(), resp.ID, container.StartOptions{})
 	require.NoError(t, err)
 
 	select {

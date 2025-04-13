@@ -33,36 +33,38 @@ func main() {
 func sendToQueue(queueName string) {
 	descriptor, err := queue.Open(queueName, syscall.O_RDWR|syscall.O_CREAT)
 	if err != nil {
-		log.Fatalf(fmt.Sprintf("open queue error %v", err))
+		log.Fatalf("open queue error %v", err)
 	}
 
 	data := os.Args[3]
 
 	err = queue.Send(descriptor, []byte(data), 1)
 	if err != nil {
-		log.Fatalf(fmt.Sprintf("sending to queue erro %v", err))
+		log.Fatalf("sending to queue erro %v", err)
 	}
 
 	_, err = fmt.Fprintf(os.Stdout, "OK(queue descr: %d)", descriptor)
 	if err != nil {
-		log.Fatalf(fmt.Sprintf("error writing to STDOUT: %v", err))
+		log.Fatalf("error writing to STDOUT: %v", err)
 	}
 }
 
 func receiveFromQueue(queueName string) {
 	descriptor, err := queue.Open(queueName, syscall.O_RDWR|syscall.O_CREAT)
 	if err != nil {
-		log.Fatalf(fmt.Sprintf("open queue error %v", err))
+		log.Fatalf("open queue error %v", err)
 	}
 
 	data, err := queue.Receive(descriptor)
 	if err != nil {
-		log.Fatalf(fmt.Sprintf("receiving from queue error %v", err))
+		log.Fatalf("receiving from queue error %v", err)
 	}
 
-	_, err = os.Stdout.Write(append([]byte(fmt.Sprintf("Data from queue(descr: %d): ", descriptor)), data...))
+	_, err = os.Stdout.Write(
+		append([]byte(fmt.Sprintf("Data from queue(descr: %d): ", descriptor)), data...),
+	)
 	if err != nil {
-		log.Fatalf(fmt.Sprintf("error writing to STDOUT: %v", err))
+		log.Fatalf("error writing to STDOUT: %v", err)
 	}
 }
 
@@ -76,7 +78,7 @@ func isQueueExisted(queueName string) {
 
 	_, err := os.Stdout.WriteString(msg)
 	if err != nil {
-		log.Fatalf(fmt.Sprintf("error writing to STDOUT: %v", err))
+		log.Fatalf("error writing to STDOUT: %v", err)
 	}
 }
 
@@ -85,11 +87,11 @@ func closeQueue() {
 
 	id, err := strconv.Atoi(queueID)
 	if err != nil {
-		log.Fatalf(fmt.Sprintf("converting queue ID to int error %v", err))
+		log.Fatalf("converting queue ID to int error %v", err)
 	}
 
 	err = queue.Close(id)
 	if err != nil {
-		log.Fatalf(fmt.Sprintf("closing queue error %v", err))
+		log.Fatalf("closing queue error %v", err)
 	}
 }

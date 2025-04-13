@@ -40,7 +40,7 @@ func TestInsertionSort(t *testing.T) {
 // Space O(1), since we don't allocate any additional memory.
 func insertionSort(array []int) {
 	for i := 1; i < len(array); i++ {
-		for j := 0; j < i; j++ {
+		for j := range i {
 			if array[i] < array[j] {
 				array[i], array[j] = array[j], array[i]
 			}

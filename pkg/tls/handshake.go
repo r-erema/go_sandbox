@@ -14,7 +14,7 @@ func HandshakeClientSide(socketFD int, hosts []string, pubKey [32]byte) error {
 
 	clientHelloMsg, err := encodeClientHello(hosts, []publicKey{{
 		payload:       pubKey,
-		exchangeGroup: x25519,
+		exchangeGroup: x25519(),
 	}}, secret)
 	if err != nil {
 		return fmt.Errorf("failed encoding client hello message: %w", err)
@@ -33,6 +33,7 @@ func HandshakeClientSide(socketFD int, hosts []string, pubKey [32]byte) error {
 	if err != nil {
 		return fmt.Errorf("failed decoding server hello message: %w", err)
 	}
+
 	_ = helloMsg
 
 	return nil
@@ -56,7 +57,7 @@ func HandshakeServerSide(socketFD int, pubKey [32]byte) error {
 
 	serverHelloRaw, err := encodeServerHello(publicKey{
 		payload:       pubKey,
-		exchangeGroup: x25519,
+		exchangeGroup: x25519(),
 	}, secret, clientHelloMsg.cipherSuites[0])
 	if err != nil {
 		return fmt.Errorf("failed encoding client hello message: %w", err)

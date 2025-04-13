@@ -58,7 +58,7 @@ func TestBinaryTreeLevelOrderTraversal(t *testing.T) {
 }
 
 // Time O(n), since we iterate input one time
-// Space O(n), since we need an array containing elements from input tree
+// Space O(n), since we need an array containing elements from input tree.
 func levelOrder(root *tree.Node) [][]int {
 	if root == nil {
 		return nil

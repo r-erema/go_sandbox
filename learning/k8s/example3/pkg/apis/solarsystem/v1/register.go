@@ -7,7 +7,11 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-var SchemeGroupVersion = schema.GroupVersion{Group: solarsystem.GroupName, Version: "v1"} //nolint:gochecknoglobals
+//nolint:gochecknoglobals
+var SchemeGroupVersion = schema.GroupVersion{
+	Group:   solarsystem.GroupName,
+	Version: "v1",
+}
 
 func Kind(kind string) schema.GroupKind {
 	return SchemeGroupVersion.WithKind(kind).GroupKind()
