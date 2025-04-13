@@ -77,7 +77,11 @@ func Container(rootPath, hostName, domainName string, commandOutput *os.File) (i
 	return int(pid), nil
 }
 
-func containerBranch(rootPath, hostName, domainName string, commandOutput *os.File, waitingHostContainerPipe [2]int) error {
+func containerBranch(
+	rootPath, hostName, domainName string,
+	commandOutput *os.File,
+	waitingHostContainerPipe [2]int,
+) error {
 	log.Printf("[Container] Waiting for the host preparation...")
 
 	if _, err := os.NewFile(uintptr(waitingHostContainerPipe[1]), "").Read(make([]byte, 1)); err != nil {
@@ -211,9 +215,12 @@ func createNewNamespace() error {
 func changePropagationTypeToSlave() error {
 	err := syscall.Mount("", "/", "", syscall.MS_SLAVE|syscall.MS_REC, "")
 	if err != nil {
-		return fmt.Errorf("error: %w, unable to change the propagation type of all mount points under `/` to MS_SLAVE"+
-			"in order prevent container propagate its changes to host, "+
-			"but changes from the host can be received", err)
+		return fmt.Errorf(
+			"error: %w, unable to change the propagation type of all mount points under `/` to MS_SLAVE"+
+				"in order prevent container propagate its changes to host, "+
+				"but changes from the host can be received",
+			err,
+		)
 	}
 
 	return nil
@@ -222,8 +229,11 @@ func changePropagationTypeToSlave() error {
 func changePropagationTypeToShared() error {
 	err := syscall.Mount("", "/", "", syscall.MS_SHARED|syscall.MS_REC, "")
 	if err != nil {
-		return fmt.Errorf("error: %w, unable to change the propagation type of all mount points under `/` to MS_SHARED"+
-			"in order propagate container's to children if any", err)
+		return fmt.Errorf(
+			"error: %w, unable to change the propagation type of all mount points under `/` to MS_SHARED"+
+				"in order propagate container's to children if any",
+			err,
+		)
 	}
 
 	return nil
@@ -248,7 +258,13 @@ func moveMountPoint(source, destination string) error {
 }
 
 func mountProcFS() error {
-	err := syscall.Mount("proc", "/proc", "proc", syscall.MS_NOSUID|syscall.MS_NOEXEC|syscall.MS_NODEV, "")
+	err := syscall.Mount(
+		"proc",
+		"/proc",
+		"proc",
+		syscall.MS_NOSUID|syscall.MS_NOEXEC|syscall.MS_NODEV,
+		"",
+	)
 	if err != nil {
 		return fmt.Errorf("mount MS_NOSUID | MS_NOEXEC | MS_NODEV error: %w", err)
 	}
@@ -262,7 +278,12 @@ func setupNetworkOnHost(containerPID uintptr) error {
 		return fmt.Errorf("bridge setup error: %w", err)
 	}
 
-	_, err = utilsNet.SetupVeth(hostEthName, HostIP, containerEthName, strconv.Itoa(int(containerPID)))
+	_, err = utilsNet.SetupVeth(
+		hostEthName,
+		HostIP,
+		containerEthName,
+		strconv.Itoa(int(containerPID)),
+	)
 	if err != nil {
 		return fmt.Errorf("veth setup error: %w", err)
 	}
@@ -282,7 +303,12 @@ func setupNetworkInContainer() error {
 	}
 
 	if err = utilsNet.AddIPAddrToInterface(containerIP, containerEthName); err != nil {
-		return fmt.Errorf("adding ip `%s` address to the interface `%s` error: %w", containerIP, containerEthName, err)
+		return fmt.Errorf(
+			"adding ip `%s` address to the interface `%s` error: %w",
+			containerIP,
+			containerEthName,
+			err,
+		)
 	}
 
 	if err = utilsNet.EnableDevice(containerEthName); err != nil {
@@ -376,19 +402,32 @@ func runProcess(outputSocketFD uintptr) {
 
 func runExternalCommand(command *Command, sock *os.File) {
 	commandName, args := command.Cmd, command.Arguments
-	cmd := exec.Command(commandName, args...)
+	cmd := exec.Command(commandName, args...) //nolint:gosec // disable G115
 
 	log.Printf("[Container] Running command: %s with arguments: %s", commandName, args)
 
 	if command.StartInBackground {
 		err := cmd.Start()
 		if err != nil {
-			log.Print(fmt.Errorf("[Container] Command `%v` starting error: %w(%s)", command, err, cmd.Stderr))
+			log.Print(
+				fmt.Errorf(
+					"[Container] Command `%v` starting error: %w(%s)",
+					command,
+					err,
+					cmd.Stderr,
+				),
+			)
 		}
 
 		_, err = sock.Write([]byte{StreamDelimiter})
 		if err != nil {
-			log.Print(fmt.Errorf("[Container] Command `%v` output to sock writing error: %w", command, err))
+			log.Print(
+				fmt.Errorf(
+					"[Container] Command `%v` output to sock writing error: %w",
+					command,
+					err,
+				),
+			)
 		}
 
 		return
@@ -427,13 +466,18 @@ func setupCgroup(pid, limitRAMBytes int) error {
 	}
 
 	subtreeControlFile := cgroupPath + "cgroup.subtree_control"
-	if err := os.WriteFile(subtreeControlFile, []byte("+memory +cpu +cpuset +io +pids"), cgroupPathPermissions); err != nil {
+	if err := os.WriteFile(
+		subtreeControlFile,
+		[]byte("+memory +cpu +cpuset +io +pids"), cgroupPathPermissions,
+	); err != nil {
 		return fmt.Errorf("enabling memory cgroup controller error: %w", err)
 	}
 
 	if limitRAMBytes > 0 {
 		memoryLowFile := cgPath + "/memory.low"
-		memoryLowVal := []byte(strconv.FormatFloat(float64(limitRAMBytes)*cgroupLowMemoryLimitPortion, 'f', -1, 64))
+		memoryLowVal := []byte(
+			strconv.FormatFloat(float64(limitRAMBytes)*cgroupLowMemoryLimitPortion, 'f', -1, 64),
+		)
 
 		if err := os.WriteFile(memoryLowFile, memoryLowVal, cgroupPathPermissions); err != nil {
 			return fmt.Errorf("writing to the file `%s` error: %w", memoryLowFile, err)

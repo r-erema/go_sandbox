@@ -1,7 +1,6 @@
 package example5_test
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"os"
@@ -171,7 +170,7 @@ func TestNotExpiredRefreshToken(t *testing.T) { //nolint: paralleltest
 	kubeClientset, err := kubernetes.NewForConfig(cfg)
 	require.NoError(t, err)
 
-	list, err := kubeClientset.CoreV1().Pods("").List(context.Background(), v1.ListOptions{})
+	list, err := kubeClientset.CoreV1().Pods("").List(t.Context(), v1.ListOptions{})
 	require.NoError(t, err)
 	assert.Empty(t, list.Items)
 }
@@ -224,7 +223,7 @@ func TestProveBug_UpdatedGoodRefreshTokenInsteadOfExpiredOneIsNotBeingApplied(t 
 		stepSleepToExpireToken(accessTokenLifetimeSeconds)
 		stepSleepToExpireToken(refreshTokenShortLifetimeSeconds)
 
-		list, err := kubeClientset.CoreV1().Pods("").List(context.Background(), v1.ListOptions{})
+		list, err := kubeClientset.CoreV1().Pods("").List(t.Context(), v1.ListOptions{})
 		require.Error(t, err)
 		assert.Nil(t, list.Items)
 	}
@@ -232,16 +231,25 @@ func TestProveBug_UpdatedGoodRefreshTokenInsteadOfExpiredOneIsNotBeingApplied(t 
 	stepIntentionallyExpireTokensAndFailRequest()
 
 	stepAssertNotAuthorizedEvenWithGoodRefreshToken := func() {
-		keycloakAdmin := gocloak.NewClient(string(KeycloakURL), gocloak.SetAuthAdminRealms("admin/realms"), gocloak.SetAuthRealms("realms"))
-		adminToken, err := keycloakAdmin.LoginAdmin(context.Background(), keycloakAdminUsername, keycloakAdminPassword, "master")
+		keycloakAdmin := gocloak.NewClient(
+			string(KeycloakURL),
+			gocloak.SetAuthAdminRealms("admin/realms"),
+			gocloak.SetAuthRealms("realms"),
+		)
+		adminToken, err := keycloakAdmin.LoginAdmin(t.Context(), keycloakAdminUsername, keycloakAdminPassword, "master")
 		require.NoError(t, err)
-		err = keycloakAdmin.UpdateRealm(context.Background(), adminToken.AccessToken, *keycloakRealmRepresentation(
+		err = keycloakAdmin.UpdateRealm(t.Context(), adminToken.AccessToken, *keycloakRealmRepresentation(
 			ssoSessionIdleTimeout(gocloak.IntP(refreshTokenLongLifetimeSeconds)),
 		))
 		require.NoError(t, err)
-		clientSecret, err := keycloakAdmin.GetClientSecret(context.Background(), adminToken.AccessToken, keycloakRealm, keycloakIDOfClient)
+		clientSecret, err := keycloakAdmin.GetClientSecret(
+			t.Context(),
+			adminToken.AccessToken,
+			keycloakRealm,
+			keycloakIDOfClient,
+		)
 		require.NoError(t, err)
-		token, err := keycloakAdmin.GetToken(context.Background(), keycloakRealm, gocloak.TokenOptions{
+		token, err := keycloakAdmin.GetToken(t.Context(), keycloakRealm, gocloak.TokenOptions{
 			ClientID:     gocloak.StringP(keycloakClientID),
 			ClientSecret: clientSecret.Value,
 			GrantType:    gocloak.StringP("password"),
@@ -260,7 +268,7 @@ func TestProveBug_UpdatedGoodRefreshTokenInsteadOfExpiredOneIsNotBeingApplied(t 
 			token.IDToken,
 		)
 
-		list, err := kubeClientset.CoreV1().Pods("").List(context.Background(), v1.ListOptions{})
+		list, err := kubeClientset.CoreV1().Pods("").List(t.Context(), v1.ListOptions{})
 		require.Error(t, err)
 		assert.Nil(t, list.Items)
 	}
@@ -274,18 +282,27 @@ func stepPrepareKeycloakClient( //nolint:nonamedreturns
 ) (clientID, secret, refreshToken, idToken string) {
 	t.Helper()
 
-	keycloakAdmin := gocloak.NewClient(keycloakURL, gocloak.SetAuthAdminRealms("admin/realms"), gocloak.SetAuthRealms("realms"))
-	adminToken, err := keycloakAdmin.LoginAdmin(context.Background(), keycloakAdminUsername, keycloakAdminPassword, "master")
+	keycloakAdmin := gocloak.NewClient(
+		keycloakURL,
+		gocloak.SetAuthAdminRealms("admin/realms"),
+		gocloak.SetAuthRealms("realms"),
+	)
+	adminToken, err := keycloakAdmin.LoginAdmin(t.Context(), keycloakAdminUsername, keycloakAdminPassword, "master")
 	require.NoError(t, err)
 
-	realm, err := keycloakAdmin.CreateRealm(context.Background(), adminToken.AccessToken, *realmRepresentation)
+	realm, err := keycloakAdmin.CreateRealm(t.Context(), adminToken.AccessToken, *realmRepresentation)
 	require.NoError(t, err)
 	require.Equal(t, keycloakRealm, realm)
 
-	clientSecret, err := keycloakAdmin.GetClientSecret(context.Background(), adminToken.AccessToken, keycloakRealm, keycloakIDOfClient)
+	clientSecret, err := keycloakAdmin.GetClientSecret(
+		t.Context(),
+		adminToken.AccessToken,
+		keycloakRealm,
+		keycloakIDOfClient,
+	)
 	require.NoError(t, err)
 
-	token, err := keycloakAdmin.GetToken(context.Background(), keycloakRealm, gocloak.TokenOptions{
+	token, err := keycloakAdmin.GetToken(t.Context(), keycloakRealm, gocloak.TokenOptions{
 		ClientID:     gocloak.StringP(keycloakClientID),
 		ClientSecret: clientSecret.Value,
 		GrantType:    gocloak.StringP("password"),
@@ -390,7 +407,7 @@ func runDockerContainers(t *testing.T, etcdHostPort, keycloakHostPort, kubeAPISe
 			}
 
 			req, err := http.NewRequestWithContext(
-				context.Background(),
+				t.Context(),
 				http.MethodGet,
 				fmt.Sprintf("https://localhost:%s/realms/master", keycloakHostPort),
 				http.NoBody,

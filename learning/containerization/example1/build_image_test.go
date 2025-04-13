@@ -2,7 +2,6 @@ package example1_test
 
 import (
 	"archive/tar"
-	"context"
 	"io"
 	"os"
 	"testing"
@@ -23,47 +22,51 @@ const (
 func TestBuildImage(t *testing.T) {
 	t.Parallel()
 
-	err := os.MkdirAll(imageSourcesPath, os.ModePerm)
+	err := os.MkdirAll(imageSourcesPath, 0o750)
 	require.NoError(t, err)
-	t.Cleanup(func() {
+
+	defer func() {
 		err = os.RemoveAll(imageSourcesPath)
 		require.NoError(t, err)
-	})
+	}()
 
 	tarFile := createTarball(t)
 
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	require.NoError(t, err)
 
-	f, err := os.Open(tarFile.Name())
+	file, err := os.Open(tarFile.Name())
 	require.NoError(t, err)
 
+	ctx := t.Context()
+
 	_, err = cli.ImageImport(
-		context.Background(),
-		image.ImportSource{Source: f, SourceName: "-"},
+		ctx,
+		image.ImportSource{Source: file, SourceName: "-"},
 		imageImportedName,
 		image.ImportOptions{},
 	)
 	require.NoError(t, err)
-	t.Cleanup(func() {
-		_, err = cli.ImageRemove(context.Background(), imageImportedName, image.RemoveOptions{})
-		require.NoError(t, err)
-	})
 
-	cont, err := cli.ContainerCreate(context.Background(), &container.Config{
+	defer func() {
+		_, err = cli.ImageRemove(t.Context(), imageImportedName, image.RemoveOptions{})
+		require.NoError(t, err)
+	}()
+
+	cont, err := cli.ContainerCreate(t.Context(), &container.Config{
 		Image: imageImportedName,
 		Cmd:   []string{"/parrot"},
 	}, &container.HostConfig{}, nil, nil, "")
 
-	t.Cleanup(func() {
-		timeout := 0
-		err = cli.ContainerStop(context.Background(), cont.ID, container.StopOptions{Timeout: &timeout})
+	defer func() {
+		timeout := 100
+		err = cli.ContainerStop(t.Context(), cont.ID, container.StopOptions{Timeout: &timeout})
 		require.NoError(t, err)
-		err = cli.ContainerRemove(context.Background(), cont.ID, container.RemoveOptions{})
+		err = cli.ContainerRemove(t.Context(), cont.ID, container.RemoveOptions{})
 		require.NoError(t, err)
-	})
+	}()
 
-	err = cli.ContainerStart(context.Background(), cont.ID, container.StartOptions{})
+	err = cli.ContainerStart(t.Context(), cont.ID, container.StartOptions{})
 	require.NoError(t, err)
 }
 

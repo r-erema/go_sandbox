@@ -26,7 +26,7 @@ import (
 // Foo is a specification for a Foo resource.
 type Foo struct {
 	metaV1.TypeMeta   `json:",inline"`
-	metaV1.ObjectMeta `json:"metadata,omitempty"` //nolint
+	metaV1.ObjectMeta `json:"metadata,omitempty"`
 
 	Spec   FooSpec   `json:"spec"`
 	Status FooStatus `json:"status"`
@@ -34,20 +34,20 @@ type Foo struct {
 
 // FooSpec is the spec for a Foo resource.
 type FooSpec struct {
-	DeploymentName string `json:"deploymentName"` //nolint:tagliatelle
+	DeploymentName string `json:"deploymentName"`
 	Replicas       *int32 `json:"replicas"`
 }
 
 // FooStatus is the status for a Foo resource.
 type FooStatus struct {
-	AvailableReplicas int32 `json:"availableReplicas"` //nolint:tagliatelle
+	AvailableReplicas int32 `json:"availableReplicas"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 type FooList struct {
 	metaV1.TypeMeta `json:",inline"`
-	metaV1.ListMeta `json:"metadata"` //nolint:tagliatelle
+	metaV1.ListMeta `json:"metadata"`
 
 	Items []Foo `json:"items"`
 }

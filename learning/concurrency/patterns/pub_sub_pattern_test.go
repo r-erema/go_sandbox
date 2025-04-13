@@ -191,7 +191,11 @@ func (ms *messagesSubscriber) close() {
 func TestPublisher(t *testing.T) {
 	t.Parallel()
 
-	pub, sub, sub2 := newMessagesPublisher(), newMessagesSubscriber("sub 1"), newMessagesSubscriber("sub 2")
+	pub, sub, sub2 := newMessagesPublisher(), newMessagesSubscriber(
+		"sub 1",
+	), newMessagesSubscriber(
+		"sub 2",
+	)
 
 	go pub.start()
 

@@ -78,11 +78,12 @@ func binarySearch(array []int, needle int) int {
 		cutPoint := (leftPointer + rightPointer) / 2
 		potentialResult := array[cutPoint]
 
-		if potentialResult > needle {
+		switch {
+		case potentialResult > needle:
 			rightPointer = cutPoint - 1
-		} else if potentialResult < needle {
+		case potentialResult < needle:
 			leftPointer = cutPoint + 1
-		} else {
+		default:
 			return cutPoint
 		}
 	}

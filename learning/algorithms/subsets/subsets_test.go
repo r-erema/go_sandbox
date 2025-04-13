@@ -48,7 +48,7 @@ func subsets(nums []int) [][]int {
 	}
 
 	subs := [][]int{{}}
-	for i := range len(nums) {
+	for i := range nums {
 		subs = backtrack(nums[i], subs)
 	}
 

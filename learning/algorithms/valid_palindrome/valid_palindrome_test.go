@@ -70,7 +70,8 @@ func isPalindrome(str string) bool {
 }
 
 func isAlphanumeric(symbol byte) bool {
-	return symbol >= 'a' && symbol <= 'z' || symbol >= 'A' && symbol <= 'Z' || symbol >= '0' && symbol <= '9'
+	return symbol >= 'a' && symbol <= 'z' || symbol >= 'A' && symbol <= 'Z' ||
+		symbol >= '0' && symbol <= '9'
 }
 
 func toLower(symbol byte) byte {

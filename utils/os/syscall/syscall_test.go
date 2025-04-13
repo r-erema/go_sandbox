@@ -18,7 +18,7 @@ func TestReadWriteSyscall(t *testing.T) {
 	fd, err := unix.Open(tempFile.Name(), unix.O_RDWR, 0o600)
 	require.NoError(t, err)
 
-	err = syscall.WriteToFileFD(fd, []byte("hello world"))
+	err = syscall.Write(fd, []byte("hello world"))
 	require.NoError(t, err)
 
 	s, err := syscall.ReadFromFileFD(fd)

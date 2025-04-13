@@ -174,7 +174,13 @@ func AttachDeviceToBridge(deviceName, bridgeName string) error {
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("attaching device `%s` to the bridge `%s` error: %w %s", deviceName, bridgeName, err, out)
+		return fmt.Errorf(
+			"attaching device `%s` to the bridge `%s` error: %w %s",
+			deviceName,
+			bridgeName,
+			err,
+			out,
+		)
 	}
 
 	return nil
@@ -185,7 +191,13 @@ func AddIPAddrToInterface(ip, interfaceName string) error {
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("adding IP `%s` to the interface `%s` error: %w %s", ip, interfaceName, err, out)
+		return fmt.Errorf(
+			"adding IP `%s` to the interface `%s` error: %w %s",
+			ip,
+			interfaceName,
+			err,
+			out,
+		)
 	}
 
 	return nil

@@ -120,7 +120,8 @@ func isClone(originalList, clonedList *linkedlist.Node) bool {
 
 func randomNotValid(originalList, clonedList *linkedlist.Node) bool {
 	randomHaveSamePointer := originalList.Prev == clonedList.Prev && originalList.Prev != nil
-	randomNotNilAndHaveDiffVals := originalList.Prev != nil && clonedList.Prev != nil && clonedList.Prev.Val != originalList.Prev.Val
+	randomNotNilAndHaveDiffVals := originalList.Prev != nil && clonedList.Prev != nil &&
+		clonedList.Prev.Val != originalList.Prev.Val
 
 	return randomHaveSamePointer || randomNotNilAndHaveDiffVals
 }

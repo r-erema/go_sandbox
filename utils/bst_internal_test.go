@@ -150,14 +150,14 @@ func TestBST_Insert(t *testing.T) {
 				bst.InsertRecursively(NewBST(number))
 			}
 
-			assert.EqualValues(t, *tt.want, bst)
+			assert.Equal(t, *tt.want, bst)
 
 			bst = *tt.initBST
 			for _, number := range tt.numbers {
 				bst.InsertIteratively(NewBST(number))
 			}
 
-			assert.EqualValues(t, *tt.want, bst)
+			assert.Equal(t, *tt.want, bst)
 		})
 	}
 }

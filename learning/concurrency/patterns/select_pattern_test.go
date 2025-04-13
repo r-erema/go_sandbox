@@ -24,7 +24,7 @@ func TestSelectPatternNonBlockingCases(t *testing.T) {
 				case messages <- "test":
 					t.Fail()
 				default:
-					assert.True(t, true)
+					return
 				}
 			},
 		},
@@ -36,7 +36,7 @@ func TestSelectPatternNonBlockingCases(t *testing.T) {
 				case <-messages:
 					t.Fail()
 				default:
-					assert.True(t, true)
+					return
 				}
 			},
 		},
@@ -50,7 +50,7 @@ func TestSelectPatternNonBlockingCases(t *testing.T) {
 				case messages <- "test":
 					t.Fail()
 				default:
-					assert.True(t, true)
+					return
 				}
 			},
 		},
@@ -90,7 +90,7 @@ func TestSelectPatternTimeoutCases(t *testing.T) {
 				case <-dataCh:
 					t.Fail()
 				case <-time.After(delay - time.Millisecond):
-					assert.True(t, true)
+					return
 				}
 			},
 		},

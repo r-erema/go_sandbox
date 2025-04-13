@@ -96,7 +96,12 @@ func (rt *RoutingTable) handlePaths(scheme, namespace string, rule *v1.IngressRu
 	for _, path := range rule.HTTP.Paths {
 		backend := path.Backend
 
-		rtb, err := newRoutingTableBackend(scheme, path.Path, backend.Service.Name, int(backend.Service.Port.Number))
+		rtb, err := newRoutingTableBackend(
+			scheme,
+			path.Path,
+			backend.Service.Name,
+			int(backend.Service.Port.Number),
+		)
 		if err != nil {
 			klog.Errorf(
 				"Creation new routing table for path %s error: %s. Secret name: %s. Namespace: %s",
@@ -164,7 +169,10 @@ type routingTableBackend struct {
 	url        *url.URL
 }
 
-func newRoutingTableBackend(scheme, path, serviceName string, servicePort int) (*routingTableBackend, error) {
+func newRoutingTableBackend(
+	scheme, path, serviceName string,
+	servicePort int,
+) (*routingTableBackend, error) {
 	rtb := &routingTableBackend{
 		url: &url.URL{
 			Scheme: scheme,

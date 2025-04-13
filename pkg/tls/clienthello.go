@@ -3,6 +3,8 @@ package tls
 import (
 	"encoding/binary"
 	"fmt"
+
+	"github.com/spf13/cast"
 )
 
 func encodeClientHello(hostNames []string, keys []publicKey, secret [32]byte) ([]byte, error) {
@@ -14,7 +16,8 @@ func encodeClientHello(hostNames []string, keys []publicKey, secret [32]byte) ([
 
 	var handshakeHeader []byte
 
-	handshakeHeader = append(handshakeHeader, clientType[:]...)
+	helloClientType := clientType()
+	handshakeHeader = append(handshakeHeader, helloClientType[:]...)
 
 	handshakeData := []byte{
 		// Client Version
@@ -31,7 +34,9 @@ func encodeClientHello(hostNames []string, keys []publicKey, secret [32]byte) ([
 		// Cipher Suites
 		0x00, 0x02,
 	}...)
-	handshakeData = append(handshakeData, tlsAes128GcmSha256[:]...)
+
+	cipher := tlsAes128GcmSha256()
+	handshakeData = append(handshakeData, cipher[:]...)
 	handshakeData = append(handshakeData, []byte{
 		// Compression Methods
 		0x01, // 1 byte of compression methods
@@ -42,15 +47,31 @@ func encodeClientHello(hostNames []string, keys []publicKey, secret [32]byte) ([
 	if err != nil {
 		return nil, fmt.Errorf("failed encoding client hello message extensions: %w", err)
 	}
-	handshakeData = binary.BigEndian.AppendUint16(handshakeData, uint16(len(encodedExtensions)))
+
+	encodedExtensionsLen, err := cast.ToUint16E(len(encodedExtensions))
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert encoded extensions length to uint16 type: %w", err)
+	}
+
+	handshakeData = binary.BigEndian.AppendUint16(handshakeData, encodedExtensionsLen)
 	handshakeData = append(handshakeData, encodedExtensions...)
 
-	handshakeHeader, err = BigEndianAppend24(handshakeHeader, uint32(len(handshakeData)))
+	handshakeDataLen, err := cast.ToUint32E(len(handshakeData))
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert handshake data length to uint32 type: %w", err)
+	}
+
+	handshakeHeader, err = BigEndianAppend24(handshakeHeader, handshakeDataLen)
 	if err != nil {
 		return nil, fmt.Errorf("failed to append handshake header length: %w", err)
 	}
 
-	helloMessage = binary.BigEndian.AppendUint16(helloMessage, uint16(len(handshakeHeader)+len(handshakeData)))
+	handshakeLen, err := cast.ToUint16E(len(handshakeHeader) + len(handshakeData))
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert handshake length to uint16 type: %w", err)
+	}
+
+	helloMessage = binary.BigEndian.AppendUint16(helloMessage, handshakeLen)
 	helloMessage = append(helloMessage, handshakeHeader...)
 	helloMessage = append(helloMessage, handshakeData...)
 

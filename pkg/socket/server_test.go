@@ -1,11 +1,12 @@
 package socket_test
 
 import (
+	"testing"
+
 	"github.com/r-erema/go_sendbox/pkg/socket"
 	"github.com/r-erema/go_sendbox/pkg/tls"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestServer(t *testing.T) {

@@ -28,7 +28,12 @@ func ClientCall(ipAddr string, port uint16, publicKey [32]byte, message []byte) 
 
 	buf, err := syscall.Read(socketFD)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read connection fd `%d` of socket fd `%d`: %w", socketFD, socketFD, err)
+		return nil, fmt.Errorf(
+			"failed to read connection fd `%d` of socket fd `%d`: %w",
+			socketFD,
+			socketFD,
+			err,
+		)
 	}
 
 	return buf, nil

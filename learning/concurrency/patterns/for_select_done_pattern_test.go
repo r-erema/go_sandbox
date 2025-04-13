@@ -100,7 +100,13 @@ func taskProducer(tasks chan<- task, done chan<- struct{}, tasksCount int) {
 	done <- struct{}{}
 }
 
-func taskWorker(workerID int, tasks <-chan task, done <-chan struct{}, processedTasks chan<- task, wgWorkers, wgTasks *sync.WaitGroup) {
+func taskWorker(
+	workerID int,
+	tasks <-chan task,
+	done <-chan struct{},
+	processedTasks chan<- task,
+	wgWorkers, wgTasks *sync.WaitGroup,
+) {
 	for {
 		select {
 		case tsk, ok := <-tasks:

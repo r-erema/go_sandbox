@@ -1,4 +1,4 @@
-GOLANGCI_IMAGE=golangci/golangci-lint:v1.59.1-alpine
+GOLANGCI_IMAGE=golangci/golangci-lint:v2.0.2-alpine
 
 HOST_IP=`hostname -I | awk '{print $$1}'`
 
@@ -60,7 +60,7 @@ test:
 		go test -race -v -coverprofile=coverage.txt -covermode=atomic ./...
 
 lint:
-	docker run --rm -v ${PWD}:/app -w /app ${GOLANGCI_IMAGE} golangci-lint run --fix --timeout 20m --sort-results
+	docker run --rm -v ${PWD}:/app -w /app ${GOLANGCI_IMAGE} golangci-lint run --fix --timeout 20m
 
 CNI_PLUGIN_ARCHIVE=cni-plugins-linux-amd64-v1.1.1.tgz
 setup-containerd:

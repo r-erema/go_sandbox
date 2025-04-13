@@ -67,13 +67,25 @@ func TestChroot(t *testing.T) { //nolint:paralleltest
 func TestRootFSFilesWillBeRevertedAfterUnmountTempFS(t *testing.T) { //nolint:paralleltest
 	mountDir, sourceDir := t.TempDir(), t.TempDir()
 
-	sourceExpectedContentBeforeMount := addTestDirectoriesToDirectory(t, sourceDir, "_source_dir_initial_content")
+	sourceExpectedContentBeforeMount := addTestDirectoriesToDirectory(
+		t,
+		sourceDir,
+		"_source_dir_initial_content",
+	)
 	sourceActualContentBeforeMount := contentInDirectory(t, sourceDir)
 	require.ElementsMatch(t, sourceExpectedContentBeforeMount, sourceActualContentBeforeMount)
 
-	mountPointExpectedContentBeforeMount := addTestDirectoriesToDirectory(t, mountDir, "_mount_point_initial_content")
+	mountPointExpectedContentBeforeMount := addTestDirectoriesToDirectory(
+		t,
+		mountDir,
+		"_mount_point_initial_content",
+	)
 	mountPointActualContentBeforeMount := contentInDirectory(t, mountDir)
-	require.ElementsMatch(t, mountPointExpectedContentBeforeMount, mountPointActualContentBeforeMount)
+	require.ElementsMatch(
+		t,
+		mountPointExpectedContentBeforeMount,
+		mountPointActualContentBeforeMount,
+	)
 
 	test.MountFSToDirectory(t, sourceDir, mountDir)
 	mountPointExpectedContentAfterMount := append(
@@ -88,7 +100,11 @@ func TestRootFSFilesWillBeRevertedAfterUnmountTempFS(t *testing.T) { //nolint:pa
 
 	actualContentInDirectoryAfterUnmount := contentInDirectory(t, mountDir)
 	sourceActualContentAfterUnmount := contentInDirectory(t, sourceDir)
-	assert.ElementsMatch(t, actualContentInDirectoryAfterUnmount, mountPointActualContentBeforeMount)
+	assert.ElementsMatch(
+		t,
+		actualContentInDirectoryAfterUnmount,
+		mountPointActualContentBeforeMount,
+	)
 	assert.ElementsMatch(t, sourceActualContentAfterUnmount, mountPointExpectedContentAfterMount)
 }
 
@@ -109,7 +125,7 @@ func TestPivotRoot(t *testing.T) { //nolint:paralleltest
 		newRoot := t.TempDir()
 		oldRoot := "/old_root_fs"
 		oldRoot = filepath.Join(newRoot, oldRoot)
-		err = os.MkdirAll(oldRoot, 0o755)
+		err = os.MkdirAll(oldRoot, 0o750)
 		require.NoError(t, err)
 
 		test.PreventSharedPropagationToRootPoint(t, newRoot)
@@ -144,7 +160,7 @@ func addTestDirectoriesToDirectory(t *testing.T, dirPath, testDirsNamePostfix st
 	}
 
 	for _, dir := range dirsToAdd {
-		err := os.MkdirAll(dirPath+"/"+dir, 0o755)
+		err := os.MkdirAll(dirPath+"/"+dir, 0o750)
 		require.NoError(t, err)
 	}
 

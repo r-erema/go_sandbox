@@ -1,7 +1,6 @@
 package example4_test
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -33,7 +32,10 @@ func TestController(t *testing.T) { //nolint: paralleltest
 	require.NoError(t, err)
 
 	defer func() {
-		err = test.RunKubectlCommand(defaultConfigFlags, []string{"delete", "secret", "ingress-tls"})
+		err = test.RunKubectlCommand(
+			defaultConfigFlags,
+			[]string{"delete", "secret", "ingress-tls"},
+		)
 		require.NoError(t, err)
 	}()
 
@@ -41,7 +43,10 @@ func TestController(t *testing.T) { //nolint: paralleltest
 	require.NoError(t, err)
 
 	defer func() {
-		err = test.RunKubectlCommand(defaultConfigFlags, []string{"delete", "-f", ingressManifestPath})
+		err = test.RunKubectlCommand(
+			defaultConfigFlags,
+			[]string{"delete", "-f", ingressManifestPath},
+		)
 		require.NoError(t, err)
 	}()
 
@@ -58,14 +63,14 @@ func TestController(t *testing.T) { //nolint: paralleltest
 	})
 
 	go func() {
-		err = server.Run(context.Background())
+		err = server.Run(t.Context())
 		assert.NoError(t, err)
 	}()
 
 	time.Sleep(time.Second)
 
 	go func() {
-		err = watcher.Run(context.Background())
+		err = watcher.Run(t.Context())
 		assert.NoError(t, err)
 	}()
 
@@ -87,7 +92,12 @@ func TestController(t *testing.T) { //nolint: paralleltest
 
 	time.Sleep(time.Second)
 
-	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, "https://localhost:4040", http.NoBody)
+	req, err := http.NewRequestWithContext(
+		t.Context(),
+		http.MethodGet,
+		"https://localhost:4040",
+		http.NoBody,
+	)
 	require.NoError(t, err)
 
 	resp, err := http.DefaultClient.Do(req)

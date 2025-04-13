@@ -120,20 +120,24 @@ func TestAllHTTPRequestsShouldBeOKOtherwiseReturnError(t *testing.T) {
 
 	rand.Seed(time.Now().UnixNano())
 
-	microserviceDepositRate := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		time.Sleep(time.Millisecond * time.Duration(rand.Intn(100)))
+	microserviceDepositRate := httptest.NewServer(
+		http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			time.Sleep(time.Millisecond * time.Duration(rand.Intn(100)))
 
-		_, err := w.Write([]byte("0.02"))
-		assert.NoError(t, err)
-	}))
+			_, err := w.Write([]byte("0.02"))
+			assert.NoError(t, err)
+		}),
+	)
 
-	microserviceUserAccountBalance := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		time.Sleep(time.Millisecond * time.Duration(rand.Intn(100)))
+	microserviceUserAccountBalance := httptest.NewServer(
+		http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			time.Sleep(time.Millisecond * time.Duration(rand.Intn(100)))
 
-		_, err := w.Write([]byte("500"))
-		w.WriteHeader(http.StatusInternalServerError)
-		assert.NoError(t, err)
-	}))
+			_, err := w.Write([]byte("500"))
+			w.WriteHeader(http.StatusInternalServerError)
+			assert.NoError(t, err)
+		}),
+	)
 
 	tests := []struct {
 		name     string
@@ -148,7 +152,12 @@ func TestAllHTTPRequestsShouldBeOKOtherwiseReturnError(t *testing.T) {
 			name: "Both requests OK",
 			assertFn: func(barrier *barrier, bodyDepositCh, bodyBalanceCh chan []byte, errDepositCh, errBalanceCh chan error) {
 				go makeRequest(microserviceDepositRate.URL, barrier, bodyDepositCh, errDepositCh)
-				go makeRequest(microserviceUserAccountBalance.URL, barrier, bodyBalanceCh, errBalanceCh)
+				go makeRequest(
+					microserviceUserAccountBalance.URL,
+					barrier,
+					bodyBalanceCh,
+					errBalanceCh,
+				)
 
 				require.NoError(t, <-errDepositCh)
 				require.NoError(t, <-errBalanceCh)
@@ -164,8 +173,18 @@ func TestAllHTTPRequestsShouldBeOKOtherwiseReturnError(t *testing.T) {
 		{
 			name: "One request failed",
 			assertFn: func(barrier *barrier, bodyDepositCh, bodyBalanceCh chan []byte, errDepositCh, errBalanceCh chan error) {
-				go makeRequest("microserviceDepositRate.bad.url", barrier, bodyDepositCh, errDepositCh)
-				go makeRequest(microserviceUserAccountBalance.URL, barrier, bodyBalanceCh, errBalanceCh)
+				go makeRequest(
+					"microserviceDepositRate.bad.url",
+					barrier,
+					bodyDepositCh,
+					errDepositCh,
+				)
+				go makeRequest(
+					microserviceUserAccountBalance.URL,
+					barrier,
+					bodyBalanceCh,
+					errBalanceCh,
+				)
 
 				require.Error(t, <-errDepositCh)
 				require.NoError(t, <-errBalanceCh)
@@ -177,7 +196,13 @@ func TestAllHTTPRequestsShouldBeOKOtherwiseReturnError(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			tt.assertFn(newBarrier(2), make(chan []byte), make(chan []byte), make(chan error), make(chan error))
+			tt.assertFn(
+				newBarrier(2),
+				make(chan []byte),
+				make(chan []byte),
+				make(chan error),
+				make(chan error),
+			)
 		})
 	}
 }

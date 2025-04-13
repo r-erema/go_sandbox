@@ -151,13 +151,15 @@ func fetch(url string) (result, error) {
 func TestFetch(t *testing.T) {
 	t.Parallel()
 
-	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) {
-		time.Sleep(time.Millisecond * 100)
+	server := httptest.NewServer(
+		http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) {
+			time.Sleep(time.Millisecond * 100)
 
-		_, err := writer.Write([]byte("fetched data"))
-		assert.NoError(t, err)
-		writer.WriteHeader(http.StatusOK)
-	}))
+			_, err := writer.Write([]byte("fetched data"))
+			assert.NoError(t, err)
+			writer.WriteHeader(http.StatusOK)
+		}),
+	)
 
 	f := newFutureFetch(func() (result, error) {
 		return fetch(server.URL)
