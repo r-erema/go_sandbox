@@ -3,6 +3,7 @@ package test
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -78,7 +79,11 @@ func PrepareKubeConfigContext(
 ) {
 	t.Helper()
 
-	_, err := os.OpenFile(kubeConfigPath, os.O_WRONLY|os.O_CREATE, permissions) //nolint: nosnakecase
+	_, err := os.OpenFile(
+		filepath.Clean(kubeConfigPath),
+		os.O_WRONLY|os.O_CREATE,
+		permissions,
+	) //nolint: nosnakecase
 	require.NoError(t, err)
 
 	kubeConfigFlag := "--kubeconfig=" + kubeConfigPath
@@ -114,24 +119,28 @@ func PrepareKubeConfigContext(
 	})
 	require.NoError(t, err)
 
-	err = RunKubectlCommand(DefaultConfigFlags(), []string{"config", "use-context", clusterContext, kubeConfigFlag})
+	err = RunKubectlCommand(
+		DefaultConfigFlags(),
+		[]string{"config", "use-context", clusterContext, kubeConfigFlag},
+	)
 	require.NoError(t, err)
 }
 
-func CreateKindCluster(t *testing.T, name string) (deleteClusterFn func()) {
+func CreateKindCluster(t *testing.T, name string) func() {
 	t.Helper()
 
 	kindCmd := kind.NewCommand(kindcmd.NewLogger(), kindcmd.StandardIOStreams())
 	kindCmd.SetArgs([]string{
 		"create",
 		"cluster",
-		fmt.Sprintf("--image=kindest/node:%s", kindK8SVersion),
-		fmt.Sprintf("--name=%s", name),
+		"--image=kindest/node:" + kindK8SVersion,
+		"--name=" + name,
 	})
+
 	err := kindCmd.Execute()
 	require.NoError(t, err)
 
-	deleteClusterFn = func() {
+	deleteClusterFn := func() {
 		DeleteKindCluster(t, name)
 	}
 
@@ -139,8 +148,10 @@ func CreateKindCluster(t *testing.T, name string) (deleteClusterFn func()) {
 }
 
 func DeleteKindCluster(t *testing.T, name string) {
+	t.Helper()
+
 	kindCmd := kind.NewCommand(kindcmd.NewLogger(), kindcmd.StandardIOStreams())
-	kindCmd.SetArgs([]string{"delete", "cluster", fmt.Sprintf("--name=%s", name)})
+	kindCmd.SetArgs([]string{"delete", "cluster", "--name=" + name})
 	err := kindCmd.Execute()
 	require.NoError(t, err)
 }

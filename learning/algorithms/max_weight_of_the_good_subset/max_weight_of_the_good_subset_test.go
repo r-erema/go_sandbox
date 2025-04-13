@@ -61,8 +61,8 @@ func TestMaxWeight(t *testing.T) {
 	}
 }
 
-// Time O(N^2 * log(N)), since we have a nested loop(we need search an appropriate sum pair for each biggest number in iteration)
-// and also we have sorting
+// Time O(N^2 * log(N)), since we have a nested loop
+// (we need search an appropriate sum pair for each biggest number in iteration) and also we have sorting
 // Space O(1), since we don't use any additional space.
 func maxWeight(arr []int) int {
 	if len(arr) == 1 {

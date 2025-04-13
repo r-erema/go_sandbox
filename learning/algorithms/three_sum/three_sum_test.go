@@ -47,11 +47,13 @@ func threeSum(nums []int) [][]int { //nolint:cyclop
 
 		for left < right {
 			sum := nums[i] + nums[left] + nums[right]
-			if sum > 0 {
+
+			switch {
+			case sum > 0:
 				right--
-			} else if sum < 0 {
+			case sum < 0:
 				left++
-			} else {
+			default:
 				res = append(res, []int{nums[i], nums[left], nums[right]})
 				left++
 				right--

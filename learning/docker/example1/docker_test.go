@@ -1,7 +1,6 @@
 package example1_test
 
 import (
-	"context"
 	"testing"
 
 	"github.com/docker/docker/client"
@@ -15,7 +14,7 @@ func Test_docker(t *testing.T) {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	require.NoError(t, err)
 
-	ping, err := cli.Ping(context.Background())
+	ping, err := cli.Ping(t.Context())
 	require.NoError(t, err)
 	assert.NotNil(t, ping)
 }

@@ -35,9 +35,12 @@ func TestPermute(t *testing.T) {
 	}
 }
 
-// Time O(n * n!), the total number of permutations generated is n!, since we're generating all possible permutations of nums,
+// Time O(n * n!), the total number of permutations generated is n!,
+// since we're generating all possible permutations of nums,
 // additionally, creating the newSet is O(n) per permutation (due to the copy operation)
-// Space O(n * n!), the output contains n! permutations, each of length n. Thus, the output itself occupies O(n * n!) space.
+//
+// Space O(n * n!), the output contains n! permutations, each of length n.
+// Thus, the output itself occupies O(n * n!) space.
 func permute(nums []int) [][]int {
 	res := [][]int{{}}
 

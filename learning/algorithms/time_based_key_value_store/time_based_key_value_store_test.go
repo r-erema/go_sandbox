@@ -38,7 +38,10 @@ func (tm *TimeMap) Set(key, value string, timestamp int) {
 		tm.timeSeriesMap[key] = make([]timestampValue, 0)
 	}
 
-	tm.timeSeriesMap[key] = append(tm.timeSeriesMap[key], timestampValue{value: value, timestamp: timestamp})
+	tm.timeSeriesMap[key] = append(
+		tm.timeSeriesMap[key],
+		timestampValue{value: value, timestamp: timestamp},
+	)
 }
 
 func (tm *TimeMap) Get(key string, timestamp int) string {

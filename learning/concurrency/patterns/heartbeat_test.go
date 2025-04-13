@@ -48,7 +48,10 @@ func TestHeartbeat(t *testing.T) {
 	assert.Positive(t, resultsCount)
 }
 
-func doWork(done <-chan struct{}, pulseInterval time.Duration) (heartbeat chan struct{}, results chan string) { //nolint:nonamedreturns
+//nolint:nonamedreturns
+func doWork(done <-chan struct{}, pulseInterval time.Duration) (
+	heartbeat chan struct{}, results chan string,
+) {
 	heartbeat = make(chan struct{})
 	results = make(chan string)
 	pulse := time.Tick(pulseInterval)

@@ -28,9 +28,9 @@ func TestForkExec(t *testing.T) {
 		require.NoError(t, err)
 
 		_, _, errno = syscall.Syscall(syscall.SYS_EXECVE,
-			uintptr(unsafe.Pointer(bin)),
-			uintptr(unsafe.Pointer(&args[0])),
-			uintptr(unsafe.Pointer(&env[0])),
+			uintptr(unsafe.Pointer(bin)),      //nolint:gosec
+			uintptr(unsafe.Pointer(&args[0])), //nolint:gosec
+			uintptr(unsafe.Pointer(&env[0])),  //nolint:gosec
 		)
 		require.Equal(t, 0, int(errno))
 	}

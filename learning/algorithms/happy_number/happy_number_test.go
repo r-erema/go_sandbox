@@ -35,7 +35,8 @@ func TestHappyNumber(t *testing.T) {
 	}
 }
 
-// Time O(log(n)) where n is the input number, as the sequence of transformations will be at most O(log n) before repeating or reaching 1
+// Time O(log(n)) where n is the input number, as the sequence of transformations will be at most O(log n)
+// before repeating or reaching 1
 // Space O(n), since we use map.
 func isHappy(n int) bool {
 	nums := make(map[int]struct{})
