@@ -3,38 +3,34 @@ package heap_test
 import (
 	"testing"
 
+	"github.com/r-erema/go_sendbox/utils/data_structure/tree"
 	"github.com/stretchr/testify/assert"
 )
 
-type TreeNode struct {
-	Val         int
-	Left, Right *TreeNode
-}
-
-func testHeap() *TreeNode {
-	return &TreeNode{
+func testHeap() *tree.Node {
+	return &tree.Node{
 		Val: 14,
-		Left: &TreeNode{
+		Left: &tree.Node{
 			Val: 19,
-			Left: &TreeNode{
+			Left: &tree.Node{
 				Val: 21,
-				Left: &TreeNode{
+				Left: &tree.Node{
 					Val: 65,
 				},
-				Right: &TreeNode{
+				Right: &tree.Node{
 					Val: 30,
 				},
 			},
-			Right: &TreeNode{
+			Right: &tree.Node{
 				Val: 26,
 			},
 		},
-		Right: &TreeNode{
+		Right: &tree.Node{
 			Val: 16,
-			Left: &TreeNode{
+			Left: &tree.Node{
 				Val: 19,
 			},
-			Right: &TreeNode{
+			Right: &tree.Node{
 				Val: 68,
 			},
 		},
@@ -54,64 +50,65 @@ func TestHeapToArrayAndArrayToHeap(t *testing.T) {
 func TestPushToHeap(t *testing.T) {
 	t.Parallel()
 
-	expectedHeap := &TreeNode{
+	expectedHeap := &tree.Node{
 		Val: 14,
-		Left: &TreeNode{
+		Left: &tree.Node{
 			Val: 17,
-			Left: &TreeNode{
+			Left: &tree.Node{
 				Val: 21,
-				Left: &TreeNode{
+				Left: &tree.Node{
 					Val: 65,
 				},
-				Right: &TreeNode{
+				Right: &tree.Node{
 					Val: 30,
 				},
 			},
-			Right: &TreeNode{
+			Right: &tree.Node{
 				Val: 19,
-				Left: &TreeNode{
+				Left: &tree.Node{
 					Val: 26,
 				},
 			},
 		},
-		Right: &TreeNode{
+		Right: &tree.Node{
 			Val: 16,
-			Left: &TreeNode{
+			Left: &tree.Node{
 				Val: 19,
 			},
-			Right: &TreeNode{
+			Right: &tree.Node{
 				Val: 68,
 			},
 		},
 	}
 
-	resultHeap := push(testHeap(), 17)
-	assert.Equal(t, expectedHeap, resultHeap)
+	heap := testHeap()
+	push(heap, 17)
+	assert.Equal(t, expectedHeap, heap)
 }
 
 func TestPopHeap(t *testing.T) {
 	t.Parallel()
 
-	expectedHeap := &TreeNode{
+	expectedHeap := &tree.Node{
 		Val: 16,
-		Left: &TreeNode{
+		Left: &tree.Node{
 			Val: 19,
-			Left: &TreeNode{
+			Left: &tree.Node{
 				Val: 21,
-				Left: &TreeNode{
+				Left: &tree.Node{
 					Val: 65,
 				},
 			},
-			Right: &TreeNode{
+			Right: &tree.Node{
 				Val: 26,
 			},
 		},
-		Right: &TreeNode{
+		Right: &tree.Node{
 			Val: 19,
-			Left: &TreeNode{
+			Left: &tree.Node{
 				Val: 30,
 			},
-			Right: &TreeNode{
+			Right: &tree.Node{
 				Val: 68,
 			},
 		},
@@ -126,57 +123,57 @@ func TestPopHeap(t *testing.T) {
 func TestHeapify(t *testing.T) {
 	t.Parallel()
 
-	sourceHeap := &TreeNode{
+	sourceHeap := &tree.Node{
 		Val: 50,
-		Left: &TreeNode{
+		Left: &tree.Node{
 			Val: 80,
-			Left: &TreeNode{
+			Left: &tree.Node{
 				Val: 30,
-				Left: &TreeNode{
+				Left: &tree.Node{
 					Val: 90,
 				},
-				Right: &TreeNode{
+				Right: &tree.Node{
 					Val: 60,
 				},
 			},
-			Right: &TreeNode{
+			Right: &tree.Node{
 				Val: 10,
 			},
 		},
-		Right: &TreeNode{
+		Right: &tree.Node{
 			Val: 40,
-			Left: &TreeNode{
+			Left: &tree.Node{
 				Val: 70,
 			},
-			Right: &TreeNode{
+			Right: &tree.Node{
 				Val: 20,
 			},
 		},
 	}
 
-	expectedHeap := &TreeNode{
+	expectedHeap := &tree.Node{
 		Val: 10,
-		Left: &TreeNode{
+		Left: &tree.Node{
 			Val: 30,
-			Left: &TreeNode{
+			Left: &tree.Node{
 				Val: 50,
-				Left: &TreeNode{
+				Left: &tree.Node{
 					Val: 90,
 				},
-				Right: &TreeNode{
+				Right: &tree.Node{
 					Val: 60,
 				},
 			},
-			Right: &TreeNode{
+			Right: &tree.Node{
 				Val: 80,
 			},
 		},
-		Right: &TreeNode{
+		Right: &tree.Node{
 			Val: 20,
-			Left: &TreeNode{
+			Left: &tree.Node{
 				Val: 70,
 			},
-			Right: &TreeNode{
+			Right: &tree.Node{
 				Val: 40,
 			},
 		},
@@ -189,95 +186,80 @@ func TestHeapify(t *testing.T) {
 // Time O(log(N)), the number of operations required depends only on the number of levels
 // the new element must rise to satisfy the heap property
 // Space O(N), since we need an array containing elements from input heap.
-func push(heap *TreeNode, val int) *TreeNode {
-	arrHeap := leadingZeroArray(treeToArray(heap))
+func push(heap *tree.Node, val int) /**tree.Node */ {
+	arrHeap := treeToArray(heap)
 
 	arrHeap = append(arrHeap, val)
 	i := len(arrHeap) - 1
 
-	for arrHeap[i] < arrHeap[i/2] {
-		arrHeap[i], arrHeap[i/2] = arrHeap[i/2], arrHeap[i]
-		i /= 2
-	}
+	percolateUp(i, arrHeap)
 
-	return arrayToTree(arrHeap[1:])
+	*heap = *arrayToTree(arrHeap)
 }
 
 // Time O(log(N)), the new root has to be swapped with its child on each level
 // until it reaches the bottom level of the heap
 // Space O(N), since we need an array containing elements from input heap.
-func pop(heap *TreeNode) int {
-	arrHeap := leadingZeroArray(treeToArray(heap))
+func pop(heapTree *tree.Node) int {
+	heap := treeToArray(heapTree)
+	heapPtr := &heap
 
-	res := arrHeap[1]
-	arrHeap[1], arrHeap = arrHeap[len(arrHeap)-1], arrHeap[:len(arrHeap)-1]
-	i := 1
+	res := heap[0]
+	heap[0], *heapPtr = heap[len(heap)-1], heap[:len(heap)-1]
 
-	percolateDown(i, arrHeap)
+	percolateDown(0, heap)
 
-	*heap = *arrayToTree(arrHeap[1:])
+	*heapTree = *arrayToTree(heap)
 
 	return res
 }
 
 // Time O(N), since it iterates through the elements from the bottom level upwards,
-// potentially sifting down elements multiple times to maintain the heap property
+// potentially shifting down elements multiple times to maintain the heap property
 // Space O(N), since we need an array containing elements from input tree.
-func heapify(tree *TreeNode) {
-	arrTree := leadingZeroArray(treeToArray(tree))
+func heapify(tree *tree.Node) {
+	arrTree := treeToArray(tree)
 
-	cur := (len(arrTree) - 1) / 2
-
-	for cur > 0 {
-		i := cur
+	for i := (len(arrTree) - 2) / 2; i >= 0; i-- {
 		percolateDown(i, arrTree)
-
-		cur--
 	}
 
-	*tree = *arrayToTree(arrTree[1:])
+	*tree = *arrayToTree(arrTree)
 }
 
-func percolateDown(i int, arr []int) {
-	leftChildExists := func() bool {
-		return 2*i < len(arr)
+func percolateUp(i int, heap []int) {
+	for heap[i] < heap[(i-1)/2] {
+		heap[(i-1)/2], heap[i] = heap[i], heap[(i-1)/2]
+		i = (i - 1) / 2
+	}
+}
+
+func percolateDown(i int, heap []int) {
+	if len(heap) == 2 && heap[0] > heap[1] {
+		heap[0], heap[1] = heap[1], heap[0]
+
+		return
 	}
 
-	rightChildExists := func() bool {
-		return 2*i+1 < len(arr)
-	}
+	for i*2+1 < len(heap) && (heap[i] > heap[i*2+1] || heap[i] > heap[i*2+2]) {
+		leftChildGreaterRightChild := heap[i*2+1] > heap[i*2+2]
 
-	rightChildLessThanLeftChild := func() bool {
-		return arr[2*i+1] < arr[2*i]
-	}
+		if leftChildGreaterRightChild {
+			heap[i], heap[i*2+2] = heap[i*2+2], heap[i]
+			i = i*2 + 2
 
-	parentGreaterThanRightChild := func() bool {
-		return arr[i] > arr[2*i+1]
-	}
-
-	parentGreaterThanLeftChild := func() bool {
-		return arr[i] > arr[2*i]
-	}
-
-loop:
-	for leftChildExists() {
-		switch {
-		case rightChildExists() && rightChildLessThanLeftChild() && parentGreaterThanRightChild():
-			arr[i], arr[2*i+1] = arr[2*i+1], arr[i]
-			i = 2*i + 1
-		case parentGreaterThanLeftChild():
-			arr[i], arr[2*i] = arr[2*i], arr[i]
-			i *= 2
-		default:
-			break loop
+			continue
 		}
+
+		heap[i], heap[i*2+1] = heap[i*2+1], heap[i]
+		i = i*2 + 1
 	}
 }
 
-func treeToArray(heap *TreeNode) []int {
+func treeToArray(heap *tree.Node) []int {
 	var arr []int
 
-	queue := []*TreeNode{heap}
+	queue := []*tree.Node{heap}
 
 	for len(queue) > 0 {
 		heap, queue = queue[0], queue[1:]
@@ -295,33 +277,22 @@ func treeToArray(heap *TreeNode) []int {
 	return arr
 }
 
-func arrayToTree(arr []int) *TreeNode {
-	arr = leadingZeroArray(arr)
-
-	var helper func(node *TreeNode, i int)
-	helper = func(node *TreeNode, i int) {
-		if i*2 < len(arr) {
-			node.Left = &TreeNode{Val: arr[i*2]}
-			helper(node.Left, i*2)
+func arrayToTree(arr []int) *tree.Node {
+	var helper func(node *tree.Node, i int)
+	helper = func(node *tree.Node, i int) {
+		if i*2+1 < len(arr) {
+			node.Left = &tree.Node{Val: arr[i*2+1]}
+			helper(node.Left, i*2+1)
 		}
 
-		if i*2+1 < len(arr) {
-			node.Right = &TreeNode{Val: arr[i*2+1]}
-			helper(node.Right, i*2+1)
+		if i*2+2 < len(arr) {
+			node.Right = &tree.Node{Val: arr[i*2+2]}
+			helper(node.Right, i*2+2)
 		}
 	}
 
-	heap := &TreeNode{Val: arr[1]}
-	helper(heap, 1)
+	heap := &tree.Node{Val: arr[0]}
+	helper(heap, 0)
 
 	return heap
-}
-
-func leadingZeroArray(arr []int) []int {
-	updatedArr := make([]int, len(arr)+1)
-	for i := range arr {
-		updatedArr[i+1] = arr[i]
-	}
-
-	return updatedArr
 }
