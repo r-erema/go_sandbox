@@ -241,7 +241,7 @@ func percolateDown(i int, heap []int) {
 		return
 	}
 
-	for i*2+1 < len(heap) && (heap[i] > heap[i*2+1] || heap[i] > heap[i*2+2]) {
+	for i*2+2 < len(heap) && (heap[i] > heap[i*2+1] || heap[i] > heap[i*2+2]) {
 		leftChildGreaterRightChild := heap[i*2+1] > heap[i*2+2]
 
 		if leftChildGreaterRightChild {
