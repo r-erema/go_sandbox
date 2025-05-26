@@ -41,8 +41,8 @@ func TestLengthOfLongestSubstring(t *testing.T) {
 		},
 		{
 			name:  "some repeated chars are next to each other in the middle and some in the start and in the end",
-			input: "uqinntq",
-			want:  4,
+			input: "qrsvbspk",
+			want:  5,
 		},
 	}
 

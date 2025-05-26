@@ -65,7 +65,7 @@ func encodedClientHelloMsg() []byte {
 		0x0, 0x23,
 		0x0, 0x0,
 
-		// Extension - Encrypt-Then-MAC
+		// Extension - encrypt-Then-MAC
 		0x0, 0x16,
 		0x0, 0x0,
 
@@ -171,7 +171,7 @@ func TestDecodeClientHello(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Len(t, helloMsg.cipherSuites, 1)
-	assert.Equal(t, tlsAes128GcmSha256(), helloMsg.cipherSuites[0])
+	assert.Equal(t, tlsAes256GcmSha384(), helloMsg.cipherSuites[0])
 
 	assert.Len(t, helloMsg.entriesList, 1)
 	assert.Equal(t, "test.host", string(helloMsg.extensionServerName.entriesList[0].host))
@@ -208,7 +208,7 @@ func TestEncodeServerHello(t *testing.T) {
 	encoded, err := encodeServerHello(
 		key,
 		[32]byte([]byte("some_secret_32_bytes_12345678910")),
-		tlsAes128GcmSha256(),
+		tlsAes256GcmSha384(),
 	)
 	require.NoError(t, err)
 	assert.Equal(t, encodedServerHelloMsg(), encoded)
@@ -221,7 +221,7 @@ func TestDecodeServerHello(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Len(t, helloMsg.cipherSuites, 1)
-	assert.Equal(t, tlsAes128GcmSha256(), helloMsg.cipherSuites[0])
+	assert.Equal(t, tlsAes256GcmSha384(), helloMsg.cipherSuites[0])
 
 	assert.Len(t, helloMsg.versions, 1)
 	assert.Equal(t, tls13(), helloMsg.versions[0])

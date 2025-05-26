@@ -11,7 +11,7 @@ func encodeServerHello(key publicKey, secret [32]byte, clientCipher cipherSuite)
 	helloMessage := []byte{
 		// Record header
 		0x16,       // type is 0x16 (handshake record)
-		0x03, 0x04, // protocol version is "3.4" (also known as TLS 1.3)
+		0x03, 0x03, // protocol version is "3.4" (also known as TLS 1.3)
 	}
 
 	var handshakeHeader []byte
@@ -21,7 +21,7 @@ func encodeServerHello(key publicKey, secret [32]byte, clientCipher cipherSuite)
 
 	handshakeData := []byte{
 		// Server Version
-		0x03, 0x04, // protocol version is "3.4" (also known as TLS 1.3)
+		0x03, 0x03, // protocol version is "3.4" (also known as TLS 1.3)
 	}
 
 	// Server random

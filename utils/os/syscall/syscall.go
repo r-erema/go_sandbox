@@ -11,8 +11,6 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-const defaultBufferSize = 4096
-
 func SocketFD(domain, sockType int) (int, error) {
 	switch domain {
 	case unix.AF_INET:
@@ -103,11 +101,11 @@ func Accept(socketFD int) (int, error) {
 	return int(fd), nil
 }
 
-func Read(fd int) ([]byte, error) {
-	buf := make([]byte, defaultBufferSize)
+func Read(fd int, size int) ([]byte, error) {
+	buf := make([]byte, size)
 	bufStartPtr := unsafe.Pointer(&buf[0]) //nolint:gosec
 
-	_, _, errno := unix.Syscall(unix.SYS_READ, uintptr(fd), uintptr(bufStartPtr), defaultBufferSize)
+	_, _, errno := unix.Syscall(unix.SYS_READ, uintptr(fd), uintptr(bufStartPtr), uintptr(size))
 	if errno != 0 {
 		return nil, fmt.Errorf("syscall SYS_READ error for FD %d: %w", fd, errno)
 	}

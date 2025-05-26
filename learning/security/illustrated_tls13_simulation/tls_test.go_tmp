@@ -1,0 +1,359 @@
+package illustrated_tls13_simulation
+
+import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/sha512"
+	"encoding/binary"
+	"encoding/hex"
+	"encoding/pem"
+	"fmt"
+	"net"
+	"testing"
+
+	"github.com/spf13/cast"
+	"github.com/stretchr/testify/require"
+	"golang.org/x/crypto/cryptobyte"
+	"golang.org/x/crypto/curve25519"
+	"golang.org/x/crypto/hkdf"
+)
+
+const (
+	x25519ResultExpected          = "df4a291baa1eb7cfa6934b29b474baad2697e29f1f920dcc77c8a0a088447624"
+	sha384HelloHashExpected       = "e05f64fcd082bdb0dce473adf669c2769f257a1c75a51b7887468b5e0e7a7de4f4d34555112077f16e079019d5a845bd"
+	earlySecretExpected           = "7ee8206f5570023e6dc7519eb1073bc4e791ad37b5c382aa10ba18e2357e716971f9362f2c2fe2a76bfd78dfec4ea9b5"
+	emptyHashExpected             = "38b060a751ac96384cd9327eb1b1e36a21fdb71114be07434c0cc7bf63f6e1da274edebfe76f65fbd51ad2f14898b95b"
+	derivedSecretExpected         = "1591dac5cbbf0330a4a84de9c753330e92d01f0a88214b4464972fd668049e93e52f2b16fad922fdc0584478428f282b"
+	handshakeSecretExpected       = "bdbbe8757494bef20de932598294ea65b5e6bf6dc5c02a960a2de2eaa9b07c929078d2caa0936231c38d1725f179d299"
+	clientSecretExpected          = "db89d2d6df0e84fed74a2288f8fd4d0959f790ff23946cdf4c26d85e51bebd42ae184501972f8d30c4a3e4a3693d0ef0"
+	serverSecretExpected          = "23323da031634b241dd37d61032b62a4f450584d1f7f47983ba2f7cc0cdcc39a68f481f2b019f9403a3051908a5d1622"
+	clientHandshakeKeyExpected    = "1135b4826a9a70257e5a391ad93093dfd7c4214812f493b3e3daae1eb2b1ac69"
+	clientHandshakeIVExpected     = "4256d2e0e88babdd05eb2f27"
+	serverHandshakeKeyExpected    = "9f13575ce3f8cfc1df64a77ceaffe89700b492ad31b4fab01c4792be1b266b7f"
+	serverHandshakeIVExpected     = "9563bc8b590f671f488d2da3"
+	encodedExtensionsDataExpected = "17030300176be02f9da7c2dc9ddef56f2468b90adfa25101ab0344ae"
+)
+
+func TestTLS13(t *testing.T) {
+	listener, err := net.Listen("tcp", "localhost:8338")
+	require.NoError(t, err)
+
+	done := make(chan struct{})
+
+	server := func() {
+		conn, err := listener.Accept()
+		require.NoError(t, err)
+
+		buf := make([]byte, 1024)
+
+		// client hello read
+		n, err := conn.Read(buf)
+		require.NoError(t, err)
+
+		clientHelloRaw := buf[:n]
+
+		privateKeyData := serverPrivateKey()
+		publicKeyData := clientPublicKey()
+		require.Equal(t, publicKeyData, clientHelloRaw[221:])
+
+		sharedSecret, err := curve25519.X25519(privateKeyData, publicKeyData)
+		require.NoError(t, err)
+		require.Equal(t, x25519ResultExpected, hex.EncodeToString(sharedSecret))
+
+		serverHelloRaw := serverHelloRawData()
+
+		handshakeMessages, err := binary.Append(clientHelloRaw[5:], binary.BigEndian, serverHelloRaw[5:])
+		require.NoError(t, err)
+
+		helloHash := sha512.Sum384(handshakeMessages)
+		require.Equal(t, sha384HelloHashExpected, hex.EncodeToString(helloHash[:]))
+
+		earlySecret := hkdf.Extract(sha512.New384, make([]byte, 48), make([]byte, 48))
+		require.Equal(t, earlySecretExpected, hex.EncodeToString(earlySecret))
+
+		emptyHash := sha512.Sum384(nil)
+		require.Equal(t, emptyHashExpected, hex.EncodeToString(emptyHash[:]))
+
+		derivedSecret, err := hkdfExpandLabel(earlySecret, "derived", emptyHash[:], 48)
+		require.NoError(t, err)
+		require.Equal(t, derivedSecretExpected, hex.EncodeToString(derivedSecret))
+
+		handshakeSecret := hkdf.Extract(sha512.New384, sharedSecret, derivedSecret)
+		require.Equal(t, handshakeSecretExpected, hex.EncodeToString(handshakeSecret))
+
+		serverSecret, err := hkdfExpandLabel(handshakeSecret, "s hs traffic", helloHash[:], 48)
+		require.NoError(t, err)
+		require.Equal(t, serverSecretExpected, hex.EncodeToString(serverSecret))
+
+		serverHandshakeKey, err := hkdfExpandLabel(serverSecret, "key", []byte{}, 32)
+		require.NoError(t, err)
+		require.Equal(t, serverHandshakeKeyExpected, hex.EncodeToString(serverHandshakeKey))
+
+		serverHandshakeIV, err := hkdfExpandLabel(serverSecret, "iv", []byte{}, 12)
+		require.NoError(t, err)
+		require.Equal(t, serverHandshakeIVExpected, hex.EncodeToString(serverHandshakeIV))
+
+		// server hello write
+		n, err = conn.Write(serverHelloRaw)
+		require.NoError(t, err)
+
+		extensionsData := []byte{0x08, 0x00, 0x00, 0x02, 0x00, 0x00, 0x16}
+		encodedExtensionsData, err := encrypt(serverHandshakeKey, serverHandshakeIV, extensionsData)
+		require.NoError(t, err)
+		require.Equal(t, encodedExtensionsDataExpected, hex.EncodeToString(encodedExtensionsData))
+	}
+
+	client := func() {
+		conn, err := net.Dial("tcp", listener.Addr().String())
+		require.NoError(t, err)
+
+		buf := make([]byte, 1024)
+
+		clientHelloRaw := clientHelloRawData()
+
+		// client hello write
+		_, err = conn.Write(clientHelloRaw)
+		require.NoError(t, err)
+
+		// server hello read
+		n, err := conn.Read(buf)
+		require.NoError(t, err)
+
+		serverHelloRaw := buf[:n]
+
+		privateKeyData := clientPrivateKey()
+		publicKeyData := serverPublicKey()
+		require.Equal(t, publicKeyData, serverHelloRaw[95:])
+
+		sharedSecret, err := curve25519.X25519(privateKeyData, publicKeyData)
+		require.NoError(t, err)
+		require.Equal(t, x25519ResultExpected, hex.EncodeToString(sharedSecret))
+
+		earlySecret := hkdf.Extract(sha512.New384, make([]byte, 48), make([]byte, 48))
+		require.Equal(t, earlySecretExpected, hex.EncodeToString(earlySecret))
+
+		emptyHash := sha512.Sum384(nil)
+		require.Equal(t, emptyHashExpected, hex.EncodeToString(emptyHash[:]))
+
+		derivedSecret, err := hkdfExpandLabel(earlySecret, "derived", emptyHash[:], 48)
+		require.NoError(t, err)
+		require.Equal(t, derivedSecretExpected, hex.EncodeToString(derivedSecret))
+
+		handshakeSecret := hkdf.Extract(sha512.New384, sharedSecret, derivedSecret)
+		require.Equal(t, handshakeSecretExpected, hex.EncodeToString(handshakeSecret))
+
+		handshakeMessages, err := binary.Append(clientHelloRaw[5:], binary.BigEndian, serverHelloRaw[5:])
+		require.NoError(t, err)
+
+		helloHash := sha512.Sum384(handshakeMessages)
+
+		clientSecret, err := hkdfExpandLabel(handshakeSecret, "c hs traffic", helloHash[:], 48)
+		require.NoError(t, err)
+		require.Equal(t, clientSecretExpected, hex.EncodeToString(clientSecret))
+
+		clientHandshakeKey, err := hkdfExpandLabel(clientSecret, "key", []byte{}, 32)
+		require.NoError(t, err)
+		require.Equal(t, clientHandshakeKeyExpected, hex.EncodeToString(clientHandshakeKey))
+
+		clientHandshakeIV, err := hkdfExpandLabel(clientSecret, "iv", []byte{}, 12)
+		require.NoError(t, err)
+		require.Equal(t, clientHandshakeIVExpected, hex.EncodeToString(clientHandshakeIV))
+	}
+
+	go server()
+	go client()
+
+	<-done
+}
+
+func encrypt(key, iv, plaintext []byte) ([]byte, error) {
+	plaintextLen, err := cast.ToUint16E(len(plaintext))
+	if err != nil {
+		return nil, fmt.Errorf("failed converting plaintext to uint16: %w", err)
+	}
+
+	additional := binary.BigEndian.AppendUint16([]byte{0x17, 0x03, 0x03}, plaintextLen+16)
+
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create AES cipher: %w", err)
+	}
+
+	aesGCM, err := cipher.NewGCM(block)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create GCM: %w", err)
+	}
+
+	ciphertext := aesGCM.Seal(nil, iv, plaintext, additional)
+
+	res, err := binary.Append(additional, binary.BigEndian, ciphertext)
+	if err != nil {
+		return nil, fmt.Errorf("failed to append ciphertext and additional: %w", err)
+	}
+
+	return res, nil
+}
+
+func hkdfExpandLabel(secret []byte, label string, transcriptHash []byte, hashLen uint16) ([]byte, error) {
+	var hkdfLabel cryptobyte.Builder
+
+	hkdfLabel.AddUint16(hashLen)
+	hkdfLabel.AddUint8LengthPrefixed(func(child *cryptobyte.Builder) {
+		child.AddBytes([]byte("tls13 "))
+		child.AddBytes([]byte(label))
+	})
+	hkdfLabel.AddUint8LengthPrefixed(func(child *cryptobyte.Builder) {
+		child.AddBytes(transcriptHash)
+	})
+
+	buf, err := hkdfLabel.Bytes()
+	if err != nil {
+		return nil, fmt.Errorf("failed to build bytes: %w", err)
+	}
+
+	reader := hkdf.Expand(sha512.New384, secret, buf)
+
+	buf = make([]byte, hashLen)
+
+	_, err = reader.Read(buf)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read expanded label bytes: %w", err)
+	}
+
+	return buf, nil
+}
+
+func clientHelloRawData() []byte {
+	return []byte{
+		// Record Header
+		0x16, 0x03, 0x01, 0x00, 0xf8,
+
+		// Handshake Header
+		0x01, 0x00, 0x00, 0xf4,
+
+		// Client Version
+		0x03, 0x03,
+
+		// Client Random
+		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10,
+		0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
+
+		// Session ID
+		0x20, 0xe0, 0xe1, 0xe2, 0xe3, 0xe4, 0xe5, 0xe6, 0xe7, 0xe8, 0xe9, 0xea, 0xeb, 0xec, 0xed, 0xee, 0xef, 0xf0, 0xf1,
+		0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8, 0xf9, 0xfa, 0xfb, 0xfc, 0xfd, 0xfe, 0xff,
+
+		// Cipher Suites
+		0x00, 0x08, 0x13, 0x02, 0x13, 0x03, 0x13, 0x01, 0x00, 0xff,
+
+		// Compression Methods
+		0x01, 0x00,
+
+		// Extensions Length
+		0x00, 0xa3,
+
+		// Extension - Server Name
+		0x00, 0x00, 0x00, 0x18, 0x00, 0x16, 0x00, 0x00, 0x13, 0x65, 0x78, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x2e, 0x75, 0x6c,
+		0x66, 0x68, 0x65, 0x69, 0x6d, 0x2e, 0x6e, 0x65, 0x74,
+
+		// Extension - EC Point Formats
+		0x00, 0x0b, 0x00, 0x04, 0x03, 0x00, 0x01, 0x02,
+
+		// Extension - Supported Groups
+		0x00, 0x0a, 0x00, 0x16, 0x00, 0x14, 0x00, 0x1d, 0x00, 0x17, 0x00, 0x1e, 0x00, 0x19, 0x00, 0x18, 0x01, 0x00, 0x01,
+		0x01, 0x01, 0x02, 0x01, 0x03, 0x01, 0x04,
+
+		// Extension - Session Ticket
+		0x00, 0x23, 0x00, 0x00,
+
+		// Extension - Encrypt-Then-MAC
+		0x00, 0x16, 0x00, 0x00,
+
+		// Extension - Extended Master Secret
+		0x00, 0x17, 0x00, 0x00,
+
+		// Extension - Signature Algorithms
+		0x00, 0x0d, 0x00, 0x1e, 0x00, 0x1c, 0x04, 0x03, 0x05, 0x03, 0x06, 0x03, 0x08, 0x07, 0x08, 0x08, 0x08, 0x09, 0x08,
+		0x0a, 0x08, 0x0b, 0x08, 0x04, 0x08, 0x05, 0x08, 0x06, 0x04, 0x01, 0x05, 0x01, 0x06, 0x01,
+
+		// Extension - Supported Versions
+		0x00, 0x2b, 0x00, 0x03, 0x02, 0x03, 0x04,
+
+		// Extension - PSK Key Exchange Modes
+		0x00, 0x2d, 0x00, 0x02, 0x01, 0x01,
+
+		// Extension - Key Share
+		0x00, 0x33, 0x00, 0x26, 0x00, 0x24, 0x00, 0x1d, 0x00, 0x20, 0x35, 0x80, 0x72, 0xd6, 0x36, 0x58, 0x80, 0xd1, 0xae,
+		0xea, 0x32, 0x9a, 0xdf, 0x91, 0x21, 0x38, 0x38, 0x51, 0xed, 0x21, 0xa2, 0x8e, 0x3b, 0x75, 0xe9, 0x65, 0xd0, 0xd2,
+		0xcd, 0x16, 0x62, 0x54,
+	}
+}
+
+func serverHelloRawData() []byte {
+	return []byte{
+		// Record Header
+		0x16, 0x03, 0x03, 0x00, 0x7a,
+
+		// Handshake Header
+		0x02, 0x00, 0x00, 0x76,
+
+		// Server Version
+		0x03, 0x03,
+
+		// Server Random
+		0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7a, 0x7b, 0x7c, 0x7d, 0x7e, 0x7f, 0x80, 0x81, 0x82,
+		0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f,
+
+		// Session ID
+		0x20, 0xe0, 0xe1, 0xe2, 0xe3, 0xe4, 0xe5, 0xe6, 0xe7, 0xe8, 0xe9, 0xea, 0xeb, 0xec, 0xed, 0xee, 0xef, 0xf0, 0xf1,
+		0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8, 0xf9, 0xfa, 0xfb, 0xfc, 0xfd, 0xfe, 0xff,
+
+		// Cipher Suite
+		0x13, 0x02,
+
+		// Compression Method
+		0x00,
+
+		// Extensions Length
+		0x00, 0x2e,
+
+		// Extension - Supported Versions
+		0x00, 0x2b, 0x00, 0x02, 0x03, 0x04,
+
+		// Extension - Key Share
+		0x00, 0x33, 0x00, 0x24, 0x00, 0x1d, 0x00, 0x20, 0x9f, 0xd7, 0xad, 0x6d, 0xcf, 0xf4, 0x29, 0x8d, 0xd3, 0xf9, 0x6d,
+		0x5b, 0x1b, 0x2a, 0xf9, 0x10, 0xa0, 0x53, 0x5b, 0x14, 0x88, 0xd7, 0xf8, 0xfa, 0xbb, 0x34, 0x9a, 0x98, 0x28, 0x80,
+		0xb6, 0x15,
+	}
+}
+
+func serverPrivateKey() []byte {
+	block, _ := pem.Decode([]byte(`-----BEGIN PRIVATE KEY-----
+MC4CAQAwBQYDK2VuBCIEIJCRkpOUlZaXmJmam5ydnp+goaKjpKWmp6ipqqusra6v
+-----END PRIVATE KEY-----`))
+
+	return block.Bytes[len(block.Bytes)-32:]
+}
+
+func serverPublicKey() []byte {
+	block, _ := pem.Decode([]byte(`-----BEGIN PUBLIC KEY-----
+MCowBQYDK2VuAyEAn9etbc/0KY3T+W1bGyr5EKBTWxSI1/j6uzSamCiAthU=
+-----END PUBLIC KEY-----`))
+
+	return block.Bytes[len(block.Bytes)-32:]
+}
+
+func clientPrivateKey() []byte {
+	block, _ := pem.Decode([]byte(`-----BEGIN PRIVATE KEY-----
+MC4CAQAwBQYDK2VuBCIEICAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4/
+-----END PRIVATE KEY-----`))
+
+	return block.Bytes[len(block.Bytes)-32:]
+}
+
+func clientPublicKey() []byte {
+	block, _ := pem.Decode([]byte(`-----BEGIN PUBLIC KEY-----
+MCowBQYDK2VuAyEANYBy1jZYgNGu6jKa35EhODhR7SGijjt16WXQ0s0WYlQ=
+-----END PUBLIC KEY-----`))
+
+	return block.Bytes[len(block.Bytes)-32:]
+}
