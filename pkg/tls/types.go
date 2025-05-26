@@ -14,6 +14,11 @@ type (
 		payload       [32]byte
 		exchangeGroup supportedKeyExchangeGroup
 	}
+
+	ClientApplicationKey []byte
+	ClientApplicationIV  []byte
+	ServerApplicationKey []byte
+	ServerApplicationIV  []byte
 )
 
 func clientType() messageType {
@@ -24,8 +29,8 @@ func serverType() messageType {
 	return messageType{0x02}
 }
 
-func tlsAes128GcmSha256() cipherSuite {
-	return cipherSuite{0x13, 0x01}
+func tlsAes256GcmSha384() cipherSuite {
+	return cipherSuite{0x13, 0x02}
 }
 
 func x25519() supportedKeyExchangeGroup {

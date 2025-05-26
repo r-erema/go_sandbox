@@ -11,7 +11,7 @@ func encodeClientHello(hostNames []string, keys []publicKey, secret [32]byte) ([
 	helloMessage := []byte{
 		// Record header
 		0x16,       // type is 0x16 (handshake record)
-		0x03, 0x04, // protocol version is "3.4" (also known as TLS 1.3)
+		0x03, 0x03, // protocol version is "3.4" (also known as TLS 1.3)
 	}
 
 	var handshakeHeader []byte
@@ -21,7 +21,7 @@ func encodeClientHello(hostNames []string, keys []publicKey, secret [32]byte) ([
 
 	handshakeData := []byte{
 		// Client Version
-		0x03, 0x04, // protocol version is "3.4" (also known as TLS 1.3)
+		0x03, 0x03, // protocol version is "3.4" (also known as TLS 1.3)
 	}
 
 	// Client random
@@ -35,7 +35,8 @@ func encodeClientHello(hostNames []string, keys []publicKey, secret [32]byte) ([
 		0x00, 0x02,
 	}...)
 
-	cipher := tlsAes128GcmSha256()
+	cipher := tlsAes256GcmSha384()
+	// cipher := tlsAes128GcmSha256()
 	handshakeData = append(handshakeData, cipher[:]...)
 	handshakeData = append(handshakeData, []byte{
 		// Compression Methods

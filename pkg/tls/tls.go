@@ -7,11 +7,21 @@ import (
 )
 
 const (
-	secretLength    = 32
-	publicKeyLength = 32
+	secretLength = 32
+	keyLength    = 32
+	sha384Length = 48
+	ivLength     = 12
+
+	headerLength              = 5
+	payloadStartIndexInHeader = 3
+	authTagLength             = 16
 
 	bytesCountForShortDataLength = 1
 	bytesCountForLongDataLength  = 2
+
+	messageTypeCipherSpec  = 0x14
+	messageTypeHandshake   = 0x16
+	messageTypeApplication = 0x17
 )
 
 type hello struct {
