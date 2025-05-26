@@ -402,8 +402,8 @@ func decodeClientKeyShareExtension(extensionPayload cryptobyte.String) extension
 		key.exchangeGroup = supportedKeyExchangeGroup(buf)
 
 		keys.ReadUint16LengthPrefixed(&keys)
-		keys.ReadBytes(&buf, publicKeyLength)
-		key.payload = [publicKeyLength]byte(buf)
+		keys.ReadBytes(&buf, keyLength)
+		key.payload = [keyLength]byte(buf)
 
 		ext.publicKeys = append(ext.publicKeys, key)
 	}
@@ -422,7 +422,7 @@ func decodeServerKeyShareExtension(extensionPayload cryptobyte.String) extension
 	key.exchangeGroup = supportedKeyExchangeGroup(buf)
 
 	extensionPayload.ReadUint16LengthPrefixed(&extensionPayload)
-	key.payload = [publicKeyLength]byte(extensionPayload)
+	key.payload = [keyLength]byte(extensionPayload)
 
 	ext.publicKeys = append(ext.publicKeys, key)
 
