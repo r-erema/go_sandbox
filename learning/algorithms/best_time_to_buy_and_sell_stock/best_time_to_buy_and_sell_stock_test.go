@@ -33,17 +33,11 @@ func TestBestTimeToBuyAndSellStock(t *testing.T) {
 // Time O(n), since we should iterate all the input
 // Space O(1), sine we don't allocate any additional memory.
 func maxProfit(prices []int) int {
-	buyIndex, sellIndex := 0, 0
-	profit := 0
+	profit, currPrice := 0, prices[0]
 
-	for sellIndex < len(prices) {
-		if prices[buyIndex] > prices[sellIndex] {
-			buyIndex = sellIndex
-		}
-
-		profit = max(profit, prices[sellIndex]-prices[buyIndex])
-
-		sellIndex++
+	for i := range prices {
+		currPrice = min(currPrice, prices[i])
+		profit = max(profit, prices[i]-currPrice)
 	}
 
 	return profit
