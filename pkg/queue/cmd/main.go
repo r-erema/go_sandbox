@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"syscall"
 
-	"github.com/r-erema/go_sendbox/utils/os/queue"
+	"github.com/r-erema/go_sendbox/pkg/queue"
 )
 
 func main() {

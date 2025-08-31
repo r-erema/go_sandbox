@@ -5,8 +5,8 @@ import (
 	"net"
 	"slices"
 
+	"github.com/r-erema/go_sendbox/pkg/syscall"
 	"github.com/r-erema/go_sendbox/pkg/tls"
-	"github.com/r-erema/go_sendbox/utils/os/syscall"
 	"golang.org/x/sys/unix"
 )
 

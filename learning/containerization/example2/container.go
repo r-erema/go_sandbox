@@ -12,7 +12,7 @@ import (
 	"syscall"
 
 	"github.com/r-erema/go_sendbox/utils"
-	utilsNet "github.com/r-erema/go_sendbox/utils/os/net"
+	utilsNet "github.com/r-erema/go_sendbox/utils/net"
 	"golang.org/x/sys/unix"
 	"k8s.io/apimachinery/pkg/util/json"
 )

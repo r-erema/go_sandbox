@@ -338,7 +338,7 @@ func limitMemoryByCgroup(runCommandInContainer runCommandInContainerFn) asserFn 
 func prepareHelpers(t *testing.T, containerRootPath string) {
 	t.Helper()
 
-	posixQueueBinaryPath, err := filepath.Abs("../../../utils/os/queue/cmd/posix-queue")
+	posixQueueBinaryPath, err := filepath.Abs("../../../pkg/queue/cmd/posix-queue")
 	require.NoError(t, err)
 
 	memoryEaterBinaryPath, err := filepath.Abs("../../../utils/misc/memory_eater/memory-eater")

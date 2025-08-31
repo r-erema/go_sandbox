@@ -8,7 +8,7 @@ import (
 	"encoding/binary"
 	"fmt"
 
-	"github.com/r-erema/go_sendbox/utils/os/syscall"
+	"github.com/r-erema/go_sendbox/pkg/syscall"
 	"github.com/spf13/cast"
 	"golang.org/x/crypto/cryptobyte"
 	"golang.org/x/crypto/curve25519"
