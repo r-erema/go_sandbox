@@ -4,7 +4,7 @@ import (
 	"syscall"
 	"testing"
 
-	"github.com/r-erema/go_sendbox/utils/os/queue"
+	"github.com/r-erema/go_sendbox/pkg/queue"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

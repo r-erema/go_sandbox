@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/r-erema/go_sendbox/utils/os/syscall"
+	"github.com/r-erema/go_sendbox/pkg/syscall"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/sys/unix"
 )
