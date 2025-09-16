@@ -1,7 +1,6 @@
 package syscall
 
 import (
-	"bytes"
 	"fmt"
 	"net"
 	"os"
@@ -110,7 +109,7 @@ func Read(fd int, size int) ([]byte, error) {
 		return nil, fmt.Errorf("syscall SYS_READ error for FD %d: %w", fd, errno)
 	}
 
-	return bytes.Trim(buf, "\x00"), nil
+	return buf, nil
 }
 
 func ReadFromFileFD(fd int) (string, error) {
