@@ -1,3 +1,4 @@
+//nolint:gosec // disable G204
 package net
 
 import (
@@ -8,6 +9,8 @@ import (
 
 	"k8s.io/apimachinery/pkg/util/json"
 )
+
+const maxIPPacketLength = 65535
 
 type IPAddr struct {
 	Ifindex   int      `json:"ifindex"`
@@ -80,8 +83,12 @@ func IsIPAddrAlreadyInUse(ip string) (bool, error) {
 	return false, nil
 }
 
-func SetupLoopBackInterface() (*net.Interface, error) {
+func SetupLoopBackInterface(namespace *string) (*net.Interface, error) {
 	cmd := exec.Command("ip", "link", "set", "dev", "lo", "up")
+
+	if namespace != nil {
+		cmd = exec.Command("ip", "netns", "exec", *namespace, "ip", "link", "set", "dev", "lo", "up")
+	}
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
@@ -96,20 +103,55 @@ func SetupLoopBackInterface() (*net.Interface, error) {
 	return lo, nil
 }
 
-func SetupVeth(vethName, vethIP, peerName, peerNSName string) (*net.Interface, error) {
+func CreateNS(nsName string) error {
+	if out, err := exec.Command("ip", "netns", "add", nsName).CombinedOutput(); err != nil {
+		return fmt.Errorf("creating netns %s error: %w %s", nsName, err, out)
+	}
+
+	if _, err := SetupLoopBackInterface(&nsName); err != nil {
+		return fmt.Errorf("setting up loopback interface error: %w", err)
+	}
+
+	return nil
+}
+
+func DeleteNS(nsName string) error {
+	if out, err := exec.Command("ip", "netns", "delete", nsName).CombinedOutput(); err != nil {
+		return fmt.Errorf("deleting netns %s error: %w %s", nsName, err, out)
+	}
+
+	return nil
+}
+
+func SetupVeth(vethName, vethCIDR, peerVethName, peerAddr, peerNSName string) (*net.Interface, error) {
 	if out, err := exec.Command(
 		"ip", "link", "add", vethName, "type", "veth",
-		"peer", "name", peerName, "netns", peerNSName).
+		"peer", "name", peerVethName, "netns", peerNSName).
 		CombinedOutput(); err != nil {
-		return nil, fmt.Errorf("adding veth `%s - %s` error: %w %s", vethName, peerName, err, out)
+		return nil, fmt.Errorf("adding veth `%s - %s` error: %w %s", vethName, peerVethName, err, out)
+	}
+
+	if out, err := exec.Command("ip", "addr", "add", vethCIDR, "dev", vethName).CombinedOutput(); err != nil {
+		return nil, fmt.Errorf("adding IP address to veth `%s` error: %w %s", vethName, err, out)
 	}
 
 	if out, err := exec.Command("ip", "link", "set", "dev", vethName, "up").CombinedOutput(); err != nil {
 		return nil, fmt.Errorf("enabling link `%s` error: %w %s", vethName, err, out)
 	}
 
-	if out, err := exec.Command("ip", "addr", "add", vethIP, "dev", vethName).CombinedOutput(); err != nil {
-		return nil, fmt.Errorf("adding IP address to veth `%s` error: %w %s", vethName, err, out)
+	if out, err := exec.Command("ip", "netns", "exec", peerNSName, "ip", "addr", "add", peerAddr, "dev",
+		peerVethName).CombinedOutput(); err != nil {
+		return nil, fmt.Errorf("adding IP address to veth `%s` error: %w %s", peerVethName, err, out)
+	}
+
+	if out, err := exec.Command("ip", "netns", "exec", peerNSName, "ip", "link", "set", "dev",
+		peerVethName, "up").CombinedOutput(); err != nil {
+		return nil, fmt.Errorf("enabling link `%s` error: %w %s", peerVethName, err, out)
+	}
+
+	if out, err := exec.Command("ip", "netns", "exec", peerNSName, "ip", "link", "set", "dev",
+		peerVethName, "up").CombinedOutput(); err != nil {
+		return nil, fmt.Errorf("enabling link `%s` error: %w %s", peerVethName, err, out)
 	}
 
 	veth, err := net.InterfaceByName(vethName)
