@@ -282,6 +282,7 @@ func setupNetworkOnHost(containerPID uintptr) error {
 		hostEthName,
 		HostIP,
 		containerEthName,
+		"10.0.0.4/8",
 		strconv.Itoa(int(containerPID)),
 	)
 	if err != nil {
@@ -297,7 +298,7 @@ func setupNetworkOnHost(containerPID uintptr) error {
 }
 
 func setupNetworkInContainer() error {
-	_, err := utilsNet.SetupLoopBackInterface()
+	_, err := utilsNet.SetupLoopBackInterface(nil)
 	if err != nil {
 		return fmt.Errorf("loopback interface setup error: %w", err)
 	}

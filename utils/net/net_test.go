@@ -16,7 +16,7 @@ func TestAddVeth(t *testing.T) {
 		require.NoError(t, err)
 	})
 
-	veth, err := net.SetupVeth("test_veth", "10.0.0.1/16", "test_peer", "testNS1")
+	veth, err := net.SetupVeth("test_veth", "10.0.0.10/16", "test_peer", "10.0.0.20/16", "testNS1")
 	require.NoError(t, err)
 
 	assert.Equal(t, "test_veth", veth.Name)
