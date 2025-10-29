@@ -120,6 +120,14 @@ func SetupVeth(vethName, vethIP, peerName, peerNSName string) (*net.Interface, e
 	return veth, nil
 }
 
+func SetupTun(name string, cidrs []string) (*net.Interface, error) {
+	return nil, nil
+}
+
+func RemoveTun(name string) error {
+	return nil
+}
+
 func SetupBridge(name, ipAddr string) error {
 	foundBridge, err := net.InterfaceByName(name)
 	if err != nil && err.Error() != "route ip+net: no such network interface" {
