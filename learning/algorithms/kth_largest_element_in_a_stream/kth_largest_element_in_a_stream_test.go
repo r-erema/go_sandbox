@@ -44,7 +44,7 @@ type kthLargest struct {
 	minHeap *IntHeap
 }
 
-func constructor(k int, nums []int) kthLargest { //nolint: varnamelen
+func constructor(k int, nums []int) kthLargest {
 	minHeap := IntHeap(nums)
 	heap.Init(&minHeap)
 
