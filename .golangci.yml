@@ -33,6 +33,7 @@ linters:
         - fd
       ignore-decls:
         - i int
+        - k int
         - m int
         - n int
         - wg sync.WaitGroup

@@ -52,7 +52,7 @@ func TestTopKFrequent(t *testing.T) {
 //
 // Memory O(n)
 // We have a hash table that contains a number of rows equal to the input.
-func topKFrequent(words []string, k int) []string { //nolint: varnamelen
+func topKFrequent(words []string, k int) []string {
 	wordsCount := make(map[string]int)
 
 	var keys []string
