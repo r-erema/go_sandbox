@@ -10,9 +10,10 @@ func TestBFS(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name           string
-		edges          [][]int
-		vertices, want []int
+		name       string
+		edges      [][]int
+		startIndex int
+		want       []int
 	}{
 		{
 			name: "8 nodes graph",
@@ -27,8 +28,8 @@ func TestBFS(t *testing.T) {
 				7: {4},
 				8: {1},
 			},
-			vertices: []int{0, 0, 0, 0, 0, 0, 0, 0, 0},
-			want:     []int{1, 1, 1, 1, 1, 1, 1, 1, 1},
+			startIndex: 4,
+			want:       []int{1, 1, 1, 1, 1, 1, 1, 1, 1},
 		},
 		{
 			name: "2 unconnected graphs",
@@ -40,8 +41,8 @@ func TestBFS(t *testing.T) {
 				4: {3, 5},
 				5: {3, 4},
 			},
-			vertices: []int{0, 0, 0, 0, 0, 0},
-			want:     []int{1, 1, 1, 0, 0, 0},
+			startIndex: 1,
+			want:       []int{1, 1, 1, 0, 0, 0},
 		},
 	}
 
@@ -49,8 +50,10 @@ func TestBFS(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			bfs(0, tt.edges, tt.vertices)
-			assert.Equal(t, tt.want, tt.vertices)
+			vertices := make([]int, len(tt.edges))
+
+			bfs(tt.startIndex, tt.edges, vertices)
+			assert.Equal(t, tt.want, vertices)
 		})
 	}
 }
